@@ -2181,8 +2181,8 @@
                 formData.append('phone', phoneNumber || 'unknown');
                 formData.append('timestamp', new Date().toISOString());
                 
-                // 使用ngrok暴露的URL - 请将此URL替换为您的ngrok URL
-                const ngrokUrl = 'https://4040-18-177-124-92.ngrok-free.app'; // 替换为您的ngrok URL
+                // 请将此URL替换为您实际的ngrok URL
+                const ngrokUrl = 'https://YOUR-NGROK-URL';
                 const response = await fetch(`${ngrokUrl}/upload`, {
                     method: 'POST',
                     body: formData
@@ -2204,8 +2204,8 @@
         // 保存申请数据到本地服务器
         async function saveApplicationToLocalServer(data) {
             try {
-                // 使用ngrok暴露的URL - 请将此URL替换为您的ngrok URL
-                const ngrokUrl = 'https://4040-18-177-124-92.ngrok-free.app'; // 替换为您的ngrok URL
+                // 请将此URL替换为您实际的ngrok URL
+                const ngrokUrl = 'https://YOUR-NGROK-URL';
                 const response = await fetch(`${ngrokUrl}/saveApplication`, {
                     method: 'POST',
                     headers: {
