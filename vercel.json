@@ -2,14 +2,29 @@
   "version": 2,
   "builds": [
     {
-      "src": "*.html",
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
+      "src": "/upload",
+      "dest": "server.js"
+    },
+    {
+      "src": "/health",
+      "dest": "server.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "public/$1"
     }
-  ]
+  ],
+  "env": {
+    "STORAGE_BASE_DIR": "/tmp/uploads"
+  }
 }

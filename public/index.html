@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .upload-container {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        #file-input {
+            display: none;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        #file-list {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .file-item {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #eee;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px 8px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #4CAF50;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件上传测试</h1>
+    
+    <div class="upload-container">
+        <p>点击下方按钮选择文件，或将文件拖放到这里</p>
+        <input type="file" id="file-input" multiple>
+        <button class="btn" id="select-btn">选择文件</button>
+        <div id="file-list"></div>
+        <div class="progress-bar-container" style="display: none;">
+            <div class="progress-bar" id="progress-bar">0%</div>
+        </div>
+    </div>
+    
+    <div style="text-align: center;">
+        <button class="btn" id="upload-btn" disabled>上传文件</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('file-input');
+            const selectBtn = document.getElementById('select-btn');
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileList = document.getElementById('file-list');
+            const result = document.getElementById('result');
+            const uploadContainer = document.querySelector('.upload-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressBarContainer = document.querySelector('.progress-bar-container');
+            
+            const selectedFiles = new Set();
+            
+            // 选择文件按钮点击事件
+            selectBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // 文件选择变化事件
+            fileInput.addEventListener('change', handleFileSelection);
+            
+            // 拖拽事件
+            uploadContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadContainer.style.borderColor = '#4CAF50';
+                uploadContainer.style.backgroundColor = '#f0fff0';
+            });
+            
+            uploadContainer.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadContainer.style.borderColor = '#ccc';
+                uploadContainer.style.backgroundColor = '#f9f9f9';
+            });
+            
+            uploadContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadContainer.style.borderColor = '#ccc';
+                uploadContainer.style.backgroundColor = '#f9f9f9';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        addFileToList(files[i]);
+                    }
+                    updateUploadButton();
+                }
+            });
+            
+            // 上传按钮点击事件
+            uploadBtn.addEventListener('click', uploadFiles);
+            
+            // 处理文件选择
+            function handleFileSelection(e) {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        addFileToList(files[i]);
+                    }
+                    updateUploadButton();
+                }
+                fileInput.value = ''; // 重置文件输入
+            }
+            
+            // 添加文件到列表
+            function addFileToList(file) {
+                // 检查文件是否已存在
+                if (Array.from(selectedFiles).some(f => f.name === file.name && f.size === file.size)) {
+                    return;
+                }
+                
+                selectedFiles.add(file);
+                
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileName = document.createElement('span');
+                fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
+                
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-btn';
+                removeButton.textContent = '删除';
+                removeButton.addEventListener('click', () => {
+                    selectedFiles.delete(file);
+                    fileList.removeChild(fileItem);
+                    updateUploadButton();
+                });
+                
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(removeButton);
+                fileList.appendChild(fileItem);
+            }
+            
+            // 更新上传按钮状态
+            function updateUploadButton() {
+                uploadBtn.disabled = selectedFiles.size === 0;
+            }
+            
+            // 格式化文件大小
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // 上传文件
+            function uploadFiles() {
+                if (selectedFiles.size === 0) return;
+                
+                const formData = new FormData();
+                selectedFiles.forEach(file => {
+                    formData.append('files', file);
+                });
+                
+                // 显示进度条
+                progressBarContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                progressBar.textContent = '0%';
+                
+                const xhr = new XMLHttpRequest();
+                
+                // 进度监听
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBar.style.width = percentComplete + '%';
+                        progressBar.textContent = percentComplete + '%';
+                    }
+                });
+                
+                xhr.open('POST', '/upload', true);
+                
+                xhr.onload = function() {
+                    progressBarContainer.style.display = 'none';
+                    result.style.display = 'block';
+                    
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            result.className = 'success';
+                            result.innerHTML = `<strong>上传成功!</strong><br>上传了 ${response.files.length} 个文件。`;
+                            
+                            // 清空文件列表
+                            fileList.innerHTML = '';
+                            selectedFiles.clear();
+                            updateUploadButton();
+                        } catch (e) {
+                            result.className = 'error';
+                            result.textContent = '解析响应失败';
+                        }
+                    } else {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            result.className = 'error';
+                            result.textContent = `上传失败: ${response.message}`;
+                        } catch (e) {
+                            result.className = 'error';
+                            result.textContent = `上传失败: ${xhr.status} ${xhr.statusText}`;
+                        }
+                    }
+                };
+                
+                xhr.onerror = function() {
+                    progressBarContainer.style.display = 'none';
+                    result.style.display = 'block';
+                    result.className = 'error';
+                    result.textContent = '网络错误，上传失败';
+                };
+                
+                xhr.send(formData);
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,18 @@
+{
+  "name": "file-upload-server",
+  "version": "1.0.0",
+  "description": "按国家和用户分类存储上传文件的服务器",
+  "main": "upload-server.js",
+  "scripts": {
+    "start": "node upload-server.js",
+    "dev": "nodemon upload-server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "multer": "^1.4.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+} 
