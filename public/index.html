@@ -21,6 +21,8 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            overflow-y: auto; /* 确保页面可以垂直滚动 */
+            -webkit-overflow-scrolling: touch; /* 增强iOS设备上的滚动体验 */
         }
 
         .container {
@@ -31,6 +33,7 @@
             max-width: 500px;
             padding: 40px;
             position: relative;
+            margin: 20px 0; /* 添加上下边距 */
         }
 
         .language-selector {
@@ -426,6 +429,8 @@
             z-index: 1000;
             padding: 20px;
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .modal-content {
@@ -438,6 +443,8 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: slideIn 0.5s ease;
             position: relative;
+            max-height: 85vh; /* 限制模态框高度 */
+            overflow-y: auto; /* 确保模态框内容可滚动 */
         }
 
         /* 弹窗语言选择器样式 */
@@ -607,6 +614,15 @@
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
+                max-height: none; /* 移除最大高度限制 */
+                overflow-y: visible; /* 确保内容可见 */
+            }
+
+            body {
+                display: block; /* 在移动端改为块级布局，避免flex布局导致的滚动问题 */
+                padding: 10px;
+                height: auto;
+                min-height: 100vh;
             }
 
             h1 {
@@ -619,6 +635,8 @@
 
             .modal-content {
                 padding: 30px 20px;
+                max-height: 85vh; /* 限制模态框高度 */
+                overflow-y: auto; /* 确保模态框内容可滚动 */
             }
 
             .modal-title {
@@ -725,6 +743,21 @@
             .modal-title {
                 margin-top: 10px;
                 font-size: 20px;
+            }
+            
+            /* 移动端表单高度优化 */
+            .form-section {
+                max-height: none;
+                overflow-y: visible;
+            }
+            
+            /* 确保上传容器在小屏幕上正常显示 */
+            .upload-container {
+                padding: 20px 10px;
+            }
+            
+            .upload-container.has-image img.upload-preview {
+                max-height: 200px;
             }
         }
 
@@ -863,6 +896,46 @@
             .language-button img {
                 width: 18px;
                 height: 18px;
+            }
+        }
+
+        /* 添加滚动优化 */
+        html, body {
+            -webkit-overflow-scrolling: touch;
+            overflow-x: hidden;
+        }
+        
+        .modal-overlay {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 移动端模态框优化 */
+        @media (max-width: 480px) {
+            .modal-overlay {
+                padding: 10px;
+                align-items: flex-start;
+            }
+            
+            .modal-content {
+                margin-top: 20px;
+                margin-bottom: 20px;
+                width: calc(100% - 20px);
+                max-height: calc(100vh - 40px);
+                overflow-y: auto;
+            }
+        }
+
+        /* 优化主体布局，确保可滚动 */
+        @media screen and (max-height: 700px) {
+            body {
+                align-items: flex-start;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            .container {
+                margin: 10px 0;
             }
         }
     </style>
