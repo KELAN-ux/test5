@@ -4,10 +4,15 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const app = express();
+const axios = require('axios');
+const FormData = require('form-data');
+const os = require('os');
 
 // 环境变量配置
 const PORT = process.env.PORT || 3000;
-const STORAGE_BASE_DIR = process.env.STORAGE_BASE_DIR || 'D:\\LiaoZi\\Indonesia';
+const LOCAL_TEMP_DIR = process.env.LOCAL_TEMP_DIR || path.join(os.tmpdir(), 'uploads');
+const VPS_API_URL = process.env.VPS_API_URL || 'http://your-vps-ip:3001/api/upload';
+const VPS_API_KEY = process.env.VPS_API_KEY || 'your-secret-api-key-change-this';
 
 // 中间件配置
 app.use(cors());
@@ -21,48 +26,17 @@ app.use((req, res, next) => {
     next();
 });
 
-// 创建文件存储配置
+// 确保临时目录存在
+if (!fs.existsSync(LOCAL_TEMP_DIR)) {
+    fs.mkdirSync(LOCAL_TEMP_DIR, { recursive: true });
+}
+
+// 创建临时文件存储配置
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        try {
-            // 生成日期格式 YYYYMMDD
-            const date = new Date();
-            const dateStr = date.getFullYear().toString() +
-                (date.getMonth() + 1).toString().padStart(2, '0') +
-                date.getDate().toString().padStart(2, '0');
-            
-            // 确保基础目录存在
-            if (!fs.existsSync(STORAGE_BASE_DIR)) {
-                fs.mkdirSync(STORAGE_BASE_DIR, { recursive: true });
-            }
-            
-            // 日期目录
-            const dateDir = path.join(STORAGE_BASE_DIR, dateStr);
-            if (!fs.existsSync(dateDir)) {
-                fs.mkdirSync(dateDir);
-            }
-            
-            // 获取当前日期目录下的所有文件夹
-            const folders = fs.readdirSync(dateDir)
-                .filter(f => fs.statSync(path.join(dateDir, f)).isDirectory())
-                .map(f => parseInt(f.replace('visitor_', '')))
-                .filter(n => !isNaN(n));
-            
-            // 计算新的访客编号
-            const visitorNum = folders.length > 0 ? Math.max(...folders) + 1 : 1;
-            const visitorDir = path.join(dateDir, `visitor_${visitorNum.toString().padStart(3, '0')}`);
-            
-            // 创建访客目录
-            fs.mkdirSync(visitorDir);
-            
-            cb(null, visitorDir);
-        } catch (error) {
-            console.error('存储目录创建失败:', error);
-            cb(error);
-        }
+        cb(null, LOCAL_TEMP_DIR);
     },
     filename: function (req, file, cb) {
-        // 保持原始文件名，添加时间戳避免重名
         const timestamp = Date.now();
         const ext = path.extname(file.originalname);
         const name = path.basename(file.originalname, ext);
@@ -91,9 +65,23 @@ const upload = multer({
     }
 });
 
-// 处理文件上传
+// 生成日期和访客ID
+const generateDateAndVisitorId = () => {
+    // 生成日期格式 YYYYMMDD
+    const date = new Date();
+    const dateStr = date.getFullYear().toString() +
+        (date.getMonth() + 1).toString().padStart(2, '0') +
+        date.getDate().toString().padStart(2, '0');
+
+    // 为简单起见，使用时间戳的后6位作为访客ID
+    const visitorId = Date.now().toString().slice(-6).padStart(3, '0');
+    
+    return { dateStr, visitorId };
+};
+
+// 处理文件上传并转发到VPS
 app.post('/upload', (req, res) => {
-    upload.array('files')(req, res, (err) => {
+    upload.array('files')(req, res, async (err) => {
         if (err) {
             if (err instanceof multer.MulterError) {
                 // Multer 错误处理
@@ -117,16 +105,58 @@ app.post('/upload', (req, res) => {
                 error: err.message
             });
         }
-        
-        // 成功处理
-        res.json({
-            success: true,
-            message: '文件上传成功',
-            files: req.files.map(file => ({
-                filename: file.filename,
-                path: file.path
-            }))
-        });
+
+        try {
+            // 生成日期和访客ID
+            const { dateStr, visitorId } = generateDateAndVisitorId();
+
+            // 创建FormData对象将文件转发到VPS
+            const formData = new FormData();
+            formData.append('dateStr', dateStr);
+            formData.append('visitorId', visitorId);
+
+            // 添加所有文件到formData
+            req.files.forEach(file => {
+                formData.append('files', fs.createReadStream(file.path), file.originalname);
+            });
+
+            // 发送到VPS服务器
+            const response = await axios.post(VPS_API_URL, formData, {
+                headers: {
+                    ...formData.getHeaders(),
+                    'Authorization': `Bearer ${VPS_API_KEY}`
+                },
+                maxBodyLength: Infinity,
+                maxContentLength: Infinity
+            });
+
+            // 删除临时文件
+            req.files.forEach(file => {
+                fs.unlink(file.path, (err) => {
+                    if (err) console.error('临时文件删除失败:', file.path, err);
+                });
+            });
+
+            // 返回VPS服务器的响应
+            return res.status(response.status).json(response.data);
+        } catch (error) {
+            console.error('VPS文件上传失败:', error);
+            
+            // 删除临时文件
+            if (req.files) {
+                req.files.forEach(file => {
+                    fs.unlink(file.path, (err) => {
+                        if (err) console.error('临时文件删除失败:', file.path, err);
+                    });
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'VPS文件上传失败',
+                error: error.message
+            });
+        }
     });
 });
 
@@ -156,5 +186,6 @@ app.use((req, res) => {
 // 启动服务器
 app.listen(PORT, () => {
     console.log(`服务器已在端口 ${PORT} 上启动`);
-    console.log(`存储路径: ${STORAGE_BASE_DIR}`);
+    console.log(`临时文件存储路径: ${LOCAL_TEMP_DIR}`);
+    console.log(`VPS API URL: ${VPS_API_URL}`);
 }); 
