@@ -932,6 +932,168 @@
                 padding-bottom: env(safe-area-inset-bottom, 0);
             }
         }
+
+        /* 金额翻倍样式 */
+        .amount-display-container {
+            position: relative;
+            padding: 30px 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e0e0e0;
+        }
+        
+        .amount-display {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 8px;
+            transform: scale(1);
+            animation: pulsate 2s infinite;
+        }
+        
+        .doubled-amount-container {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 5px;
+        }
+        
+        .original-amount {
+            font-size: 18px;
+            color: #718096;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .doubled-badge {
+            background-color: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            animation: bounce 2s infinite;
+            transform-origin: center bottom;
+        }
+        
+        .double-arrow {
+            width: 20px;
+            height: 20px;
+            stroke: #48bb78;
+            margin-top: 6px;
+            animation: arrowAnim 2s infinite;
+        }
+        
+        @keyframes pulsate {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.03);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes arrowAnim {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(3px);
+            }
+        }
+        
+        .approval-notice {
+            background-color: #ebf8ff;
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            border: 1px solid #bee3f8;
+        }
+        
+        .approval-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #4299e1;
+        }
+        
+        .approval-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+        
+        .approval-notice p {
+            color: #2c5282;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 18px;
+            padding: 14px 20px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 最终确认弹窗样式 */
+        #finalConfirmationModal .modal-content {
+            max-width: 450px;
+            text-align: center;
+            padding: 40px 30px;
+        }
+        
+        #finalConfirmationModal .celebration-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .approval-message {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #4a5568;
+            line-height: 1.6;
+            padding: 15px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body>
@@ -1151,20 +1313,53 @@
         <div class="form-section" id="section3">
             <div class="form-group">
                 <label for="amount" data-i18n="amountLabel">Loan Amount (IDR)</label>
-                <div class="amount-input-container">
+                <div class="amount-display-container">
                     <div class="amount-display" id="amountDisplay">Rp 0</div>
-                    <span class="amount-toggle" onclick="toggleAmountVisibility()">
-                        <span id="visibilityIcon">👁️</span>
-                    </span>
+                    <div class="doubled-amount-container">
+                        <div class="doubled-badge" data-i18n="doubledAmount">Doubled!</div>
+                        <div class="original-amount" id="originalAmountDisplay">Rp 0</div>
+                        <svg class="double-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 7l5-5 5 5M7 17l5 5 5-5"/>
+                        </svg>
+                    </div>
                 </div>
-                <input type="text" id="amount" placeholder="Enter amount" oninput="formatAmount(event)">
-                <div class="error-message" id="amountError"></div>
-                <p style="font-size: 14px; color: #666; margin-top: 8px;" data-i18n="amountRange">Min: Rp 1,128,163 - Max: Rp 215,000,000</p>
+                <p style="font-size: 14px; color: #48bb78; margin-top: 15px; text-align: center; font-weight: bold;" data-i18n="congratsDoubled">Congratulations! Your loan amount has been doubled!</p>
+            </div>
+
+            <div class="form-group approval-notice">
+                <div class="approval-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <path d="M22 4L12 14.01l-3-3"></path>
+                    </svg>
+                </div>
+                <p data-i18n="manualReviewNotice">After submitting, your application will be reviewed by our team. A representative will contact you soon.</p>
             </div>
 
             <div class="button-group">
                 <button class="btn-secondary" onclick="goToStep(2)" data-i18n="back">Back</button>
-                <button class="btn-primary" onclick="submitApplication()" data-i18n="submit">Submit Application</button>
+                <button class="btn-primary submit-btn" onclick="showFinalConfirmation()" data-i18n="submitNow">Submit Application Now</button>
+            </div>
+        </div>
+
+        <!-- Final Confirmation Modal -->
+        <div id="finalConfirmationModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="celebration-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#667eea"/>
+                    </svg>
+                </div>
+                <h2 class="modal-title" data-i18n="congratsTitle">Congratulations!</h2>
+                <p class="modal-message">
+                    <span data-i18n="congratsDoubledMessage">Your loan amount has been doubled to</span>
+                    <span class="amount-highlight" id="doubledAmountFinal">Rp 2,256,326</span>
+                </p>
+                <p class="modal-message approval-message" data-i18n="approvalProcess">
+                    After submission, our team will review your application. 
+                    A representative will contact you shortly.
+                </p>
+                <button class="modal-button" onclick="submitApplication()" data-i18n="finalSubmit">Submit Application</button>
             </div>
         </div>
 
@@ -1372,7 +1567,14 @@
                 holdingIdCardExample: "Hold ID Card Clearly",
                 holdingIdCardFaceExample: "Face and ID Card Visible",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "Click to reupload"
+                clickToReupload: "Click to reupload",
+                doubledAmount: "Doubled!",
+                congratsDoubled: "Congratulations! Your loan amount has been doubled!",
+                manualReviewNotice: "After submitting, your application will be reviewed by our team. A representative will contact you soon.",
+                submitNow: "Submit Application Now",
+                congratsDoubledMessage: "Your loan amount has been doubled to",
+                approvalProcess: "After submission, our team will review your application. A representative will contact you shortly.",
+                finalSubmit: "Submit Application"
             },
             zh: {
                 title: "微额贷款申请",
@@ -1431,7 +1633,14 @@
                 holdingIdCardExample: "清晰持证",
                 holdingIdCardFaceExample: "人脸与身份证可见",
                 desktopNoFaceVerification: "电脑端不需要进行人脸验证。",
-                clickToReupload: "点击重新上传"
+                clickToReupload: "点击重新上传",
+                doubledAmount: "翻倍!",
+                congratsDoubled: "恭喜! 您的贷款金额已翻倍!",
+                manualReviewNotice: "提交后，我们的团队将审核您的申请。客服人员将很快联系您。",
+                submitNow: "立即提交申请",
+                congratsDoubledMessage: "您的贷款金额已翻倍至",
+                approvalProcess: "提交后，我们的团队将审核您的申请。客服专员将尽快与您联系。",
+                finalSubmit: "提交申请"
             },
             id: {
                 title: "Pengajuan Pinjaman Mikro",
@@ -1490,7 +1699,14 @@
                 holdingIdCardExample: "Pegang KTP dengan Jelas",
                 holdingIdCardFaceExample: "Wajah dan KTP Terlihat",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "Klik untuk unggah ulang"
+                clickToReupload: "Klik untuk unggah ulang",
+                doubledAmount: "Digandakan!",
+                congratsDoubled: "Selamat! Jumlah pinjaman Anda telah digandakan!",
+                manualReviewNotice: "Setelah mengirimkan, aplikasi Anda akan ditinjau oleh tim kami. Perwakilan akan menghubungi Anda segera.",
+                submitNow: "Kirim Aplikasi Sekarang",
+                congratsDoubledMessage: "Jumlah pinjaman Anda telah digandakan menjadi",
+                approvalProcess: "Setelah pengajuan, tim kami akan meninjau aplikasi Anda. Perwakilan akan segera menghubungi Anda.",
+                finalSubmit: "Kirim Aplikasi"
             },
             ms: {
                 title: "Permohonan Pinjaman Mikro",
@@ -1549,7 +1765,14 @@
                 holdingIdCardExample: "Pegang Kad Pengenalan dengan Jelas",
                 holdingIdCardFaceExample: "Wajah dan Kad Pengenalan Kelihatan",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "Klik untuk muat naik semula"
+                clickToReupload: "Klik untuk muat naik semula",
+                doubledAmount: "Digandakan!",
+                congratsDoubled: "Tahniah! Jumlah pinjaman anda telah digandakan!",
+                manualReviewNotice: "Selepas menghantar, permohonan anda akan disemak oleh pasukan kami. Wakil akan menghubungi anda tidak lama lagi.",
+                submitNow: "Hantar Permohonan Sekarang",
+                congratsDoubledMessage: "Jumlah pinjaman anda telah digandakan kepada",
+                approvalProcess: "Selepas penghantaran, pasukan kami akan mengkaji permohonan anda. Wakil akan menghubungi anda tidak lama lagi.",
+                finalSubmit: "Hantar Permohonan"
             },
             tl: {
                 title: "Aplikasyon ng Mikro-Pinagkamaynayon",
@@ -1608,7 +1831,14 @@
                 holdingIdCardExample: "Hawakan ang ID Card nang Malinaw",
                 holdingIdCardFaceExample: "Mukha at ID Card ay Nakikita",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "I-click upang mag-upload muli"
+                clickToReupload: "I-click upang mag-upload muli",
+                doubledAmount: "Nadoble!",
+                congratsDoubled: "Binabati kita! Ang iyong halaga ng pautang ay nadoble!",
+                manualReviewNotice: "Pagkatapos magsumite, susuriin ng aming koponan ang iyong aplikasyon. Makikipag-ugnay sa iyo ang isang kinatawan sa lalong madaling panahon.",
+                submitNow: "Isumite ang Aplikasyon Ngayon",
+                congratsDoubledMessage: "Ang iyong halaga ng pautang ay nadoble sa",
+                approvalProcess: "Pagkatapos magsumite, susuriin ng aming koponan ang iyong aplikasyon. Makikipag-ugnay sa iyo ang isang kinatawan sa lalong madaling panahon.",
+                finalSubmit: "Isumite ang Aplikasyon"
             },
             th: {
                 title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
@@ -1667,7 +1897,14 @@
                 holdingIdCardExample: "ถือบัตรประจำตัวให้ชัดเจน",
                 holdingIdCardFaceExample: "เห็นใบหน้าและบัตรประจำตัว",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "คลิกเพื่ออัปโหลดใหม่"
+                clickToReupload: "คลิกเพื่ออัปโหลดใหม่",
+                doubledAmount: "เพิ่มเป็นสองเท่า!",
+                congratsDoubled: "ยินดีด้วย! จำนวนเงินกู้ของคุณได้เพิ่มเป็นสองเท่า!",
+                manualReviewNotice: "หลังจากส่ง แอปพลิเคชันของคุณจะได้รับการตรวจสอบโดยทีมงานของเรา ตัวแทนจะติดต่อคุณเร็ว ๆ นี้",
+                submitNow: "ส่งใบสมัครตอนนี้",
+                congratsDoubledMessage: "จำนวนเงินกู้ของคุณได้เพิ่มเป็นสองเท่าเป็น",
+                approvalProcess: "หลังจากส่ง ทีมงานของเราจะตรวจสอบใบสมัครของคุณ ตัวแทนจะติดต่อคุณในไม่ช้า",
+                finalSubmit: "ส่งใบสมัคร"
             },
             vi: {
                 title: "Ứng dụng Vay vốn nhỏ",
@@ -1726,7 +1963,14 @@
                 holdingIdCardExample: "Cầm CMND Rõ ràng",
                 holdingIdCardFaceExample: "Nhìn thấy Khuôn mặt và CMND",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
-                clickToReupload: "Nhấp để tải lại"
+                clickToReupload: "Nhấp để tải lại",
+                doubledAmount: "Đã nhân đôi!",
+                congratsDoubled: "Xin chúc mừng! Số tiền vay của bạn đã được nhân đôi!",
+                manualReviewNotice: "Sau khi gửi, đơn của bạn sẽ được đội ngũ của chúng tôi xem xét. Nhân viên sẽ liên hệ với bạn sớm.",
+                submitNow: "Gửi Đơn Ngay",
+                congratsDoubledMessage: "Số tiền vay của bạn đã được nhân đôi thành",
+                approvalProcess: "Sau khi gửi, đội ngũ của chúng tôi sẽ xem xét đơn của bạn. Nhân viên sẽ liên hệ với bạn sớm.",
+                finalSubmit: "Gửi Đơn"
             }
         };
 
@@ -3614,6 +3858,124 @@
         window.addEventListener('DOMContentLoaded', function() {
             enhanceMobileInput();
         });
+
+        // 添加显示最终确认弹窗的函数
+        function showFinalConfirmation() {
+            // 显示弹窗
+            document.getElementById('finalConfirmationModal').style.display = 'flex';
+            
+            // 设置翻倍后的金额
+            const doubledAmount = loanAmountCNY.current * 2;
+            loanAmountCNY.current = doubledAmount; // 更新当前金额为翻倍后的金额
+            
+            // 更新最终弹窗中的金额显示
+            document.getElementById('doubledAmountFinal').textContent = getFormattedAmount(currentLang);
+        }
+        
+        // 修改页面跳转函数，当进入第3步时显示翻倍金额
+        const existingGoToStep = goToStep;
+        goToStep = function(step) {
+            // 保留原来的功能
+            if (typeof existingGoToStep === 'function') {
+                existingGoToStep(step);
+            } else {
+                // 如果existingGoToStep不是函数，执行原始代码
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                document.getElementById('section' + step).classList.add('active');
+                
+                // 如果是步骤2，根据设备类型决定是否显示人脸验证
+                if (step === 2) {
+                    if (isDesktop) {
+                        document.getElementById('faceVerificationGroup').style.display = 'none';
+                    } else {
+                        document.getElementById('faceVerificationGroup').style.display = 'block';
+                    }
+                }
+                
+                document.querySelectorAll('.progress-step').forEach((el, index) => {
+                    if (index < step) {
+                        el.classList.add('completed');
+                        el.classList.remove('active');
+                    } else if (index === step - 1) {
+                        el.classList.add('active');
+                        el.classList.remove('completed');
+                    } else {
+                        el.classList.remove('active', 'completed');
+                    }
+                });
+                
+                currentStep = step;
+                updateProgressBar();
+            }
+            
+            // 当进入第3步时，显示随机生成的金额和翻倍金额
+            if (step === 3) {
+                const originalAmount = loanAmountCNY.current;
+                const rate = exchangeRates[currentLang].rate;
+                
+                // 显示原始金额
+                const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
+                document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
+                
+                // 计算并显示翻倍后的金额
+                const doubledAmount = originalAmount * 2;
+                const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
+                document.getElementById('amountDisplay').textContent = doubledAmountFormatted;
+            }
+        };
+        
+        // 修改提交申请函数
+        async function submitApplication() {
+            try {
+                // 显示上传中状态
+                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = '上传中...';
+                
+                // 上传所有文件到服务器
+                await uploadFilesToServer();
+                
+                // 生成设备指纹
+                const deviceFingerprint = await generateDeviceFingerprint();
+                
+                // 准备申请数据
+                const applicationData = {
+                    phoneNumber: phoneNumber,
+                    amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
+                    timestamp: Date.now(),
+                    country: currentCountry,
+                    documents: {
+                        ktp: 'uploaded',
+                        holdingKtp: 'uploaded',
+                        selfie: isDesktop ? 'not_required' : 'uploaded'
+                    }
+                };
+                
+                // 加密数据
+                const encryptedData = await encryptData(applicationData, deviceFingerprint);
+                
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                
+                // 隐藏确认弹窗
+                document.getElementById('finalConfirmationModal').style.display = 'none';
+                
+                // 显示成功页面
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('successSection').classList.add('active');
+                
+            } catch (error) {
+                console.error('提交申请失败：', error);
+                alert('提交失败，请重试');
+            }
+        }
     </script>
 </body>
 </html>
