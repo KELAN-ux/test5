@@ -1094,6 +1094,202 @@
             background-color: #f7fafc;
             border-radius: 8px;
         }
+
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px auto 30px;
+            max-width: 400px;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .progress-step.active .step-number {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .progress-line {
+            flex-grow: 1;
+            height: 3px;
+            background-color: #e0e0e0;
+            margin: 0 15px;
+            position: relative;
+            top: -15px;
+        }
+        
+        .step-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .document-summary {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .summary-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .document-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .document-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e8f5e9;
+        }
+        
+        .document-thumbnail {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .document-detail {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .document-status {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .loan-amount-display {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loan-amount-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .loan-amount-label {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .loan-amount-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .currency-symbol {
+            font-size: 1.8rem;
+            margin-right: 5px;
+        }
+        
+        .amount-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .amount-control-btn {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .amount-control-btn:hover {
+            background-color: #c8e6c9;
+        }
+        
+        .double-icon {
+            font-weight: bold;
+        }
+        
+        .loan-info {
+            background-color: #f5f5f5;
+            border-radius: 6px;
+            padding: 10px 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -1173,172 +1369,155 @@
             </div>
         </div>
 
-        <div class="progress-container">
-            <div class="progress-line">
-                <div class="progress-line-fill" id="progressFill"></div>
+        <!-- 进度指示器部分 - 添加明确的步骤指示 -->
+        <div class="progress-container" id="progressIndicator">
+            <div class="progress-step" id="stepUpload">
+                <div class="step-number">1</div>
+                <div class="step-label" data-i18n="uploadDocsStepLabel">上传资料</div>
             </div>
-            <div class="progress-step active" id="step1">
-                <div class="progress-circle">1</div>
-                <div class="progress-label" data-i18n="step1">Phone</div>
-            </div>
-            <div class="progress-step" id="step2">
-                <div class="progress-circle">2</div>
-                <div class="progress-label" data-i18n="step2">Documents</div>
-            </div>
-            <div class="progress-step" id="step3">
-                <div class="progress-circle">3</div>
-                <div class="progress-label" data-i18n="step3">Amount</div>
+            <div class="progress-line"></div>
+            <div class="progress-step" id="stepApplication">
+                <div class="step-number">2</div>
+                <div class="step-label" data-i18n="submitApplicationStepLabel">提交申请</div>
             </div>
         </div>
 
-        <!-- Step 1: Phone Number -->
-        <div class="form-section active" id="section1">
-            <div class="form-group">
-                <label for="phone" data-i18n="phoneLabel">Phone Number</label>
-                <div class="phone-input-container">
-                    <div class="country-code" id="countryCode">
-                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia flag" id="countryFlag" />
-                        <span id="phoneCodeDisplay">+62</span>
+        <!-- 上传资料页面 -->
+        <div class="form-section" id="uploadDocumentsSection">
+            <h2 class="section-title" data-i18n="uploadDocuments">上传资料</h2>
+            <p class="section-description" data-i18n="uploadDocumentsDesc">请上传您的身份证正面照片和手持身份证照片</p>
+            
+            <!-- 身份证上传 -->
+            <div class="upload-section">
+                <h3 class="upload-title" data-i18n="idCardUpload">身份证照片</h3>
+                <div class="upload-container" id="ktpContainer">
+                    <div class="upload-placeholder" id="ktpPlaceholder">
+                        <img src="assets/id-card-icon.svg" alt="ID Card" class="placeholder-icon">
+                        <p data-i18n="uploadIdCard">点击上传身份证照片</p>
+                        <span class="upload-description" data-i18n="idCardRequirement">请确保照片清晰可见</span>
                     </div>
-                    <input type="tel" id="phone" placeholder="812 3456 7890" autocomplete="tel">
+                    <div class="image-preview" id="ktpPreview">
+                        <img id="ktpImage" src="#" alt="KTP Preview">
+                        <div class="reupload-overlay">
+                            <span data-i18n="clickToReupload">点击重新上传</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="error-message" id="phoneError" data-i18n="phoneError">Please enter a valid phone number</div>
+                <input type="file" id="ktpInput" accept="image/*" capture="environment" style="display: none;">
             </div>
-            <div class="button-group">
-                <button class="btn-primary" onclick="validatePhone()" data-i18n="next">Next</button>
+            
+            <!-- 手持身份证上传 -->
+            <div class="upload-section">
+                <h3 class="upload-title" data-i18n="holdingIdCardUpload">手持身份证照片</h3>
+                <div class="upload-container" id="holdingKtpContainer">
+                    <div class="upload-placeholder" id="holdingKtpPlaceholder">
+                        <img src="assets/holding-id-icon.svg" alt="Holding ID Card" class="placeholder-icon">
+                        <p data-i18n="uploadHoldingIdCard">点击上传手持身份证照片</p>
+                        <span class="upload-description" data-i18n="holdingIdCardRequirement">请确保您的脸和身份证同时可见</span>
+                    </div>
+                    <div class="image-preview" id="holdingKtpPreview">
+                        <img id="holdingKtpImage" src="#" alt="Holding KTP Preview">
+                        <div class="reupload-overlay">
+                            <span data-i18n="clickToReupload">点击重新上传</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="holdingKtpInput" accept="image/*" capture="environment" style="display: none;">
             </div>
+
+            <!-- 移动端需要自拍照部分 -->
+            <div class="upload-section" id="selfieSection" style="display: none;">
+                <h3 class="upload-title" data-i18n="selfieUpload">自拍照片</h3>
+                <div class="upload-container" id="selfieContainer">
+                    <div class="upload-placeholder" id="selfiePlaceholder">
+                        <img src="assets/selfie-icon.svg" alt="Selfie" class="placeholder-icon">
+                        <p data-i18n="uploadSelfie">点击上传自拍照片</p>
+                        <span class="upload-description" data-i18n="selfieRequirement">请确保您的脸部清晰可见</span>
+                    </div>
+                    <div class="image-preview" id="selfiePreview">
+                        <img id="selfieImage" src="#" alt="Selfie Preview">
+                        <div class="reupload-overlay">
+                            <span data-i18n="clickToReupload">点击重新上传</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="selfieInput" accept="image/*" capture="user" style="display: none;">
+            </div>
+            
+            <!-- 继续按钮 - 前往申请页面 -->
+            <button class="btn-primary" id="continueToApplication" disabled data-i18n="continue">继续</button>
         </div>
 
-        <!-- Step 2: Document Upload -->
-        <div class="form-section" id="section2">
-            <div class="form-group">
-                <label data-i18n="ktpLabel">KTP (Identity Card)</label>
-                
-                <!-- 添加身份证示例 -->
-                <div class="id-card-examples">
-                    <div class="examples-title" data-i18n="idCardExamplesTitle">ID Card Upload Examples</div>
-                    <div class="examples-container">
-                        <div class="example-item">
-                            <div class="example-animation">
-                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 60\' fill=\'%23667eea\'%3E%3Crect x=\'5\' y=\'5\' width=\'90\' height=\'50\' rx=\'3\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Ccircle cx=\'25\' cy=\'25\' r=\'12\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'15\' width=\'40\' height=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'25\' width=\'40\' height=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'35\' width=\'20\' height=\'5\' fill=\'%234a5568\'/%3E%3C/svg%3E');"></div>
-                            </div>
-                            <div class="example-label" data-i18n="idCardFrontExample">ID Card Front Side</div>
-                        </div>
-                        <div class="example-item">
-                            <div class="example-animation">
-                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 60\' fill=\'%23667eea\'%3E%3Crect x=\'5\' y=\'5\' width=\'90\' height=\'50\' rx=\'3\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Cpath d=\'M20 15 H80 V45 H20 Z\' fill=\'%23cbd5e0\' stroke=\'%234a5568\'/%3E%3Cpath d=\'M30 25 L40 35 L50 20 L60 30 L70 25\' stroke=\'%234a5568\' stroke-width=\'2\' fill=\'none\'/%3E%3C/svg%3E');"></div>
-                            </div>
-                            <div class="example-label" data-i18n="idCardBackExample">Full Card in Frame</div>
-                        </div>
+        <!-- 申请提交页面 -->
+        <div class="form-section" id="applicationSubmitSection" style="display: none;">
+            <h2 class="section-title" data-i18n="submitApplication">提交申请</h2>
+            <p class="section-description" data-i18n="submitApplicationDesc">请确认以下信息并提交您的贷款申请</p>
+            
+            <!-- 贷款金额显示 -->
+            <div class="loan-amount-display">
+                <div class="loan-amount-container">
+                    <h3 class="loan-amount-label" data-i18n="loanAmountLabel">贷款金额</h3>
+                    <div class="loan-amount-value" id="displayedLoanAmount">
+                        <span class="currency-symbol" id="currencySymbol">¥</span>
+                        <span class="amount-value" id="amountValue">10,000</span>
+                    </div>
+                    <div class="amount-controls">
+                        <button class="amount-control-btn" id="doubleAmountBtn">
+                            <span data-i18n="doubleAmount">翻倍</span>
+                            <span class="double-icon">×2</span>
+                        </button>
                     </div>
                 </div>
-                
-                <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
-                    <div class="upload-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
+                <div class="loan-info">
+                    <div class="info-item">
+                        <span class="info-label" data-i18n="interestRate">利率</span>
+                        <span class="info-value">12% / <span data-i18n="year">年</span></span>
                     </div>
-                    <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
-                    <p class="upload-text" style="font-size: 12px; margin-top: 8px;" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                    <div class="info-item">
+                        <span class="info-label" data-i18n="loanTerm">贷款期限</span>
+                        <span class="info-value">12 <span data-i18n="months">个月</span></span>
+                    </div>
                 </div>
-                <input type="file" id="ktpInput" accept="image/*" onchange="handleKTPUpload(event)">
-                <div class="error-message" id="ktpError"></div>
             </div>
 
-            <div class="form-group">
-                <label data-i18n="holdingKtpLabel">Holding ID Card (Front)</label>
-                
-                <!-- 添加手持身份证示例 -->
-                <div class="id-card-examples">
-                    <div class="examples-title" data-i18n="holdingIdCardExamplesTitle">Holding ID Card Examples</div>
-                    <div class="examples-container">
-                        <div class="example-item">
-                            <div class="example-animation">
-                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23667eea\'%3E%3Ccircle cx=\'50\' cy=\'35\' r=\'20\' fill=\'%23ecc94b\'/%3E%3Cpath d=\'M30 60 C30 60, 40 100, 70 100 C90 100, 90 60, 70 60 Z\' fill=\'%23ecc94b\'/%3E%3Crect x=\'35\' y=\'65\' width=\'40\' height=\'25\' rx=\'2\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3C/svg%3E');"></div>
-                                <div class="animated-hand"></div>
-                            </div>
-                            <div class="example-label" data-i18n="holdingIdCardExample">Hold ID Card Clearly</div>
+            <!-- 文件上传状态概览 -->
+            <div class="document-summary">
+                <h3 class="summary-title" data-i18n="uploadedDocuments">已上传文件</h3>
+                <div class="document-list">
+                    <div class="document-item">
+                        <div class="document-icon">
+                            <img src="assets/id-card-check.svg" alt="ID Card" class="document-thumbnail">
                         </div>
-                        <div class="example-item">
-                            <div class="example-animation">
-                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23667eea\'%3E%3Ccircle cx=\'50\' cy=\'30\' r=\'20\' fill=\'%23ecc94b\'/%3E%3Cpath d=\'M30 55 C30 55, 40 95, 70 95 C90 95, 90 55, 70 55 Z\' fill=\'%23ecc94b\'/%3E%3Crect x=\'25\' y=\'60\' width=\'50\' height=\'30\' rx=\'2\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Ccircle cx=\'35\' cy=\'70\' r=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'65\' width=\'20\' height=\'3\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'72\' width=\'20\' height=\'3\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'79\' width=\'10\' height=\'3\' fill=\'%234a5568\'/%3E%3C/svg%3E');"></div>
-                            </div>
-                            <div class="example-label" data-i18n="holdingIdCardFaceExample">Face and ID Card Visible</div>
+                        <div class="document-detail">
+                            <span class="document-name" data-i18n="idCardDocument">身份证照片</span>
+                            <span class="document-status">✓</span>
                         </div>
                     </div>
-                </div>
-                
-                <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
-                    <div class="upload-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
+                    <div class="document-item">
+                        <div class="document-icon">
+                            <img src="assets/holding-id-check.svg" alt="Holding ID Card" class="document-thumbnail">
+                        </div>
+                        <div class="document-detail">
+                            <span class="document-name" data-i18n="holdingIdCardDocument">手持身份证照片</span>
+                            <span class="document-status">✓</span>
+                        </div>
                     </div>
-                    <p class="upload-text" data-i18n="holdingKtpText">Click to upload a clear photo of you holding your ID Card</p>
-                    <p class="upload-text" style="font-size: 12px; margin-top: 8px;" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
-                </div>
-                <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKTPUpload(event)">
-                <div class="error-message" id="holdingKtpError"></div>
-            </div>
-
-            <!-- 人脸识别部分 - 根据设备类型显示或隐藏 -->
-            <div class="form-group" id="faceVerificationGroup" style="display: none;">
-                <label data-i18n="selfieLabel">Face Verification</label>
-                <div class="camera-container" id="cameraContainer" style="display: none;">
-                    <video id="video" autoplay></video>
-                    <div class="camera-overlay"></div>
-                    <div class="face-detection-status" id="faceStatus" data-i18n="positionFace">Position your face in the frame</div>
-                </div>
-                <div class="upload-container" id="selfieUpload" onclick="startCamera()">
-                    <div class="upload-icon">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
+                    <div class="document-item" id="selfieDocumentItem" style="display: none;">
+                        <div class="document-icon">
+                            <img src="assets/selfie-check.svg" alt="Selfie" class="document-thumbnail">
+                        </div>
+                        <div class="document-detail">
+                            <span class="document-name" data-i18n="selfieDocument">自拍照片</span>
+                            <span class="document-status">✓</span>
+                        </div>
                     </div>
-                    <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
                 </div>
-                <button class="btn-primary" id="captureBtn" style="display: none; width: 100%; margin-top: 10px;" onclick="capturePhoto()" data-i18n="capture">Capture Photo</button>
-                <div class="error-message" id="selfieError"></div>
             </div>
-
+            
+            <!-- 返回和提交按钮 -->
             <div class="button-group">
-                <button class="btn-secondary" onclick="goToStep(1)" data-i18n="back">Back</button>
-                <button class="btn-primary" onclick="validateDocuments()" id="documentsNext" disabled data-i18n="next">Next</button>
-            </div>
-        </div>
-
-        <!-- Step 3: Loan Amount -->
-        <div class="form-section" id="section3">
-            <div class="form-group">
-                <label for="amount" data-i18n="amountLabel">Loan Amount (IDR)</label>
-                <div class="amount-display-container">
-                    <div class="amount-display" id="amountDisplay">Rp 0</div>
-                    <div class="doubled-amount-container">
-                        <div class="doubled-badge" data-i18n="doubledAmount">Doubled!</div>
-                        <div class="original-amount" id="originalAmountDisplay">Rp 0</div>
-                        <svg class="double-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M7 7l5-5 5 5M7 17l5 5 5-5"/>
-                        </svg>
-                    </div>
-                </div>
-                <p style="font-size: 14px; color: #48bb78; margin-top: 15px; text-align: center; font-weight: bold;" data-i18n="congratsDoubled">Congratulations! Your loan amount has been doubled!</p>
-            </div>
-
-            <div class="form-group approval-notice">
-                <div class="approval-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <path d="M22 4L12 14.01l-3-3"></path>
-                    </svg>
-                </div>
-                <p data-i18n="manualReviewNotice">After submitting, your application will be reviewed by our team. A representative will contact you soon.</p>
-            </div>
-
-            <div class="button-group">
-                <button class="btn-secondary" onclick="goToStep(2)" data-i18n="back">Back</button>
-                <button class="btn-primary submit-btn" onclick="showFinalConfirmation()" data-i18n="submitNow">Submit Application Now</button>
+                <button class="btn-secondary" id="backToUpload" data-i18n="back">返回</button>
+                <button class="btn-primary" id="submitApplicationBtn" data-i18n="submit">提交申请</button>
             </div>
         </div>
 
@@ -4048,6 +4227,185 @@
         translations.vi.errorTitle = "Gửi Thất Bại";
         translations.vi.networkError = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn và thử lại.";
         translations.vi.tryAgain = "Thử Lại";
+
+        // 修改导航逻辑以支持两个独立页面之间的切换
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取页面元素
+            const uploadSection = document.getElementById('uploadDocumentsSection');
+            const applicationSection = document.getElementById('applicationSubmitSection');
+            const stepUpload = document.getElementById('stepUpload');
+            const stepApplication = document.getElementById('stepApplication');
+            const continueBtn = document.getElementById('continueToApplication');
+            const backBtn = document.getElementById('backToUpload');
+            const submitBtn = document.getElementById('submitApplicationBtn');
+            const selfieSection = document.getElementById('selfieSection');
+            const selfieDocumentItem = document.getElementById('selfieDocumentItem');
+            
+            // 初始化进度指示器
+            stepUpload.classList.add('active');
+            
+            // 检查设备类型
+            if (!isDesktop) {
+                selfieSection.style.display = 'block';
+                selfieDocumentItem.style.display = 'flex';
+            }
+            
+            // 监听文件上传状态，启用/禁用继续按钮
+            function checkUploadStatus() {
+                if (ktpImageData && document.getElementById('holdingKtpInput').files.length > 0) {
+                    if (isDesktop || (!isDesktop && selfieImageData)) {
+                        continueBtn.disabled = false;
+                    } else {
+                        continueBtn.disabled = !isDesktop && !selfieImageData;
+                    }
+                } else {
+                    continueBtn.disabled = true;
+                }
+            }
+            
+            // 为上传输入添加事件监听器
+            document.getElementById('ktpInput').addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    processKtpImage(this.files[0]);
+                    checkUploadStatus();
+                }
+            });
+            
+            document.getElementById('holdingKtpInput').addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('holdingKtpImage').src = e.target.result;
+                        document.getElementById('holdingKtpPlaceholder').style.display = 'none';
+                        document.getElementById('holdingKtpPreview').style.display = 'block';
+                        checkUploadStatus();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            if (!isDesktop) {
+                document.getElementById('selfieInput').addEventListener('change', function() {
+                    if (this.files.length > 0) {
+                        processSelfieImage(this.files[0]);
+                        checkUploadStatus();
+                    }
+                });
+            }
+            
+            // 页面切换按钮事件处理
+            continueBtn.addEventListener('click', function() {
+                uploadSection.style.display = 'none';
+                applicationSection.style.display = 'block';
+                stepUpload.classList.remove('active');
+                stepApplication.classList.add('active');
+                
+                // 在申请页面显示随机贷款金额
+                updateLoanAmountDisplay();
+            });
+            
+            backBtn.addEventListener('click', function() {
+                applicationSection.style.display = 'none';
+                uploadSection.style.display = 'block';
+                stepApplication.classList.remove('active');
+                stepUpload.classList.add('active');
+            });
+            
+            // 金额翻倍按钮逻辑
+            document.getElementById('doubleAmountBtn').addEventListener('click', function() {
+                loanAmountCNY.current *= 2;
+                if (loanAmountCNY.current > loanAmountCNY.max) {
+                    loanAmountCNY.current = loanAmountCNY.max;
+                }
+                updateLoanAmountDisplay();
+                
+                // 添加动画效果
+                const amountValue = document.getElementById('amountValue');
+                amountValue.classList.add('highlight');
+                setTimeout(() => {
+                    amountValue.classList.remove('highlight');
+                }, 500);
+            });
+            
+            // 更新贷款金额显示
+            function updateLoanAmountDisplay() {
+                const formattedAmount = new Intl.NumberFormat().format(loanAmountCNY.current);
+                document.getElementById('amountValue').textContent = formattedAmount;
+                document.getElementById('currencySymbol').textContent = getCurrencySymbol();
+            }
+            
+            // 获取当前语言的货币符号
+            function getCurrencySymbol() {
+                return exchangeRates[currentLang].symbol;
+            }
+            
+            // 提交按钮事件处理
+            submitBtn.addEventListener('click', function() {
+                // 显示确认弹窗
+                showFinalConfirmationModal();
+            });
+        });
+
+        // 添加高亮动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes highlight {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); color: #4CAF50; }
+                100% { transform: scale(1); }
+            }
+            
+            .highlight {
+                animation: highlight 0.5s ease;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 添加多语言支持
+        translations.en.uploadDocsStepLabel = "Upload Documents";
+        translations.en.submitApplicationStepLabel = "Submit Application";
+        translations.en.uploadedDocuments = "Uploaded Documents";
+        translations.en.idCardDocument = "ID Card Photo";
+        translations.en.holdingIdCardDocument = "Holding ID Card Photo";
+        translations.en.selfieDocument = "Selfie Photo";
+        translations.en.back = "Back";
+        translations.en.continue = "Continue";
+        translations.en.doubleAmount = "Double";
+        translations.en.loanAmountLabel = "Loan Amount";
+        translations.en.interestRate = "Interest Rate";
+        translations.en.loanTerm = "Loan Term";
+        translations.en.months = "months";
+
+        translations.zh.uploadDocsStepLabel = "上传资料";
+        translations.zh.submitApplicationStepLabel = "提交申请";
+        translations.zh.uploadedDocuments = "已上传文件";
+        translations.zh.idCardDocument = "身份证照片";
+        translations.zh.holdingIdCardDocument = "手持身份证照片";
+        translations.zh.selfieDocument = "自拍照片";
+        translations.zh.back = "返回";
+        translations.zh.continue = "继续";
+        translations.zh.doubleAmount = "翻倍";
+        translations.zh.loanAmountLabel = "贷款金额";
+        translations.zh.interestRate = "利率";
+        translations.zh.loanTerm = "贷款期限";
+        translations.zh.months = "个月";
+
+        translations.id.uploadDocsStepLabel = "Unggah Dokumen";
+        translations.id.submitApplicationStepLabel = "Kirim Aplikasi";
+        translations.id.uploadedDocuments = "Dokumen Terunggah";
+        translations.id.idCardDocument = "Foto KTP";
+        translations.id.holdingIdCardDocument = "Foto Memegang KTP";
+        translations.id.selfieDocument = "Foto Selfie";
+        translations.id.back = "Kembali";
+        translations.id.continue = "Lanjutkan";
+        translations.id.doubleAmount = "Gandakan";
+        translations.id.loanAmountLabel = "Jumlah Pinjaman";
+        translations.id.interestRate = "Suku Bunga";
+        translations.id.loanTerm = "Jangka Waktu";
+        translations.id.months = "bulan";
+
+        // 为其他语言添加类似的翻译
     </script>
 </body>
 </html>
