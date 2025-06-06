@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Micro Loan Application</title>
-    <!-- 引入阿里云OSS SDK -->
-    <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.1.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,8 +19,6 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            overflow-y: auto; /* 确保页面可以垂直滚动 */
-            -webkit-overflow-scrolling: touch; /* 增强iOS设备上的滚动体验 */
         }
 
         .container {
@@ -33,21 +29,13 @@
             max-width: 500px;
             padding: 40px;
             position: relative;
-            margin: 20px 0; /* 添加上下边距 */
         }
 
         .language-selector {
-            position: static;
-            margin-left: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-shrink: 0;
-        }
-
-        .language-selector select {
-            width: auto;
-            max-width: 120px;
+            position: absolute;
+            top: -50px;
+            right: 0;
+            z-index: 10;
         }
 
         .language-selector select {
@@ -429,8 +417,6 @@
             z-index: 1000;
             padding: 20px;
             animation: fadeIn 0.3s ease;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         .modal-content {
@@ -443,8 +429,6 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: slideIn 0.5s ease;
             position: relative;
-            max-height: 85vh; /* 限制模态框高度 */
-            overflow-y: auto; /* 确保模态框内容可滚动 */
         }
 
         /* 弹窗语言选择器样式 */
@@ -452,10 +436,8 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            z-index: 10;
         }
-        
-        /* 恢复modal-language-selector的样式 */
+
         .modal-language-selector select {
             padding: 6px 12px;
             border: 2px solid #e0e0e0;
@@ -464,7 +446,6 @@
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
-            width: auto;
         }
 
         .modal-language-selector select:hover {
@@ -475,32 +456,6 @@
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        /* 添加返回按钮样式 */
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            background: none;
-            border: none;
-            font-size: 24px;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 0;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        
-        .back-button:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
         }
 
         @keyframes slideIn {
@@ -614,15 +569,6 @@
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
-                max-height: none; /* 移除最大高度限制 */
-                overflow-y: visible; /* 确保内容可见 */
-            }
-
-            body {
-                display: block; /* 在移动端改为块级布局，避免flex布局导致的滚动问题 */
-                padding: 10px;
-                height: auto;
-                min-height: 100vh;
             }
 
             h1 {
@@ -635,8 +581,6 @@
 
             .modal-content {
                 padding: 30px 20px;
-                max-height: 85vh; /* 限制模态框高度 */
-                overflow-y: auto; /* 确保模态框内容可滚动 */
             }
 
             .modal-title {
@@ -646,297 +590,108 @@
             .amount-highlight {
                 font-size: 20px;
             }
-            
-            /* 移动端语言选择器样式优化 */
-            .language-selector {
-                margin-left: 10px;
-            }
-            
-            .language-selector select {
-                padding: 4px 8px;
-                font-size: 12px;
-                min-width: 80px;
-            }
-            
-            /* 移动端弹窗语言选择器样式优化 */
-            .modal-language-selector select {
-                padding: 4px 8px;
-                font-size: 12px;
-                min-width: 80px;
-            }
-            
-            /* 移动端返回按钮样式优化 */
-            .back-button {
-                top: 15px;
-                left: 15px;
-                font-size: 20px;
-                width: 32px;
-                height: 32px;
-            }
-            
-            /* 优化标题容器在移动端的布局 */
-            .header-container {
-                align-items: flex-start;
-            }
-            
-            .title-container {
-                flex: 3;
-            }
-            
-            /* 弹窗标题优化，避免被语言选择器遮挡 */
-            .modal-title {
-                margin-top: 15px;
-                padding-right: 90px;
-            }
-        }
-        
-        /* 超小屏幕设备的优化 */
-        @media (max-width: 360px) {
-            .language-selector select {
-                padding: 3px 6px;
-                font-size: 11px;
-                min-width: 70px;
-            }
-            
-            .header-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .language-selector {
-                margin-left: 0;
-                margin-top: 10px;
-                align-self: flex-end;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            .subtitle {
-                font-size: 14px;
-                margin-bottom: 20px;
-            }
-            
-            /* 超小屏幕返回按钮优化 */
-            .back-button {
-                top: 10px;
-                left: 10px;
-                font-size: 18px;
-                width: 28px;
-                height: 28px;
-            }
-            
-            /* 超小屏幕弹窗语言选择器优化 */
-            .modal-language-selector {
-                top: 10px;
-                right: 10px;
-            }
-            
-            .modal-language-selector select {
-                padding: 2px 4px;
-                font-size: 10px;
-                min-width: 60px;
-                border-width: 1px;
-            }
-            
-            .modal-title {
-                margin-top: 10px;
-                font-size: 20px;
-            }
-            
-            /* 移动端表单高度优化 */
-            .form-section {
-                max-height: none;
-                overflow-y: visible;
-            }
-            
-            /* 确保上传容器在小屏幕上正常显示 */
-            .upload-container {
-                padding: 20px 10px;
-            }
-            
-            .upload-container.has-image img.upload-preview {
-                max-height: 200px;
-            }
         }
 
         /* 添加标题容器样式 */
         .header-container {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .title-container {
+            flex: 1;
+        }
+
+        /* 修改语言选择器样式，使其适合新的布局 */
+        .language-selector {
+            position: static;
+            margin-left: 20px;
+        }
+
+        /* 添加国家选择器样式 */
+        .country-selector {
+            margin-bottom: 30px;
+        }
+        
+        .country-selector-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .country-options {
+            display: flex;
             justify-content: center;
             flex-wrap: wrap;
             gap: 10px;
         }
-
-        /* 添加语言选择器下拉菜单样式 */
-        .language-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .language-button {
+        
+        .country-option {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background: white;
+            padding: 10px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
-            min-width: 40px;
-            height: 40px;
+            width: 80px;
         }
-
-        .language-button:hover {
+        
+        .country-option:hover {
             border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
         }
-
-        .language-button img {
-            width: 24px;
-            height: 24px;
-            border-radius: 2px;
-        }
-
-        .language-options {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 45px;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            z-index: 100;
-            min-width: 150px;
-            max-height: 250px;
-            overflow-y: auto;
-        }
-
-        .language-options.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .language-option {
-            display: flex;
-            align-items: center;
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .language-option:hover {
+        
+        .country-option.active {
+            border-color: #667eea;
             background: rgba(102, 126, 234, 0.1);
         }
-
-        .language-option.active {
-            background: rgba(102, 126, 234, 0.2);
+        
+        .country-flag {
+            width: 40px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .country-name {
+            font-size: 12px;
+            color: #333;
+            text-align: center;
         }
 
-        .language-option img {
-            width: 20px;
-            height: 20px;
+        /* 添加区号样式 */
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .country-code {
+            display: flex;
+            align-items: center;
+            background: #f7fafc;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .country-code img {
+            width: 22px;
+            height: 16px;
             margin-right: 8px;
             border-radius: 2px;
         }
-
-        .language-option span {
-            font-size: 14px;
-            color: #333;
-        }
-
-        /* 修改modal语言选择器样式 */
-        .modal-language-dropdown {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-        }
-
-        /* 响应式调整 */
-        @media (max-width: 480px) {
-            .language-button {
-                padding: 6px;
-                min-width: 36px;
-                height: 36px;
-            }
-            
-            .language-button img {
-                width: 20px;
-                height: 20px;
-            }
-            
-            .language-options {
-                max-height: 200px;
-                min-width: 120px;
-            }
-            
-            .language-option {
-                padding: 8px 10px;
-            }
-            
-            .language-option img {
-                width: 18px;
-                height: 18px;
-            }
-            
-            .language-option span {
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            .language-button {
-                padding: 4px;
-                min-width: 32px;
-                height: 32px;
-            }
-            
-            .language-button img {
-                width: 18px;
-                height: 18px;
-            }
-        }
-
-        /* 添加滚动优化 */
-        html, body {
-            -webkit-overflow-scrolling: touch;
-            overflow-x: hidden;
-        }
         
-        .modal-overlay {
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 移动端模态框优化 */
-        @media (max-width: 480px) {
-            .modal-overlay {
-                padding: 10px;
-                align-items: flex-start;
-            }
-            
-            .modal-content {
-                margin-top: 20px;
-                margin-bottom: 20px;
-                width: calc(100% - 20px);
-                max-height: calc(100vh - 40px);
-                overflow-y: auto;
-            }
-        }
-
-        /* 优化主体布局，确保可滚动 */
-        @media screen and (max-height: 700px) {
-            body {
-                align-items: flex-start;
-                padding-top: 10px;
-                padding-bottom: 10px;
-            }
-            
-            .container {
-                margin: 10px 0;
-            }
+        .phone-input-container input[type="tel"] {
+            border-radius: 0 8px 8px 0;
         }
     </style>
 </head>
@@ -944,1286 +699,1555 @@
     <!-- Welcome Modal -->
     <div class="modal-overlay" id="welcomeModal">
         <div class="modal-content">
-            <!-- 添加返回按钮 -->
-            <button class="back-button" onclick="window.history.back()" title="Back" data-i18n="backButton">
-                ←
-            </button>
-            <div class="modal-language-dropdown">
-                <div class="language-button" id="modalLanguageBtn" onclick="toggleModalLanguageOptions()">
-                    <img src="https://flagcdn.com/w80/us.png" alt="English" id="modalCurrentLangFlag"/>
-                </div>
-                <div class="language-options" id="modalLanguageOptions">
-                    <div class="language-option" data-lang="en" onclick="selectModalLanguage('en')">
-                        <img src="https://flagcdn.com/w80/us.png" alt="English"/>
-                        <span>English</span>
-                    </div>
-                    <div class="language-option" data-lang="zh" onclick="selectModalLanguage('zh')">
-                        <img src="https://flagcdn.com/w80/cn.png" alt="中文"/>
-                        <span>中文</span>
-                    </div>
-                    <div class="language-option" data-lang="id" onclick="selectModalLanguage('id')">
-                        <img src="https://flagcdn.com/w80/id.png" alt="Bahasa Indonesia"/>
-                        <span>Bahasa Indonesia</span>
-                    </div>
-                    <div class="language-option" data-lang="ms" onclick="selectModalLanguage('ms')">
-                        <img src="https://flagcdn.com/w80/my.png" alt="Bahasa Melayu"/>
-                        <span>Bahasa Melayu</span>
-                    </div>
-                    <div class="language-option" data-lang="tl" onclick="selectModalLanguage('tl')">
-                        <img src="https://flagcdn.com/w80/ph.png" alt="Filipino"/>
-                        <span>Filipino</span>
-                    </div>
-                    <div class="language-option" data-lang="th" onclick="selectModalLanguage('th')">
-                        <img src="https://flagcdn.com/w80/th.png" alt="ภาษาไทย"/>
-                        <span>ภาษาไทย</span>
-                    </div>
-                    <div class="language-option" data-lang="vi" onclick="selectModalLanguage('vi')">
-                        <img src="https://flagcdn.com/w80/vn.png" alt="Tiếng Việt"/>
-                        <span>Tiếng Việt</span>
-                    </div>
-                </div>
+            <div class="modal-language-selector">
+                <select id="modalLanguageSelect" onchange="changeModalLanguage()">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="ms">Bahasa Melayu</option>
+                    <option value="tl">Filipino</option>
+                    <option value="th">ภาษาไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                </select>
             </div>
             <div class="celebration-icon">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2L8.93 8.24l-6.93.96 5.04 4.92-1.19 6.96L12 17.54l6.15 3.53-1.19-6.95 5.04-4.92-6.93-.96L12 2z" />
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
                 </svg>
             </div>
-            <h2 class="modal-title" data-i18n="welcomeTitle">欢迎使用微型贷款服务</h2>
-            <p class="modal-message" data-i18n="welcomeMessage">我们提供便捷、快速的小额贷款，帮助您解决生活中的资金需求。</p>
-            
-            <!-- 国家标志和名称 -->
-            <div id="countryInfo" style="display: flex; align-items: center; justify-content: center; margin: 15px 0; background: rgba(102, 126, 234, 0.1); padding: 10px; border-radius: 10px;">
-                <img id="countryFlagModal" src="https://flagcdn.com/w80/id.png" alt="Country" style="width: 30px; height: 22px; margin-right: 10px; border-radius: 3px;">
-                <span id="countryNameModal" style="font-weight: 500; color: #333;">Indonesia</span>
-            </div>
-            
+            <h2 class="modal-title" id="modalTitle">Congratulations!</h2>
             <p class="modal-message">
-                <span data-i18n="welcomeAmount">借款金额</span>
-                <span class="amount-highlight" id="welcomeAmount">Rp 2,000,000</span>
+                <span id="modalMessage">You have been pre-approved for a loan amount of</span>
+                <span class="amount-highlight" id="amountDisplay">Rp 1,128,163 - Rp 215,000,000</span>
             </p>
             
-            <!-- 个性化贷款推荐 -->
-            <div id="loanRecommendation" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); padding: 15px; border-radius: 12px; margin: 15px 0; text-align: left;">
-                <h3 style="margin: 0 0 10px 0; font-size: 18px; color: #667eea;">
-                    <span id="recommendationTitle">推荐贷款方案</span>
-                </h3>
-                <ul style="margin: 0; padding-left: 20px; color: #4a5568;">
-                    <li id="recommendationPoint1">快速审批，最快30分钟放款</li>
-                    <li id="recommendationPoint2">无需抵押，仅需身份证明</li>
-                    <li id="recommendationPoint3">灵活还款期限，最长90天</li>
-                </ul>
+            <!-- 国家选择器 -->
+            <div class="country-selector">
+                <div class="country-selector-title" data-i18n="selectCountry">Select your country</div>
+                <div class="country-options">
+                    <div class="country-option" data-country="id" onclick="selectCountry('id')">
+                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia" class="country-flag">
+                        <span class="country-name">Indonesia</span>
+                    </div>
+                    <div class="country-option" data-country="my" onclick="selectCountry('my')">
+                        <img src="https://flagcdn.com/w80/my.png" alt="Malaysia" class="country-flag">
+                        <span class="country-name">Malaysia</span>
+                    </div>
+                    <div class="country-option" data-country="th" onclick="selectCountry('th')">
+                        <img src="https://flagcdn.com/w80/th.png" alt="Thailand" class="country-flag">
+                        <span class="country-name">Thailand</span>
+                    </div>
+                    <div class="country-option" data-country="ph" onclick="selectCountry('ph')">
+                        <img src="https://flagcdn.com/w80/ph.png" alt="Philippines" class="country-flag">
+                        <span class="country-name">Philippines</span>
+                    </div>
+                    <div class="country-option" data-country="vn" onclick="selectCountry('vn')">
+                        <img src="https://flagcdn.com/w80/vn.png" alt="Vietnam" class="country-flag">
+                        <span class="country-name">Vietnam</span>
+                    </div>
+                </div>
             </div>
             
-            <button class="modal-button" onclick="hideWelcomeModal()" data-i18n="getStarted">开始申请</button>
+            <button class="modal-button" onclick="closeModal()" id="modalButton">Click here for instant approval</button>
         </div>
     </div>
 
-    <!-- 主应用容器 -->
     <div class="container">
-        <!-- 返回按钮 -->
-        <button class="back-button" onclick="goToPreviousStep()" title="Back" data-i18n="backButton" id="mainBackButton" style="display: none;">
-            ←
-        </button>
-        
-        <!-- 标题和语言选择器 -->
+        <!-- 修改HTML结构，使用新的标题容器 -->
         <div class="header-container">
             <div class="title-container">
-                <h1 data-i18n="title">小额贷款申请</h1>
-                <p class="subtitle" data-i18n="subtitle">快速、安全、便捷</p>
+                <h1 data-i18n="title">Micro Loan Application</h1>
+                <p class="subtitle" data-i18n="subtitle">Quick and secure loan process</p>
             </div>
-            <div class="language-dropdown">
-                <div class="language-button" id="languageBtn" onclick="toggleLanguageOptions()">
-                    <img src="https://flagcdn.com/w80/us.png" alt="English" id="currentLangFlag"/>
-                </div>
-                <div class="language-options" id="languageOptions">
-                    <div class="language-option" data-lang="en" onclick="selectLanguage('en')">
-                        <img src="https://flagcdn.com/w80/us.png" alt="English"/>
-                        <span>English</span>
-                    </div>
-                    <div class="language-option" data-lang="zh" onclick="selectLanguage('zh')">
-                        <img src="https://flagcdn.com/w80/cn.png" alt="中文"/>
-                        <span>中文</span>
-                    </div>
-                    <div class="language-option" data-lang="id" onclick="selectLanguage('id')">
-                        <img src="https://flagcdn.com/w80/id.png" alt="Bahasa Indonesia"/>
-                        <span>Bahasa Indonesia</span>
-                    </div>
-                    <div class="language-option" data-lang="ms" onclick="selectLanguage('ms')">
-                        <img src="https://flagcdn.com/w80/my.png" alt="Bahasa Melayu"/>
-                        <span>Bahasa Melayu</span>
-                    </div>
-                    <div class="language-option" data-lang="tl" onclick="selectLanguage('tl')">
-                        <img src="https://flagcdn.com/w80/ph.png" alt="Filipino"/>
-                        <span>Filipino</span>
-                    </div>
-                    <div class="language-option" data-lang="th" onclick="selectLanguage('th')">
-                        <img src="https://flagcdn.com/w80/th.png" alt="ภาษาไทย"/>
-                        <span>ภาษาไทย</span>
-                    </div>
-                    <div class="language-option" data-lang="vi" onclick="selectLanguage('vi')">
-                        <img src="https://flagcdn.com/w80/vn.png" alt="Tiếng Việt"/>
-                        <span>Tiếng Việt</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 进度条 -->
-        <div class="progress-container">
-            <div class="progress-line">
-                <div class="progress-line-fill" id="progressLineFill"></div>
-            </div>
-            <div class="progress-step" id="step1">
-                <div class="progress-circle">1</div>
-                <div class="progress-label" data-i18n="step1">电话号码</div>
-            </div>
-            <div class="progress-step" id="step2">
-                <div class="progress-circle">2</div>
-                <div class="progress-label" data-i18n="step2">身份证明</div>
-            </div>
-            <div class="progress-step" id="step3">
-                <div class="progress-circle">3</div>
-                <div class="progress-label" data-i18n="step3">贷款金额</div>
-            </div>
-        </div>
-        
-        <!-- Step 1: 电话号码 -->
-        <div class="form-section active" id="phoneSection">
-            <div class="form-group">
-                <label for="phone" data-i18n="phoneLabel">您的电话号码</label>
-                <div style="display: flex; align-items: center;">
-                    <div id="countryCodePrefix" style="padding: 12px 16px; background: #f7fafc; border: 2px solid #e0e0e0; border-right: none; border-radius: 8px 0 0 8px; color: #333; font-weight: 500;">+62</div>
-                    <input type="tel" id="phone" placeholder="请输入您的电话号码" oninput="validatePhone()" style="flex: 1; border-radius: 0 8px 8px 0;">
-                </div>
-                <div class="error-message" id="phoneError"></div>
-            </div>
-            <div class="button-group">
-                <button class="btn-primary" onclick="validateAndProceed()" data-i18n="next">下一步</button>
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="ms">Bahasa Melayu</option>
+                    <option value="tl">Filipino</option>
+                    <option value="th">ภาษาไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                </select>
             </div>
         </div>
 
-        <!-- Step 2: 身份证明 -->
-        <div class="form-section" id="documentsSection">
-            <div class="form-group">
-                <label data-i18n="ktpLabel">身份证照片</label>
-                <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
-                    <input type="file" id="ktpInput" accept="image/*" onchange="handleKtpUpload(event)">
-                    <div class="upload-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                    </div>
-                    <p class="upload-text" data-i18n="uploadHint">点击或拖拽上传</p>
-                </div>
-                <div class="error-message" id="ktpError"></div>
+        <div class="progress-container">
+            <div class="progress-line">
+                <div class="progress-line-fill" id="progressFill"></div>
             </div>
-            
-            <div class="form-group">
-                <label data-i18n="holdingKtpLabel">手持身份证照片</label>
-                <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
-                    <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKtpUpload(event)">
-                    <div class="upload-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                    </div>
-                    <p class="upload-text" data-i18n="uploadHint">点击或拖拽上传</p>
-                </div>
-                <div class="error-message" id="holdingKtpError"></div>
+            <div class="progress-step active" id="step1">
+                <div class="progress-circle">1</div>
+                <div class="progress-label" data-i18n="step1">Phone</div>
             </div>
-            
-            <div class="form-group">
-                <label data-i18n="selfieLabel">自拍照片</label>
-                <div class="upload-container" id="selfieUpload" onclick="document.getElementById('selfieInput').click()">
-                    <input type="file" id="selfieInput" accept="image/*" onchange="handleSelfieUpload(event)">
-                    <div class="upload-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="17 8 12 3 7 8"></polyline>
-                            <line x1="12" y1="3" x2="12" y2="15"></line>
-                        </svg>
-                    </div>
-                    <p class="upload-text" data-i18n="uploadHint">点击或拖拽上传</p>
-                </div>
-                <div class="error-message" id="selfieError"></div>
+            <div class="progress-step" id="step2">
+                <div class="progress-circle">2</div>
+                <div class="progress-label" data-i18n="step2">Documents</div>
             </div>
-            
-            <div class="button-group">
-                <button class="btn-secondary" onclick="goToStep(1)" data-i18n="back" title="Back">返回</button>
-                <button class="btn-primary" onclick="validateDocuments()" id="documentsNext" disabled data-i18n="next">下一步</button>
+            <div class="progress-step" id="step3">
+                <div class="progress-circle">3</div>
+                <div class="progress-label" data-i18n="step3">Amount</div>
             </div>
         </div>
-        
-        <!-- Step 3: 贷款金额 -->
-        <div class="form-section" id="amountSection">
+
+        <!-- Step 1: Phone Number -->
+        <div class="form-section active" id="section1">
             <div class="form-group">
-                <label for="amount" data-i18n="amountLabel">贷款金额</label>
+                <label for="phone" data-i18n="phoneLabel">Phone Number</label>
+                <div class="phone-input-container">
+                    <div class="country-code" id="countryCode">
+                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia flag" id="countryFlag" />
+                        <span id="phoneCodeDisplay">+62</span>
+                    </div>
+                    <input type="tel" id="phone" placeholder="812 3456 7890" autocomplete="tel">
+                </div>
+                <div class="error-message" id="phoneError" data-i18n="phoneError">Please enter a valid phone number</div>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="validatePhone()" data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Document Upload -->
+        <div class="form-section" id="section2">
+            <div class="form-group">
+                <label data-i18n="ktpLabel">KTP (Identity Card)</label>
+                <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
+                    <div class="upload-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                    <p class="upload-text" style="font-size: 12px; margin-top: 8px;" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                </div>
+                <input type="file" id="ktpInput" accept="image/*" onchange="handleKTPUpload(event)">
+                <div class="error-message" id="ktpError"></div>
+            </div>
+
+            <div class="form-group">
+                <label data-i18n="holdingKtpLabel">Holding ID Card (Front)</label>
+                <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
+                    <div class="upload-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                    </div>
+                    <p class="upload-text" data-i18n="holdingKtpText">Click to upload a clear photo of you holding your ID Card</p>
+                    <p class="upload-text" style="font-size: 12px; margin-top: 8px;" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                </div>
+                <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKTPUpload(event)">
+                <div class="error-message" id="holdingKtpError"></div>
+            </div>
+
+            <div class="form-group">
+                <label data-i18n="selfieLabel">Face Verification</label>
+                <div class="camera-container" id="cameraContainer" style="display: none;">
+                    <video id="video" autoplay></video>
+                    <div class="camera-overlay"></div>
+                    <div class="face-detection-status" id="faceStatus" data-i18n="positionFace">Position your face in the frame</div>
+                </div>
+                <div class="upload-container" id="selfieUpload" onclick="startCamera()">
+                    <div class="upload-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
+                </div>
+                <button class="btn-primary" id="captureBtn" style="display: none; width: 100%; margin-top: 10px;" onclick="capturePhoto()" data-i18n="capture">Capture Photo</button>
+                <div class="error-message" id="selfieError"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="goToStep(1)" data-i18n="back">Back</button>
+                <button class="btn-primary" onclick="validateDocuments()" id="documentsNext" disabled data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Loan Amount -->
+        <div class="form-section" id="section3">
+            <div class="form-group">
+                <label for="amount" data-i18n="amountLabel">Loan Amount (IDR)</label>
                 <div class="amount-input-container">
                     <div class="amount-display" id="amountDisplay">Rp 0</div>
-                    <span class="amount-toggle" onclick="toggleAmountVisibility()" id="visibilityIcon">👁️</span>
+                    <span class="amount-toggle" onclick="toggleAmountVisibility()">
+                        <span id="visibilityIcon">👁️</span>
+                    </span>
                 </div>
-                <input type="text" id="amount" oninput="formatAmount(event)" placeholder="输入贷款金额" style="display: none;">
+                <input type="text" id="amount" placeholder="Enter amount" oninput="formatAmount(event)">
                 <div class="error-message" id="amountError"></div>
+                <p style="font-size: 14px; color: #666; margin-top: 8px;" data-i18n="amountRange">Min: Rp 1,128,163 - Max: Rp 215,000,000</p>
             </div>
-            
+
             <div class="button-group">
-                <button class="btn-secondary" onclick="goToStep(2)" data-i18n="back" title="Back">返回</button>
-                <button class="btn-primary" onclick="submitApplication()" data-i18n="submit">提交申请</button>
+                <button class="btn-secondary" onclick="goToStep(2)" data-i18n="back">Back</button>
+                <button class="btn-primary" onclick="submitApplication()" data-i18n="submit">Submit Application</button>
             </div>
         </div>
 
         <!-- Success Screen -->
         <div class="form-section" id="successSection">
             <div class="success-container">
-                <!-- 添加返回按钮 -->
-                <button class="back-button" onclick="goToStep(3)" style="position: absolute; top: 20px; left: 20px;" title="Back" data-i18n="backButton">
-                    ←
-                </button>
                 <div class="success-icon">
-                    <svg viewBox="0 0 24 24">
-                        <polyline points="20 6 9 17 4 12" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <h2 data-i18n="successTitle">申请已提交！</h2>
-                <p data-i18n="successMessage">您的贷款申请已成功提交。我们将尽快与您联系。</p>
+                <h2 data-i18n="successTitle">Application Submitted!</h2>
+                <p style="color: #666; margin-top: 16px;" data-i18n="successMessage">Your loan application has been encrypted and submitted successfully.</p>
                 <div class="compliance-notice">
-                    <strong>注意：</strong> 申请提交后，我们的客服团队将在24小时内与您联系。请保持您的手机畅通。
+                    <strong data-i18n="complianceTitle">POJK 35/2018 Compliance:</strong>
+                    <p data-i18n="complianceMessage">Your data is encrypted with AES-256 and will be automatically deleted after 30 days.</p>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- 添加恭喜弹窗 -->
-    <div class="modal-overlay" id="congratsModal" style="display: none;">
-        <div class="modal-content">
-            <div class="celebration-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2L8.93 8.24l-6.93.96 5.04 4.92-1.19 6.96L12 17.54l6.15 3.53-1.19-6.95 5.04-4.92-6.93-.96L12 2z" />
-                </svg>
-            </div>
-            <h2 class="modal-title" id="congratsTitle">恭喜你，贷款金额翻3倍啦！</h2>
-            <p class="modal-message" id="congratsMessage">立即提交资料进行人工审核放款，审核通过会有专员联系您进行放款。</p>
-            <span class="amount-highlight" id="congratsAmount">Rp 6,000,000</span>
-            <button class="modal-button" onclick="hideCongratsModal()" data-i18n="submit">提交申请</button>
         </div>
     </div>
 
     <script>
-        // 阿里云OSS配置
-        let ossClient = null;
-        const ossConfig = {
-            region: 'oss-cn-hangzhou', // 根据您的bucket所在地区修改，例如oss-cn-beijing、oss-cn-shanghai等
-            accessKeyId: '', // 填写您的AccessKeyId，可在阿里云控制台获取
-            accessKeySecret: '', // 填写您的AccessKeySecret，可在阿里云控制台获取
-            bucket: '', // 填写您的Bucket名称，例如example-bucket
-            secure: true, // 使用HTTPS
-            stsServer: 'http://localhost:3001/sts' // STS服务器地址，用于获取临时凭证
-        };
-
-        // 本地文件服务器配置
-        const localServerConfig = {
-            url: 'http://localhost:3000' // 本地服务器地址
-        };
-
-        // 初始化OSS客户端
-        async function initOssClient() {
-            try {
-                // 尝试使用STS服务获取临时凭证
-                if (ossConfig.stsServer) {
-                    try {
-                        console.log('正在获取OSS临时凭证...');
-                        const response = await fetch(ossConfig.stsServer);
-                        
-                        if (!response.ok) {
-                            throw new Error(`获取STS凭证失败: ${response.status}`);
-                        }
-                        
-                        const stsToken = await response.json();
-                        
-                        ossClient = new OSS({
-                            region: stsToken.region || ossConfig.region,
-                            accessKeyId: stsToken.AccessKeyId,
-                            accessKeySecret: stsToken.AccessKeySecret,
-                            bucket: stsToken.bucket || ossConfig.bucket,
-                            stsToken: stsToken.SecurityToken,
-                            secure: ossConfig.secure
-                        });
-                        
-                        console.log('使用STS临时凭证初始化OSS客户端成功');
-                        return;
-                    } catch (error) {
-                        console.warn('获取STS临时凭证失败，将尝试使用AccessKey方式:', error);
-                    }
-                }
-                
-                // 如果STS获取失败或未配置STS，则使用AccessKey方式（不推荐在生产环境使用）
-                if (ossConfig.accessKeyId && ossConfig.accessKeySecret && ossConfig.bucket) {
-                    ossClient = new OSS({
-                        region: ossConfig.region,
-                        accessKeyId: ossConfig.accessKeyId,
-                        accessKeySecret: ossConfig.accessKeySecret,
-                        bucket: ossConfig.bucket,
-                        secure: ossConfig.secure
-                    });
-                    console.log('使用AccessKey初始化OSS客户端成功');
-                } else {
-                    console.error('OSS配置不完整，无法初始化客户端');
-                }
-            } catch (error) {
-                console.error('OSS客户端初始化失败:', error);
+        // 国家信息配置
+        const countryConfig = {
+            id: { // 印度尼西亚
+                code: 'id',
+                phoneCode: '+62',
+                phoneRegex: /^(\+62|62|0)[0-9]{9,13}$/,
+                phonePlaceholder: '+62 812 3456 7890',
+                defaultLang: 'id',
+                currencyCode: 'IDR',
+                flagUrl: 'https://flagcdn.com/w80/id.png',
+                // 添加身份证信息
+                idCardName: 'KTP', // Kartu Tanda Penduduk
+                idCardPattern: /^[0-9]{16}$/, // 印尼身份证号是16位数字
+                idCardFormat: 'xxxxxxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['印尼国徽', 'Republik Indonesia', '16位数字']
+            },
+            my: { // 马来西亚
+                code: 'my',
+                phoneCode: '+60',
+                phoneRegex: /^(\+60|60|0)[0-9]{9,11}$/,
+                phonePlaceholder: '+60 12 345 6789',
+                defaultLang: 'ms',
+                currencyCode: 'MYR',
+                flagUrl: 'https://flagcdn.com/w80/my.png',
+                // 添加身份证信息
+                idCardName: 'MyKad', // 马来西亚身份证
+                idCardPattern: /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/, // 格式：YYMMDD-PB-####
+                idCardFormat: 'xxxxxx-xx-xxxx',
+                // 身份证识别特征
+                idCardFeatures: ['马来西亚国徽', 'MALAYSIA', '12位数字(带连字符)']
+            },
+            th: { // 泰国
+                code: 'th',
+                phoneCode: '+66',
+                phoneRegex: /^(\+66|66|0)[0-9]{8,10}$/,
+                phonePlaceholder: '+66 8 1234 5678',
+                defaultLang: 'th',
+                currencyCode: 'THB',
+                flagUrl: 'https://flagcdn.com/w80/th.png',
+                // 添加身份证信息
+                idCardName: 'บัตรประชาชน', // 泰国身份证
+                idCardPattern: /^[0-9]{13}$/, // 13位数字
+                idCardFormat: 'xxxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['泰国国徽', '泰文字符', '13位数字']
+            },
+            ph: { // 菲律宾
+                code: 'ph',
+                phoneCode: '+63',
+                phoneRegex: /^(\+63|63|0)[0-9]{9,12}$/,
+                phonePlaceholder: '+63 917 123 4567',
+                defaultLang: 'tl',
+                currencyCode: 'PHP',
+                flagUrl: 'https://flagcdn.com/w80/ph.png',
+                // 添加身份证信息
+                idCardName: 'PhilSys ID', // 菲律宾国民身份证
+                idCardPattern: /^[0-9]{12}-[0-9]{1}$/, // 12位数字加1位校验码
+                idCardFormat: 'xxxxxxxxxxxx-x',
+                // 身份证识别特征
+                idCardFeatures: ['菲律宾国徽', 'Republic of the Philippines', 'PhilSys']
+            },
+            vn: { // 越南
+                code: 'vn',
+                phoneCode: '+84',
+                phoneRegex: /^(\+84|84|0)[0-9]{9,11}$/,
+                phonePlaceholder: '+84 90 123 4567',
+                defaultLang: 'vi',
+                currencyCode: 'VND',
+                flagUrl: 'https://flagcdn.com/w80/vn.png',
+                // 添加身份证信息
+                idCardName: 'CMND/CCCD', // 越南身份证
+                idCardPattern: /^[0-9]{9}$|^[0-9]{12}$/, // 9位或12位数字
+                idCardFormat: 'xxxxxxxxx / xxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['越南国徽', 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', '9位或12位数字']
             }
+        };
+
+        // 汇率换算（以人民币为基准）
+        const exchangeRates = {
+            en: { symbol: "$", rate: 0.14, format: (amount) => `$${amount.toFixed(2)} USD` },
+            zh: { symbol: "¥", rate: 1, format: (amount) => `¥${amount.toFixed(2)} 人民币` },
+            id: { symbol: "Rp", rate: 2200, format: (amount) => `Rp ${Math.round(amount).toLocaleString('id-ID')}` },
+            ms: { symbol: "RM", rate: 0.65, format: (amount) => `RM ${amount.toFixed(2)}` },
+            tl: { symbol: "₱", rate: 8.5, format: (amount) => `₱${Math.round(amount).toLocaleString('en-PH')}` },
+            th: { symbol: "฿", rate: 5, format: (amount) => `฿${Math.round(amount).toLocaleString('th-TH')}` },
+            vi: { symbol: "₫", rate: 3500, format: (amount) => `${Math.round(amount).toLocaleString('vi-VN')}₫` }
+        };
+
+        // 生成随机贷款金额（人民币）
+        let loanAmountCNY = {
+            min: 500,
+            max: 20000,
+            current: 0
+        };
+
+        // 当前选择的国家
+        let currentCountry = 'id'; // 默认印度尼西亚
+
+        // 生成一个随机的贷款金额或使用已保存的金额
+        function generateRandomLoanAmount() {
+            // 检查localStorage中是否已有保存的金额
+            const savedAmount = localStorage.getItem('loanAmount');
+            
+            if (savedAmount) {
+                // 如果已有保存的金额，使用它
+                loanAmountCNY.current = parseInt(savedAmount);
+            } else {
+                // 否则生成新的随机金额并保存
+                loanAmountCNY.current = Math.floor(Math.random() * (loanAmountCNY.max - loanAmountCNY.min + 1)) + loanAmountCNY.min;
+                localStorage.setItem('loanAmount', loanAmountCNY.current.toString());
+            }
+            
+            return loanAmountCNY.current;
         }
 
-        // 上传文件到OSS
-                    el.classList.remove('active');
+        // 获取当前语言的金额显示
+        function getFormattedAmount(lang) {
+            const amount = loanAmountCNY.current * exchangeRates[lang].rate;
+            return exchangeRates[lang].format(amount);
+        }
+
+        // Translations
+        const translations = {
+            en: {
+                title: "Micro Loan Application",
+                subtitle: "Quick and secure loan process",
+                step1: "Phone",
+                step2: "Documents",
+                step3: "Amount",
+                phoneLabel: "Phone Number",
+                phoneError: "Please enter a valid phone number",
+                next: "Next",
+                back: "Back",
+                ktpLabel: "KTP (Identity Card)",
+                holdingKtpLabel: "Holding ID Card (Front)",
+                holdingKtpText: "Click to upload a clear photo of you holding your ID Card",
+                holdingKtpSizeError: "Image must be at least 600x400 pixels",
+                holdingKtpUploadError: "File must be an image under 5MB",
+                uploadText: "Click to upload or drag and drop",
+                uploadRequirement: "Minimum 600x400px, Max 5MB",
+                selfieLabel: "Face Verification",
+                positionFace: "Position your face in the frame",
+                startCamera: "Click to start camera",
+                capture: "Capture Photo",
+                amountLabel: "Loan Amount",
+                amountRange: "Min: Rp 1,128,163 - Max: Rp 215,000,000",
+                submit: "Submit Application",
+                successTitle: "Application Submitted!",
+                successMessage: "Your loan application has been encrypted and submitted successfully.",
+                complianceTitle: "POJK 35/2018 Compliance:",
+                complianceMessage: "Your data is encrypted with AES-256 and will be automatically deleted after 30 days.",
+                ktpSizeError: "Image must be at least 600x400 pixels",
+                ktpUploadError: "File must be an image under 5MB",
+                faceDetected: "Face detected! Click capture when ready",
+                faceNotDetected: "No face detected. Please adjust position",
+                pupilDistance: "Pupil distance verified",
+                amountTooLow: "Amount must be at least Rp 1,128,163",
+                amountTooHigh: "Amount cannot exceed Rp 215,000,000",
+                amountNotMultiple: "Amount must be a multiple of 1,000",
+                congratsTitle: "Congratulations!",
+                congratsMessage: "You have been pre-approved for a loan amount of",
+                congratsButton: "Click here for instant approval",
+                selectCountry: "Select your country",
+                idCardLabel: "ID Card",
+                idCardError: "The uploaded ID card doesn't match your selected country. Please upload a valid ID card.",
+                idCardTypeError: "This doesn't appear to be a valid ID card for your country.",
+                holdingIdError: "The ID card you're holding doesn't match your country. Please upload a valid photo.",
+                idCardRequirements: "Please upload a valid {idCardName} for {country}.",
+                faceMismatch: "Your face doesn't match the ID card photo. Please try again.",
+                faceMatchSuccess: "Face verification successful!",
+                verifyingFace: "Comparing with ID photo...",
+                retakePhoto: "Retake Photo",
+                uploadIdFirst: "Please upload your ID card first."
+            },
+            zh: {
+                title: "微额贷款申请",
+                subtitle: "快速安全的贷款流程",
+                step1: "电话",
+                step2: "文件",
+                step3: "金额",
+                phoneLabel: "电话号码",
+                phoneError: "请输入有效的电话号码",
+                next: "下一步",
+                back: "返回",
+                ktpLabel: "KTP (身份证)",
+                holdingKtpLabel: "手持身份证 (正面)",
+                holdingKtpText: "点击上传清晰的手持身份证照片",
+                holdingKtpSizeError: "图片必须至少为600x400像素",
+                holdingKtpUploadError: "文件必须是小于5MB的图片",
+                uploadText: "点击上传或拖放",
+                uploadRequirement: "最小600x400像素，最大5MB",
+                selfieLabel: "人脸验证",
+                positionFace: "将脸部置于框内",
+                startCamera: "点击开始摄像头",
+                capture: "捕获照片",
+                amountLabel: "贷款金额",
+                amountRange: "最小：Rp 1,128,163 - 最大：Rp 215,000,000",
+                submit: "提交申请",
+                successTitle: "申请已提交！",
+                successMessage: "您的贷款申请已加密并成功提交。",
+                complianceTitle: "POJK 35/2018 合规性：",
+                complianceMessage: "您的数据已使用AES-256加密，并将在30天后自动删除。",
+                ktpSizeError: "图片必须至少为600x400像素",
+                ktpUploadError: "文件必须是小于5MB的图片",
+                faceDetected: "检测到人脸！准备好后点击捕获",
+                faceNotDetected: "未检测到人脸。请调整位置",
+                pupilDistance: "瞳距已验证",
+                amountTooLow: "金额必须至少为Rp 1,128,163",
+                amountTooHigh: "金额不能超过Rp 215,000,000",
+                amountNotMultiple: "金额必须是1,000的倍数",
+                congratsTitle: "恭喜！",
+                congratsMessage: "您已获得贷款金额的预批准",
+                congratsButton: "点击此处即可获得即时批准",
+                selectCountry: "选择您的国家",
+                idCardLabel: "身份证",
+                idCardError: "上传的身份证与您选择的国家不匹配。请上传有效的身份证。",
+                idCardTypeError: "这似乎不是您国家的有效身份证。",
+                holdingIdError: "您手持的身份证与您的国家不匹配。请上传有效的照片。",
+                idCardRequirements: "请上传{country}的有效{idCardName}。",
+                faceMismatch: "您的面部与身份证照片不匹配。请重试。",
+                faceMatchSuccess: "面部验证成功！",
+                verifyingFace: "正在与身份证照片比对...",
+                retakePhoto: "重新拍照",
+                uploadIdFirst: "请先上传您的身份证。"
+            },
+            id: {
+                title: "Pengajuan Pinjaman Mikro",
+                subtitle: "Proses pinjaman cepat dan aman",
+                step1: "Telepon",
+                step2: "Dokumen",
+                step3: "Jumlah",
+                phoneLabel: "Nomor Telepon",
+                phoneError: "Masukkan nomor telepon yang valid",
+                next: "Selanjutnya",
+                back: "Kembali",
+                ktpLabel: "KTP (Kartu Tanda Penduduk)",
+                holdingKtpLabel: "Memegang KTP (Depan)",
+                holdingKtpText: "Klik untuk mengunggah foto yang jelas Anda memegang KTP",
+                holdingKtpSizeError: "Gambar harus memiliki setidaknya 600x400 piksel",
+                holdingKtpUploadError: "Berkas harus berupa gambar di bawah 5MB",
+                uploadText: "Klik untuk mengunggah atau seret dan lepas",
+                uploadRequirement: "Minimum 600x400px, Maks 5MB",
+                selfieLabel: "Verifikasi Wajah",
+                positionFace: "Posisikan wajah Anda di dalam bingkai",
+                startCamera: "Klik untuk memulai kamera",
+                capture: "Ambil Foto",
+                amountLabel: "Jumlah Pinjaman",
+                amountRange: "Min: Rp 1,128,163 - Maks: Rp 215,000,000",
+                submit: "Kirim Aplikasi",
+                successTitle: "Aplikasi Dikirim!",
+                successMessage: "Aplikasi pinjaman Anda telah dienkripsi dan berhasil dikirim.",
+                complianceTitle: "Kepatuhan POJK 35/2018:",
+                complianceMessage: "Data Anda dienkripsi dengan AES-256 dan akan dihapus secara otomatis setelah 30 hari.",
+                ktpSizeError: "Gambar harus memiliki setidaknya 600x400 piksel",
+                ktpUploadError: "Berkas harus berupa gambar di bawah 5MB",
+                faceDetected: "Wajah terdeteksi! Klik tangkap ketika siap",
+                faceNotDetected: "Tidak ada wajah terdeteksi. Silakan sesuaikan posisi",
+                pupilDistance: "Jarak pupil diverifikasi",
+                amountTooLow: "Jumlah harus minimal Rp 1,128,163",
+                amountTooHigh: "Jumlah tidak boleh melebihi Rp 215,000,000",
+                amountNotMultiple: "Jumlah harus kelipatan dari 1,000",
+                congratsTitle: "Selamat!",
+                congratsMessage: "Anda telah disetujui secara pra-persetujuan untuk jumlah pinjaman",
+                congratsButton: "Klik di sini untuk persetujuan instan",
+                selectCountry: "Pilih negara Anda",
+                idCardLabel: "KTP",
+                idCardError: "KTP yang diunggah tidak cocok dengan negara yang Anda pilih. Silakan unggah KTP yang valid.",
+                idCardTypeError: "Ini tidak tampak seperti KTP yang valid untuk negara Anda.",
+                holdingIdError: "KTP yang Anda pegang tidak cocok dengan negara Anda. Silakan unggah foto yang valid.",
+                idCardRequirements: "Silakan unggah {idCardName} yang valid untuk {country}.",
+                faceMismatch: "Wajah Anda tidak cocok dengan foto KTP. Silakan coba lagi.",
+                faceMatchSuccess: "Verifikasi wajah berhasil!",
+                verifyingFace: "Membandingkan dengan foto KTP...",
+                retakePhoto: "Ambil Ulang Foto",
+                uploadIdFirst: "Harap unggah kartu identitas Anda terlebih dahulu."
+            },
+            ms: {
+                title: "Permohonan Pinjaman Mikro",
+                subtitle: "Proses pinjaman cepat dan selamat",
+                step1: "Telefon",
+                step2: "Dokumen",
+                step3: "Jumlah",
+                phoneLabel: "Nombor Telefon",
+                phoneError: "Sila masukkan nombor telefon yang sah",
+                next: "Seterusnya",
+                back: "Kembali",
+                ktpLabel: "Kad Pengenalan (MyKad)",
+                holdingKtpLabel: "Memegang Kad Pengenalan (Depan)",
+                holdingKtpText: "Klik untuk muat naik gambar jelas anda memegang Kad Pengenalan",
+                holdingKtpSizeError: "Imej mestilah sekurang-kurangnya 600x400 piksel",
+                holdingKtpUploadError: "Fail mestilah imej di bawah 5MB",
+                uploadText: "Klik untuk muat naik atau seret dan lepas",
+                uploadRequirement: "Minimum 600x400px, Maks 5MB",
+                selfieLabel: "Pengesahan Wajah",
+                positionFace: "Posisikan muka anda di dalam bingkai",
+                startCamera: "Klik untuk memulakan kamera",
+                capture: "Ambil Gambar",
+                amountLabel: "Jumlah Pinjaman",
+                amountRange: "Min: RM 500 - Maks: RM 10,000",
+                submit: "Hantar Permohonan",
+                successTitle: "Permohonan Dihantar!",
+                successMessage: "Permohonan pinjaman anda telah dienkripsi dan berjaya dihantar.",
+                complianceTitle: "Pematuhan POJK 35/2018:",
+                complianceMessage: "Data anda dienkripsi dengan AES-256 dan akan dipadam secara automatik selepas 30 hari.",
+                ktpSizeError: "Imej mestilah sekurang-kurangnya 600x400 piksel",
+                ktpUploadError: "Fail mestilah imej di bawah 5MB",
+                faceDetected: "Muka terdeteksi! Klik tangkap apabila bersedia",
+                faceNotDetected: "Tiada muka terdeteksi. Sila laraskan kedudukan",
+                pupilDistance: "Jarak mata telah disahkan",
+                amountTooLow: "Jumlah mestilah sekurang-kurangnya RM 500",
+                amountTooHigh: "Jumlah tidak boleh melebihi RM 10,000",
+                amountNotMultiple: "Jumlah mestilah gandaan 1,000",
+                congratsTitle: "Tahniah!",
+                congratsMessage: "Anda telah diluluskan pra-persetujuan untuk jumlah pinjaman",
+                congratsButton: "Klik di sini untuk persetujuan segera",
+                selectCountry: "Pilih negara anda",
+                idCardLabel: "Kad Pengenalan",
+                idCardError: "Kad pengenalan yang dimuat naik tidak sepadan dengan negara yang anda pilih. Sila muat naik kad pengenalan yang sah.",
+                idCardTypeError: "Ini tidak kelihatan seperti kad pengenalan yang sah untuk negara anda.",
+                holdingIdError: "Kad pengenalan yang anda pegang tidak sepadan dengan negara anda. Sila muat naik gambar yang sah.",
+                idCardRequirements: "Sila muat naik {idCardName} yang sah untuk {country}.",
+                faceMismatch: "Wajah anda tidak sepadan dengan gambar kad pengenalan. Sila cuba lagi.",
+                faceMatchSuccess: "Pengesahan wajah berjaya!",
+                verifyingFace: "Membandingkan dengan gambar ID...",
+                retakePhoto: "Ambil Semula Foto",
+                uploadIdFirst: "Sila muat naik kad pengenalan anda dahulu."
+            },
+            tl: {
+                title: "Aplikasyon ng Mikro-Pinagkamaynayon",
+                subtitle: "Mabilis at matiyak na proses ng pagkamaynayon",
+                step1: "Telepono",
+                step2: "Mga Dokumento",
+                step3: "Halaga",
+                phoneLabel: "Numero ng Telepono",
+                phoneError: "Mangyaring maglagay ng wastong numero ng telepono",
+                next: "Susunod",
+                back: "Bumalik",
+                ktpLabel: "KTP (Identity Card)",
+                holdingKtpLabel: "Nag-hold ng ID Card (Front)",
+                holdingKtpText: "I-click upang mag-upload ng malinaw na larawan ng iyong nag-hold ng ID Card",
+                holdingKtpSizeError: "Ang larawan ay dapat lamang maging 600x400 pixels o higa pa",
+                holdingKtpUploadError: "Ang file ay dapat lamang maging isang larawan na baba sa 5MB",
+                uploadText: "I-click upang mag-upload o i-drag at i-drop",
+                uploadRequirement: "Minimum 600x400px, Max 5MB",
+                selfieLabel: "Pagpapatunay ng Mukha",
+                positionFace: "I-position ang iyong mukha sa loob ng frame",
+                startCamera: "I-click upang simulan ang camera",
+                capture: "Kumuha ng Larawan",
+                amountLabel: "Halaga ng Pinagkamaynayon",
+                amountRange: "Min: ₱1,000 - Max: ₱10,000",
+                submit: "Isumite ang Aplikasyon",
+                successTitle: "Naisumite ang Aplikasyon!",
+                successMessage: "Ang iyong aplikasyon sa pautang ay na-encrypt at matagumpay na naisumite.",
+                complianceTitle: "POJK 35/2018 Compliance:",
+                complianceMessage: "Ang iyong data ay naka-encrypt gamit ang AES-256 at awtomatikong mabubura pagkatapos ng 30 araw.",
+                ktpSizeError: "Ang larawan ay dapat hindi bababa sa 600x400 pixels",
+                ktpUploadError: "Ang file ay dapat larawan na mas mababa sa 5MB",
+                faceDetected: "Nakita ang mukha! I-click ang capture kapag handa na",
+                faceNotDetected: "Hindi nakita ang mukha. Pakiusap ayusin ang posisyon",
+                pupilDistance: "Na-verify ang distansya ng pupil",
+                amountTooLow: "Ang halaga ay dapat hindi bababa sa Rp 1,128,163",
+                amountTooHigh: "Ang halaga ay hindi dapat lumampas sa Rp 215,000,000",
+                amountNotMultiple: "Ang halaga ay dapat multiple ng 1,000",
+                congratsTitle: "Binabati ka!",
+                congratsMessage: "Naaprubahan ka para sa halagang pautang na",
+                congratsButton: "I-click dito para sa instant approval",
+                selectCountry: "Piliin ang iyong bansa",
+                idCardLabel: "ID Card",
+                idCardError: "Ang nai-upload na ID card ay hindi tumutugma sa bansa na iyong pinili. Mangyaring mag-upload ng wastong ID card.",
+                idCardTypeError: "Mukhang hindi ito wastong ID card para sa iyong bansa.",
+                holdingIdError: "Ang ID card na hawak mo ay hindi tumutugma sa iyong bansa. Mangyaring mag-upload ng wastong larawan.",
+                idCardRequirements: "Mangyaring mag-upload ng wastong {idCardName} para sa {country}.",
+                faceMismatch: "Hindi tumutugma ang iyong mukha sa larawan ng ID card. Pakisubukang muli.",
+                faceMatchSuccess: "Matagumpay ang pag-verify ng mukha!",
+                verifyingFace: "Pinaghahambing sa larawan ng ID...",
+                retakePhoto: "Kumuha Muli ng Larawan",
+                uploadIdFirst: "Mangyaring i-upload muna ang iyong ID card."
+            },
+            th: {
+                title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
+                subtitle: "กระบวนการกู้เงินที่รวดเร็วและปลอดภัย",
+                step1: "โทรศัพท์",
+                step2: "เอกสาร",
+                step3: "จำนวนเงิน",
+                phoneLabel: "หมายเลขโทรศัพท์อินโดนีเซีย",
+                phoneError: "กรุณาใส่หมายเลขโทรศัพท์อินโดนีเซียที่ถูกต้อง",
+                next: "ถัดไป",
+                back: "กลับ",
+                ktpLabel: "KTP (บัตรประจำตัว)",
+                holdingKtpLabel: "ถือบัตรประจำตัว (ด้านหน้า)",
+                holdingKtpText: "คลิกเพื่ออัปโหลดภาพถ่ายที่ชัดเจนของคุณถือบัตรประจำตัว",
+                holdingKtpSizeError: "รูปภาพต้องมีขนาดอย่างน้อย 600x400 พิกเซล",
+                holdingKtpUploadError: "ไฟล์ต้องเป็นรูปภาพขนาดต่ำกว่า 5MB",
+                uploadText: "คลิกเพื่ออัปโหลดหรือลากและวาง",
+                uploadRequirement: "ขั้นต่ำ 600x400px, สูงสุด 5MB",
+                selfieLabel: "การยืนยันใบหน้า",
+                positionFace: "วางใบหน้าของคุณในกรอบ",
+                startCamera: "คลิกเพื่อเริ่มกล้อง",
+                capture: "ถ่ายภาพ",
+                amountLabel: "จำนวนเงินกู้ (IDR)",
+                amountRange: "ขั้นต่ำ: Rp 1,128,163 - สูงสุด: Rp 215,000,000",
+                submit: "ส่งใบสมัคร",
+                successTitle: "ส่งใบสมัครเรียบร้อย!",
+                successMessage: "ใบสมัครกู้เงินของคุณได้รับการเข้ารหัสและส่งเรียบร้อยแล้ว",
+                complianceTitle: "การปฏิบัติตาม POJK 35/2018:",
+                complianceMessage: "ข้อมูลของคุณถูกเข้ารหัสด้วย AES-256 และจะถูกลบโดยอัตโนมัติหลังจาก 30 วัน",
+                ktpSizeError: "รูปภาพต้องมีขนาดอย่างน้อย 600x400 พิกเซล",
+                ktpUploadError: "ไฟล์ต้องเป็นรูปภาพขนาดต่ำกว่า 5MB",
+                faceDetected: "ตรวจพบใบหน้า! คลิกถ่ายภาพเมื่อพร้อม",
+                faceNotDetected: "ไม่พบใบหน้า กรุณาปรับตำแหน่ง",
+                pupilDistance: "ยืนยันระยะห่างรูม่านตา",
+                amountTooLow: "จำนวนเงินต้องไม่ต่ำกว่า Rp 1,128,163",
+                amountTooHigh: "จำนวนเงินต้องไม่เกิน Rp 215,000,000",
+                amountNotMultiple: "จำนวนเงินต้องเป็นจำนวนเท่าของ 1,000",
+                congratsTitle: "ยินดีด้วย!",
+                congratsMessage: "คุณได้รับอนุมัติวงเงินกู้",
+                congratsButton: "คลิกที่นี่เพื่ออนุมัติทันที",
+                selectCountry: "เลือกประเทศของคุณ",
+                idCardLabel: "บัตรประจำตัวประชาชน",
+                idCardError: "บัตรประจำตัวประชาชนที่อัปโหลดไม่ตรงกับประเทศที่คุณเลือก โปรดอัปโหลดบัตรประจำตัวประชาชนที่ถูกต้อง",
+                idCardTypeError: "ดูเหมือนไม่ใช่บัตรประจำตัวประชาชนที่ถูกต้องสำหรับประเทศของคุณ",
+                holdingIdError: "บัตรประจำตัวประชาชนที่คุณถืออยู่ไม่ตรงกับประเทศของคุณ โปรดอัปโหลดรูปที่ถูกต้อง",
+                idCardRequirements: "กรุณาอัปโหลด {idCardName} ที่ถูกต้องสำหรับ {country}",
+                faceMismatch: "ใบหน้าของคุณไม่ตรงกับรูปถ่ายบัตรประจำตัว โปรดลองอีกครั้ง",
+                faceMatchSuccess: "การยืนยันใบหน้าสำเร็จ!",
+                verifyingFace: "กำลังเปรียบเทียบกับรูปถ่ายบัตรประจำตัว...",
+                retakePhoto: "ถ่ายภาพใหม่",
+                uploadIdFirst: "กรุณาอัปโหลดบัตรประจำตัวของคุณก่อน"
+            },
+            vi: {
+                title: "Ứng dụng Vay vốn nhỏ",
+                subtitle: "Quy trình vay vốn nhanh chóng và an toàn",
+                step1: "Điện thoại",
+                step2: "Tài liệu",
+                step3: "Số tiền",
+                phoneLabel: "Số điện thoại Indonesia",
+                phoneError: "Vui lòng nhập số điện thoại Indonesia hợp lệ",
+                next: "Tiếp theo",
+                back: "Quay lại",
+                ktpLabel: "KTP (Chứng minh thư)",
+                holdingKtpLabel: "Cầm CMND (Mặt trước)",
+                holdingKtpText: "Nhấp để tải lên ảnh rõ nét của bạn cầm CMND",
+                holdingKtpSizeError: "Hình ảnh phải có ít nhất 600x400 pixel",
+                holdingKtpUploadError: "Tệp phải là hình ảnh dưới 5MB",
+                uploadText: "Nhấp để tải lên hoặc kéo và thả",
+                uploadRequirement: "Tối thiểu 600x400px, Tối đa 5MB",
+                selfieLabel: "Xác minh khuôn mặt",
+                positionFace: "Đặt khuôn mặt của bạn trong khung",
+                startCamera: "Nhấp để bắt đầu camera",
+                capture: "Chụp ảnh",
+                amountLabel: "Số tiền vay (IDR)",
+                amountRange: "Tối thiểu: Rp 1.128.163 - Tối đa: Rp 215.000.000",
+                submit: "Gửi đơn",
+                successTitle: "Đã gửi đơn!",
+                successMessage: "Đơn vay vốn của bạn đã được mã hóa và gửi thành công.",
+                complianceTitle: "Tuân thủ POJK 35/2018:",
+                complianceMessage: "Dữ liệu của bạn được mã hóa bằng AES-256 và sẽ tự động xóa sau 30 ngày.",
+                ktpSizeError: "Hình ảnh phải có ít nhất 600x400 pixel",
+                ktpUploadError: "Tệp phải là hình ảnh dưới 5MB",
+                faceDetected: "Đã phát hiện khuôn mặt! Nhấp chụp khi sẵn sàng",
+                faceNotDetected: "Không phát hiện khuôn mặt. Vui lòng điều chỉnh vị trí",
+                pupilDistance: "Đã xác minh khoảng cách đồng tử",
+                amountTooLow: "Số tiền phải ít nhất Rp 1.128.163",
+                amountTooHigh: "Số tiền không được vượt quá Rp 215.000.000",
+                amountNotMultiple: "Số tiền phải là bội số của 1.000",
+                congratsTitle: "Xin chúc mừng!",
+                congratsMessage: "Bạn đã được phê duyệt khoản vay",
+                congratsButton: "Nhấp vào đây để phê duyệt ngay",
+                selectCountry: "Chọn quốc gia của bạn",
+                idCardLabel: "Thẻ căn cước",
+                idCardError: "Thẻ căn cước được tải lên không khớp với quốc gia bạn đã chọn. Vui lòng tải lên thẻ căn cước hợp lệ.",
+                idCardTypeError: "Thẻ này dường như không phải là thẻ căn cước hợp lệ cho quốc gia của bạn.",
+                holdingIdError: "Thẻ căn cước bạn đang cầm không khớp với quốc gia của bạn. Vui lòng tải lên ảnh hợp lệ.",
+                idCardRequirements: "Vui lòng tải lên {idCardName} hợp lệ cho {country}.",
+                faceMismatch: "Khuôn mặt của bạn không khớp với ảnh trên thẻ căn cước. Vui lòng thử lại.",
+                faceMatchSuccess: "Xác minh khuôn mặt thành công!",
+                verifyingFace: "Đang so sánh với ảnh trên thẻ...",
+                retakePhoto: "Chụp lại ảnh",
+                uploadIdFirst: "Vui lòng tải lên thẻ căn cước của bạn trước."
+            }
+        };
+
+        let currentLang = 'en';
+        let currentStep = 1;
+        let ktpUploaded = false;
+        let holdingKtpUploaded = false;
+        let selfieUploaded = false;
+        let phoneNumber = '';
+        let amountVisible = true;
+        let stream = null;
+
+        // 全局变量，存储身份证照片和自拍照的数据
+        let ktpImageData = null;
+        let selfieImageData = null;
+        let faceMatchSuccess = false;
+
+        // 国家选择功能
+        function selectCountry(countryCode) {
+            if (!countryConfig[countryCode]) return;
+            
+            // 保存选中的国家
+            currentCountry = countryCode;
+            localStorage.setItem('selectedCountry', countryCode);
+            
+            // 更新国家选择UI
+            document.querySelectorAll('.country-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.country-option[data-country="${countryCode}"]`).classList.add('active');
+            
+            // 切换到相应的语言
+            const countryLang = countryConfig[countryCode].defaultLang;
+            currentLang = countryLang;
+            document.getElementById('languageSelect').value = countryLang;
+            document.getElementById('modalLanguageSelect').value = countryLang;
+            
+            // 更新手机号相关内容
+            updatePhoneInputForCountry(countryCode);
+            
+            // 更新身份证标签和要求
+            updateIDCardLabels();
+            
+            // 更新界面翻译
+            applyTranslations();
+            updateModalLanguage();
+            
+            // 如果已经上传了身份证，需要重新检查是否匹配当前国家
+            if (ktpUploaded) {
+                // 重新验证身份证
+                const ktpInput = document.getElementById('ktpInput');
+                if (ktpInput.files && ktpInput.files[0]) {
+                    handleKTPUpload({target: {files: [ktpInput.files[0]]}});
+                }
+            }
+            
+            if (holdingKtpUploaded) {
+                // 重新验证手持身份证
+                const holdingKtpInput = document.getElementById('holdingKtpInput');
+                if (holdingKtpInput.files && holdingKtpInput.files[0]) {
+                    handleHoldingKTPUpload({target: {files: [holdingKtpInput.files[0]]}});
+                }
+            }
+        }
+        
+        // 根据国家更新手机号输入
+        function updatePhoneInputForCountry(countryCode) {
+            const config = countryConfig[countryCode];
+            const phoneInput = document.getElementById('phone');
+            const phoneLabel = document.querySelector('[data-i18n="phoneLabel"]');
+            
+            // 更新手机号占位符，但不包含区号部分
+            phoneInput.placeholder = config.phonePlaceholder.replace(config.phoneCode, '').trim();
+            
+            // 更新区号显示
+            document.getElementById('phoneCodeDisplay').textContent = config.phoneCode;
+            document.getElementById('countryFlag').src = config.flagUrl;
+            document.getElementById('countryFlag').alt = `${countryCode} flag`;
+            
+            // 动态更新手机号标签，根据国家添加国家名称
+            const countryNames = {
+                en: { id: 'Indonesian', my: 'Malaysian', th: 'Thai', ph: 'Philippine', vn: 'Vietnamese' },
+                zh: { id: '印尼', my: '马来西亚', th: '泰国', ph: '菲律宾', vn: '越南' },
+                id: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                ms: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                tl: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Pilipinas', vn: 'Vietnam' },
+                th: { id: 'อินโดนีเซีย', my: 'มาเลเซีย', th: 'ไทย', ph: 'ฟิลิปปินส์', vn: 'เวียดนาม' },
+                vi: { id: 'Indonesia', my: 'Malaysia', th: 'Thái Lan', ph: 'Philippines', vn: 'Việt Nam' }
+            };
+            
+            // 为每种语言创建不同国家的手机号标签翻译
+            Object.keys(translations).forEach(lang => {
+                if (countryNames[lang]) {
+                    translations[lang].phoneLabel = `${countryNames[lang][countryCode]} Phone Number`;
                 }
             });
             
-            // 应用翻译
-            applyTranslations();
+            // 更新当前显示的标签文本
+            if (phoneLabel) {
+                phoneLabel.textContent = translations[currentLang].phoneLabel;
+            }
+        }
+
+        // Initialize
+        function init() {
+            // 生成随机贷款金额
+            generateRandomLoanAmount();
             
-            // 更新欢迎模态框内容（包含金额生成逻辑）
-            updateWelcomeModalContent(currentCountry);
+            // 从localStorage恢复选择的国家，如果有的话
+            const savedCountry = localStorage.getItem('selectedCountry');
+            if (savedCountry && countryConfig[savedCountry]) {
+                currentCountry = savedCountry;
+                // 选择相应的语言
+                currentLang = countryConfig[savedCountry].defaultLang;
+            }
+            
+            // 确保语言选择器的默认值与当前语言一致
+            document.getElementById('languageSelect').value = currentLang;
+            document.getElementById('modalLanguageSelect').value = currentLang;
+            
+            // 高亮显示当前选择的国家
+            document.querySelectorAll('.country-option').forEach(el => {
+                if (el.dataset.country === currentCountry) {
+                    el.classList.add('active');
+                }
+            });
             
             // 更新手机号输入框
             updatePhoneInputForCountry(currentCountry);
             
-            // 更新进度条
-            updateProgressBar();
-        
-            // 显示欢迎模态框
-            showWelcomeModal();
+            // 更新身份证标签
+            updateIDCardLabels();
             
-            // 创建装饰效果
+            updateProgressBar();
+            applyTranslations();
+            showWelcomeModal();
             createConfetti();
         }
-        
-        // 更新模态框语言
+
+        // Show welcome modal
+        function showWelcomeModal() {
+            document.getElementById('welcomeModal').style.display = 'flex';
+            updateModalLanguage();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('welcomeModal').style.display = 'none';
+        }
+
+        // Update modal language
         function updateModalLanguage() {
-            const welcomeAmount = document.getElementById('welcomeAmount');
-            if (welcomeAmount) {
-                // 根据当前语言和国家更新金额显示格式
-                const config = countryConfig[currentCountry];
-                
-                // 检查localStorage中是否已有保存的金额
-                const savedAmount = localStorage.getItem('loanAmount_' + currentCountry);
-                
-                let amountToShow;
-                if (savedAmount) {
-                    // 如果已有保存的金额，使用它
-                    amountToShow = parseInt(savedAmount);
-                } else {
-                    // 如果没有保存的金额，生成一个并保存
-                    const min = config.minAmount;
-                    const max = Math.min(config.maxAmount, min * 10);
-                    const randomAmount = Math.floor(Math.random() * (max - min + 1) + min);
-                    amountToShow = Math.round(randomAmount / 1000) * 1000;
-                    
-                    // 将生成的金额保存到localStorage
-                    localStorage.setItem('loanAmount_' + currentCountry, amountToShow.toString());
-                }
-                
-                // 更新显示
-                welcomeAmount.textContent = config.currency + ' ' + amountToShow.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-            }
-        }
-        
-        // 生成随机贷款金额
-        function generateRandomLoanAmount() {
-            // 获取当前国家配置
-            const config = countryConfig[currentCountry];
+            document.getElementById('modalTitle').textContent = translations[currentLang].congratsTitle;
+            document.getElementById('modalMessage').textContent = translations[currentLang].congratsMessage;
+            document.getElementById('modalButton').textContent = translations[currentLang].congratsButton;
             
-            // 检查localStorage中是否已有保存的金额
-            const savedAmount = localStorage.getItem('loanAmount_' + currentCountry);
-            
-            let roundedAmount;
-            if (savedAmount) {
-                // 如果已有保存的金额，使用它
-                roundedAmount = parseInt(savedAmount);
-            } else {
-                // 在合理范围内生成随机金额
-                const min = config.minAmount;
-                const max = Math.min(config.maxAmount, min * 10); // 最大不超过最小值的10倍
-                const randomAmount = Math.floor(Math.random() * (max - min + 1) + min);
-                
-                // 四舍五入到合适的倍数
-                roundedAmount = Math.round(randomAmount / 1000) * 1000;
-                
-                // 将生成的金额保存到localStorage
-                localStorage.setItem('loanAmount_' + currentCountry, roundedAmount.toString());
-            }
-            
-            // 更新欢迎页面的金额显示
-            const welcomeAmount = document.getElementById('welcomeAmount');
-            if (welcomeAmount) {
-                welcomeAmount.textContent = config.currency + ' ' + roundedAmount.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-            }
-        }
-        
-        // 处理身份证上传
-        function handleKtpUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // 保存图像数据供后续使用
-                ktpImageData = e.target.result;
-                
-                // 更新UI显示已上传的图像
-                const ktpUpload = document.getElementById('ktpUpload');
-                ktpUpload.classList.add('has-image');
-                ktpUpload.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="ID Card" onclick="document.getElementById('ktpInput').click()">`;
-                
-                // 验证身份证
-                if (validateIDCardMatch()) {
-                    ktpUploaded = true;
-                    checkDocumentCompletion();
-                    
-                    // 上传到OSS
-                    uploadToOSS(file, 'ktp').then(url => {
-                        if (url) {
-                            ktpOssUrl = url; // 保存OSS URL
-                        }
-                    });
-                    
-                    // 同时上传到本地服务器
-                    uploadToLocalServer(file, 'ktp').then(path => {
-                        console.log('身份证照片已保存到本地:', path);
-                    });
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // 处理手持身份证上传
-        function handleHoldingKtpUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // 更新UI显示已上传的图像
-                const holdingKtpUpload = document.getElementById('holdingKtpUpload');
-                holdingKtpUpload.classList.add('has-image');
-                holdingKtpUpload.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="Holding ID Card" onclick="document.getElementById('holdingKtpInput').click()">`;
-                
-                // 验证手持身份证
-                if (validateHoldingIDMatch()) {
-                    holdingKtpUploaded = true;
-                    checkDocumentCompletion();
-                    
-                    // 上传到OSS
-                    uploadToOSS(file, 'holding_ktp').then(url => {
-                        if (url) {
-                            holdingKtpOssUrl = url; // 保存OSS URL
-                        }
-                    });
-                    
-                    // 同时上传到本地服务器
-                    uploadToLocalServer(file, 'holding_ktp').then(path => {
-                        console.log('手持身份证照片已保存到本地:', path);
-                    });
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // 处理自拍照片上传
-        function handleSelfieUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                // 保存图像数据供后续使用
-                selfieImageData = e.target.result;
-                
-                // 更新UI显示已上传的图像
-                const selfieUpload = document.getElementById('selfieUpload');
-                selfieUpload.classList.add('has-image');
-                selfieUpload.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="Selfie" onclick="document.getElementById('selfieInput').click()">`;
-                
-                // 模拟人脸验证过程
-                simulateFaceVerification();
-                
-                // 上传到OSS
-                uploadToOSS(file, 'selfie').then(url => {
-                    if (url) {
-                        selfieOssUrl = url; // 保存OSS URL
-                    }
-                });
-                
-                // 同时上传到本地服务器
-                uploadToLocalServer(file, 'selfie').then(path => {
-                    console.log('自拍照片已保存到本地:', path);
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        // 模拟人脸验证
-        function simulateFaceVerification() {
-            // 在实际应用中，这里应该调用人脸识别API进行比对
-            // 此处为简化，使用随机数模拟验证结果
-            
-            // 显示验证中的状态
-            const selfieError = document.getElementById('selfieError');
-            selfieError.textContent = '正在验证人脸...';
-            selfieError.classList.add('show');
-            
-            // 延时模拟验证过程
-            setTimeout(() => {
-                const random = Math.random();
-                if (random > 0.3) { // 70%的概率验证成功
-                    selfieError.classList.remove('show');
-                    selfieUploaded = true;
-                    faceMatchSuccess = true;
-                } else {
-                    selfieError.textContent = translations[currentLang].faceMismatch;
-                    selfieError.classList.add('show');
-                    selfieUploaded = true;
-                    faceMatchSuccess = false;
-                }
-                
-                checkDocumentCompletion();
-            }, 1500); // 1.5秒后显示结果
-        }
-        
-        // 检查文档是否全部上传完成
-        function checkDocumentCompletion() {
-            const documentsNext = document.getElementById('documentsNext');
-            
-            // 只有当所有文档都上传且人脸匹配成功时才启用下一步按钮
-            if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
-                documentsNext.disabled = false;
-            } else {
-                documentsNext.disabled = true;
-            }
-        }
-        
-        // 验证文档并进入下一步
-        function validateDocuments() {
-            // 如果所有文档都已上传且验证通过，进入下一步
-            if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
-                goToStep(3);
-            }
-        }
-        
-        // 格式化金额输入
-        function formatAmount(event) {
-            const config = countryConfig[currentCountry];
-            const amountInput = event.target;
-            const amountDisplay = document.getElementById('amountDisplay');
-            const amountError = document.getElementById('amountError');
-            
-            // 移除非数字字符
-            let value = amountInput.value.replace(/\D/g, '');
-            
-            // 如果为空，显示0
-            if (!value) {
-                amountDisplay.textContent = config.currency + ' 0';
-                amountError.classList.remove('show');
-                return;
-            }
-            
-            // 转换为数字
-            const numValue = parseInt(value);
-            
-            // 验证金额范围
-            if (numValue < config.minAmount) {
-                amountError.textContent = translations[currentLang].amountTooLow.replace('Rp 1,128,163', config.currency + ' ' + config.minAmount.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US'));
-                amountError.classList.add('show');
-            } else if (numValue > config.maxAmount) {
-                amountError.textContent = translations[currentLang].amountTooHigh.replace('Rp 215,000,000', config.currency + ' ' + config.maxAmount.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US'));
-                amountError.classList.add('show');
-            } else if (numValue % 1000 !== 0) {
-                amountError.textContent = translations[currentLang].amountNotMultiple;
-                amountError.classList.add('show');
-            } else {
-                amountError.classList.remove('show');
-            }
-            
-            // 更新显示金额
-            amountDisplay.textContent = config.currency + ' ' + numValue.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-        }
-        
-        // 切换金额可见性
-        function toggleAmountVisibility() {
-            const amountDisplay = document.getElementById('amountDisplay');
-            const visibilityIcon = document.getElementById('visibilityIcon');
-            
-            if (amountDisplay.style.filter === 'blur(5px)') {
-                amountDisplay.style.filter = 'none';
-                visibilityIcon.textContent = '👁️';
-            } else {
-                amountDisplay.style.filter = 'blur(5px)';
-                visibilityIcon.textContent = '👁️‍🗨️';
-            }
-        }
-        
-        // 提交申请
-        function submitApplication() {
-            // 收集所有数据
-            const applicationData = {
-                phoneNumber: phoneNumber,
-                country: currentCountry,
-                language: currentLang,
-                amount: document.getElementById('amountDisplay').textContent,
-                ktpUrl: ktpOssUrl,
-                holdingKtpUrl: holdingKtpOssUrl,
-                selfieUrl: selfieOssUrl,
-                timestamp: new Date().toISOString()
-            };
-            
-            // 可以将数据发送到后端API或保存到数据库
-            console.log('提交的申请数据:', applicationData);
-            
-            // 保存到本地服务器
-            saveApplicationToLocalServer(applicationData).then(path => {
-                console.log('申请数据已保存到本地:', path);
-                showCongratsModal();
-            });
-            
-            // 也可以将数据保存到OSS作为JSON文件
-            const jsonBlob = new Blob([JSON.stringify(applicationData)], { type: 'application/json' });
-            const jsonFile = new File([jsonBlob], `application_${phoneNumber}_${Date.now()}.json`);
-            
-            uploadToOSS(jsonFile, 'application').then(url => {
-                console.log('申请数据已保存到OSS:', url);
-                
-                // 同时上传到本地服务器
-                uploadToLocalServer(jsonFile, 'application_json').then(path => {
-                    console.log('申请JSON文件已保存到本地:', path);
-                });
-                
-                showCongratsModal();
-            });
-        }
-        
-        // 显示恭喜弹窗
-        function showCongratsModal() {
-            document.getElementById('congratsModal').style.display = 'flex';
-        }
-        
-        // 隐藏恭喜弹窗并提交申请
-        function hideCongratsModal() {
-            document.getElementById('congratsModal').style.display = 'none';
-            goToStep(4); // 直接跳转到成功页面
+            // 更新金额显示
+            document.getElementById('amountDisplay').textContent = getFormattedAmount(currentLang);
         }
 
-        // 验证电话号码
-        function validatePhone() {
-            const phoneInput = document.getElementById('phone');
-            const phoneError = document.getElementById('phoneError');
-            const phoneValue = phoneInput.value.trim();
-            
-            // 简单验证：检查是否输入了至少8位数字
-            if (phoneValue.length < 8 || !/^\d+$/.test(phoneValue)) {
-                phoneError.textContent = translations[currentLang].phoneError;
-                phoneError.classList.add('show');
-                return false;
-            }
-            
-            phoneError.classList.remove('show');
-            return true;
-        }
-        
-        // 更新手机号码输入框(空实现，因为我们不再需要这个功能)
-        function updatePhoneInputForCountry(country) {
-            const countryCodePrefix = document.getElementById('countryCodePrefix');
-            if (countryCodePrefix && countryConfig[country]) {
-                countryCodePrefix.textContent = countryConfig[country].countryCode;
-            }
-        }
-        
-        // 设置金额为欢迎弹窗金额的3倍
-        function setTripleAmount() {
-            const config = countryConfig[currentCountry];
-            const savedAmount = localStorage.getItem('loanAmount_' + currentCountry);
-            
-            if (savedAmount) {
-                const originalAmount = parseInt(savedAmount);
-                const tripleAmount = originalAmount * 3;
-                
-                // 更新恭喜弹窗中的金额
-                const congratsAmount = document.getElementById('congratsAmount');
-                if (congratsAmount) {
-                    congratsAmount.textContent = config.currency + ' ' + tripleAmount.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-                }
-                
-                // 更新恭喜弹窗的标题和消息
-                updateCongratsModalTranslations();
-            }
-        }
-        
-        // 设置第三步贷款金额显示与欢迎弹窗一致
-        function setLoanAmount() {
-            const config = countryConfig[currentCountry];
-            const savedAmount = localStorage.getItem('loanAmount_' + currentCountry);
-            
-            if (savedAmount) {
-                const amount = parseInt(savedAmount);
-                
-                // 更新显示金额
-                const amountDisplay = document.getElementById('amountDisplay');
-                if (amountDisplay) {
-                    amountDisplay.textContent = config.currency + ' ' + amount.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-                }
-            }
-        }
-        
-        // 验证并进入下一步
-        function validateAndProceed() {
-            if (validatePhone()) {
-                // 保存电话号码（带国家代码）
-                const countryCode = countryConfig[currentCountry].countryCode;
-                phoneNumber = countryCode + document.getElementById('phone').value.trim();
-                
-                // 进入下一步
-                goToStep(2);
-            }
-        }
-        
-        // 更新进度条
-        function updateProgressBar(step = 1) {
-            // 清除所有步骤的状态
-            document.querySelectorAll('.progress-step').forEach(stepEl => {
-                stepEl.classList.remove('active', 'completed');
-            });
-            
-            // 设置当前步骤的状态
-            for (let i = 1; i <= 3; i++) {
-                const stepEl = document.getElementById(`step${i}`);
-                if (i < step) {
-                    stepEl.classList.add('completed');
-                } else if (i === step) {
-                    stepEl.classList.add('active');
-                }
-            }
-            
-            // 更新进度线
-            const progressPercentage = (step - 1) * 50; // 三个步骤，进度为 0%, 50%, 100%
-            document.getElementById('progressLineFill').style.width = `${progressPercentage}%`;
+        // 弹窗语言切换
+        function changeModalLanguage() {
+            currentLang = document.getElementById('modalLanguageSelect').value;
+            document.getElementById('languageSelect').value = currentLang;
+            updateModalLanguage();
+            applyTranslations();
         }
 
-        // 应用翻译
+        // Language change handler
+        function changeLanguage() {
+            currentLang = document.getElementById('languageSelect').value;
+            document.getElementById('modalLanguageSelect').value = currentLang;
+            applyTranslations();
+            updateModalLanguage();
+        }
+
+        // Apply translations
         function applyTranslations() {
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[currentLang] && translations[currentLang][key]) {
+                if (translations[currentLang][key]) {
                     el.textContent = translations[currentLang][key];
                 }
             });
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f687b3', '#48bb78', '#4299e1'];
+            const modalContent = document.querySelector('.modal-content');
             
-            // 更新占位符文本
-            const phoneInput = document.getElementById('phone');
-            if (phoneInput && translations[currentLang].phonePlaceholder) {
-                phoneInput.placeholder = translations[currentLang].phonePlaceholder;
-            }
-            
-            // 更新模态框内容
-            updateModalLanguage();
-            
-            // 更新身份证标签
-            updateIDCardLabels();
-            
-            // 更新恭喜弹窗翻译
-            updateCongratsModalTranslations();
-            
-            // 更新success页面的注意事项
-            const complianceNotice = document.querySelector('.compliance-notice');
-            if (complianceNotice) {
-                if (currentLang === 'en') {
-                    complianceNotice.innerHTML = "<strong>Note:</strong> After submission, our customer service team will contact you within 24 hours. Please keep your phone available.";
-                } else if (currentLang === 'id') {
-                    complianceNotice.innerHTML = "<strong>Catatan:</strong> Setelah pengajuan, tim layanan pelanggan kami akan menghubungi Anda dalam waktu 24 jam. Harap jaga telepon Anda tetap tersedia.";
-                } else if (currentLang === 'ms') {
-                    complianceNotice.innerHTML = "<strong>Nota:</strong> Selepas penyerahan, pasukan perkhidmatan pelanggan kami akan menghubungi anda dalam tempoh 24 jam. Sila pastikan telefon anda boleh dihubungi.";
-                } else if (currentLang === 'tl') {
-                    complianceNotice.innerHTML = "<strong>Paalala:</strong> Pagkatapos ng pagsumite, makikipag-ugnayan sa iyo ang aming customer service team sa loob ng 24 na oras. Mangyaring panatilihing available ang iyong telepono.";
-                } else if (currentLang === 'th') {
-                    complianceNotice.innerHTML = "<strong>หมายเหตุ:</strong> หลังจากส่งใบสมัคร ทีมบริการลูกค้าของเราจะติดต่อคุณภายใน 24 ชั่วโมง โปรดรักษาโทรศัพท์ของคุณให้พร้อมใช้งาน";
-                } else if (currentLang === 'vi') {
-                    complianceNotice.innerHTML = "<strong>Lưu ý:</strong> Sau khi gửi đơn, đội ngũ dịch vụ khách hàng của chúng tôi sẽ liên hệ với bạn trong vòng 24 giờ. Vui lòng giữ điện thoại của bạn luôn hoạt động.";
-                } else {
-                    complianceNotice.innerHTML = "<strong>注意：</strong> 申请提交后，我们的客服团队将在24小时内与您联系。请保持您的手机畅通。";
-                }
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                modalContent.appendChild(confetti);
             }
         }
 
-        // 选择语言
-        function selectLanguage(lang) {
-            if (translations[lang]) {
-                currentLang = lang;
-                document.getElementById('currentLangFlag').src = languageFlags[lang];
-                document.getElementById('languageOptions').classList.remove('show');
-                
-                // 保存选择的语言到localStorage
-                localStorage.setItem('selectedLanguage', lang);
-                
-                // 同步模态框的语言
-                document.getElementById('modalCurrentLangFlag').src = languageFlags[lang];
-                
-                // 高亮显示当前选择的语言
-                document.querySelectorAll('.language-option').forEach(el => {
-                    if (el.dataset.lang === lang) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
-                });
-                
-                // 应用翻译
-                applyTranslations();
-            }
+        // Progress bar update
+        function updateProgressBar() {
+            const progress = ((currentStep - 1) / 2) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
         }
-        
-        // 选择模态框语言
-        function selectModalLanguage(lang) {
-            if (translations[lang]) {
-                currentLang = lang;
-                document.getElementById('modalCurrentLangFlag').src = languageFlags[lang];
-                document.getElementById('modalLanguageOptions').classList.remove('show');
-                
-                // 保存选择的语言到localStorage
-                localStorage.setItem('selectedLanguage', lang);
-                
-                // 同步主界面的语言
-                document.getElementById('currentLangFlag').src = languageFlags[lang];
-                
-                // 高亮显示当前选择的语言
-                document.querySelectorAll('.language-option').forEach(el => {
-                    if (el.dataset.lang === lang) {
-                        el.classList.add('active');
-                    } else {
-                        el.classList.remove('active');
-                    }
-                });
-                
-                // 应用翻译
-                applyTranslations();
-            }
-        }
-        
-        // 语言对应的国旗
-        const languageFlags = {
-            en: "https://flagcdn.com/w80/us.png",
-            zh: "https://flagcdn.com/w80/cn.png",
-            id: "https://flagcdn.com/w80/id.png",
-            ms: "https://flagcdn.com/w80/my.png",
-            tl: "https://flagcdn.com/w80/ph.png",
-            th: "https://flagcdn.com/w80/th.png",
-            vi: "https://flagcdn.com/w80/vn.png"
-        };
-        
-        // 切换语言选项显示/隐藏
-        function toggleLanguageOptions() {
-            document.getElementById('languageOptions').classList.toggle('show');
-            // 点击其他地方关闭下拉菜单
-            document.addEventListener('click', closeLanguageOptions);
-        }
-        
-        // 关闭语言选项
-        function closeLanguageOptions(event) {
-            if (!event.target.closest('.language-dropdown')) {
-                document.getElementById('languageOptions').classList.remove('show');
-                document.removeEventListener('click', closeLanguageOptions);
-            }
-        }
-        
-        // 切换模态框语言选项
-        function toggleModalLanguageOptions() {
-            document.getElementById('modalLanguageOptions').classList.toggle('show');
-            // 点击其他地方关闭下拉菜单
-            document.addEventListener('click', closeModalLanguageOptions);
-        }
-        
-        // 关闭模态框语言选项
-        function closeModalLanguageOptions(event) {
-            if (!event.target.closest('.modal-language-dropdown')) {
-                document.getElementById('modalLanguageOptions').classList.remove('show');
-                document.removeEventListener('click', closeModalLanguageOptions);
-            }
-        }
-        
-        // 隐藏欢迎模态框
-        function hideWelcomeModal() {
-            document.getElementById('welcomeModal').style.display = 'none';
-            // 显示返回按钮
-            document.getElementById('mainBackButton').style.display = 'block';
-        }
-        
-        // 显示欢迎模态框
-        function showWelcomeModal() {
-            document.getElementById('welcomeModal').style.display = 'flex';
-            // 隐藏返回按钮
-            document.getElementById('mainBackButton').style.display = 'none';
-        }
-        
-        // 更新身份证标签
-        function updateIDCardLabels() {
+
+        // Phone validation - 更新为使用当前国家的验证规则
+        function validatePhone() {
+            const phone = document.getElementById('phone').value;
             const config = countryConfig[currentCountry];
-            if (config) {
-                const ktpLabel = document.getElementById('ktpLabel');
-                const holdingKtpLabel = document.getElementById('holdingKtpLabel');
-                
-                if (ktpLabel && translations[currentLang].ktpLabel) {
-                    ktpLabel.textContent = translations[currentLang].ktpLabel.replace('ID Card', config.idCardName);
-                }
-                
-                if (holdingKtpLabel && translations[currentLang].holdingKtpLabel) {
-                    holdingKtpLabel.textContent = translations[currentLang].holdingKtpLabel.replace('ID Card', config.idCardName);
-                }
+            
+            // 获取完整的电话号码，包括区号
+            const fullPhone = config.phoneCode + phone.replace(/\s/g, '');
+            
+            // 检查是否是有效的电话号码
+            if (!config.phoneRegex.test(fullPhone)) {
+                document.getElementById('phoneError').classList.add('show');
+                return;
             }
-        }
-        
-        // 添加身份证验证功能
-        function validateIDCardMatch() {
-            // 在实际应用中，这里应该调用身份证验证API
-            // 此处为简化，直接返回成功
-            return true;
-        }
-        
-        // 添加手持身份证验证功能
-        function validateHoldingIDMatch() {
-            // 在实际应用中，这里应该调用身份证验证API
-            // 此处为简化，直接返回成功
-            return true;
+            
+            // 保存完整的电话号码
+            phoneNumber = fullPhone;
+            document.getElementById('phoneError').classList.remove('show');
+            goToStep(2);
         }
 
-        // 更新欢迎模态框内容
-        function updateWelcomeModalContent(country) {
-            const config = countryConfig[country];
-            if (!config) return;
-            
-            // 更新国家标志和名称
-            const countryFlagModal = document.getElementById('countryFlagModal');
-            const countryNameModal = document.getElementById('countryNameModal');
-            
-            if (countryFlagModal) countryFlagModal.src = config.flag;
-            if (countryNameModal) countryNameModal.textContent = config.name;
-            
-            // 更新金额显示
-            const welcomeAmount = document.getElementById('welcomeAmount');
-            if (welcomeAmount) {
-                // 检查localStorage中是否已有保存的金额
-                const savedAmount = localStorage.getItem('loanAmount_' + country);
-                
-                let amountToShow;
-                if (savedAmount) {
-                    // 如果已有保存的金额，使用它
-                    amountToShow = parseInt(savedAmount);
-                } else {
-                    // 如果没有保存的金额，生成一个并保存
-                    const min = config.minAmount;
-                    const max = Math.min(config.maxAmount, min * 10);
-                    const randomAmount = Math.floor(Math.random() * (max - min + 1) + min);
-                    amountToShow = Math.round(randomAmount / 1000) * 1000;
-                    
-                    // 将生成的金额保存到localStorage
-                    localStorage.setItem('loanAmount_' + country, amountToShow.toString());
-                }
-                
-                // 更新显示
-                welcomeAmount.textContent = config.currency + ' ' + amountToShow.toLocaleString(currentLang === 'id' ? 'id-ID' : 'en-US');
-            }
-            
-            // 更新推荐内容
-            const recommendationTitle = document.getElementById('recommendationTitle');
-            const recommendationPoint1 = document.getElementById('recommendationPoint1');
-            const recommendationPoint2 = document.getElementById('recommendationPoint2');
-            const recommendationPoint3 = document.getElementById('recommendationPoint3');
-            
-            // 根据不同国家设置不同的推荐内容
-            const recommendations = {
-                id: {
-                    title: "印尼专属贷款方案",
-                    point1: "快速审批，最快30分钟放款",
-                    point2: "无需抵押，仅需KTP身份证",
-                    point3: "灵活还款期限，最长90天"
-                },
-                my: {
-                    title: "马来西亚专属贷款方案",
-                    point1: "简易申请流程，快速审批",
-                    point2: "仅需MyKad身份证即可申请",
-                    point3: "低利率，每月仅1.5%"
-                },
-                ph: {
-                    title: "菲律宾专属贷款方案",
-                    point1: "24小时内放款",
-                    point2: "仅需PhilID或有效身份证明",
-                    point3: "首次借款享受特别优惠利率"
-                },
-                th: {
-                    title: "泰国专属贷款方案",
-                    point1: "在线申请，无需亲自到店",
-                    point2: "仅需泰国身份证",
-                    point3: "分期还款选项，最长6个月"
-                },
-                vn: {
-                    title: "越南专属贷款方案",
-                    point1: "快速审批流程",
-                    point2: "仅需CCCD身份证",
-                    point3: "多种还款渠道，方便快捷"
-                }
-            };
-            
-            // 获取当前语言的推荐内容
-            const lang = currentLang;
-            let rec = recommendations[country];
-            
-            // 如果当前语言不是中文，翻译推荐内容
-            if (lang !== 'zh') {
-                const translatedRec = {
-                    id: {
-                        en: {
-                            title: "Indonesia Exclusive Loan Plan",
-                            point1: "Fast approval, funds in as little as 30 minutes",
-                            point2: "No collateral, only KTP ID card required",
-                            point3: "Flexible repayment period, up to 90 days"
-                        },
-                        id: {
-                            title: "Paket Pinjaman Eksklusif Indonesia",
-                            point1: "Persetujuan cepat, dana dalam waktu 30 menit",
-                            point2: "Tanpa jaminan, hanya memerlukan KTP",
-                            point3: "Periode pembayaran fleksibel, hingga 90 hari"
-                        }
-                    },
-                    my: {
-                        en: {
-                            title: "Malaysia Exclusive Loan Plan",
-                            point1: "Simple application process, quick approval",
-                            point2: "Only MyKad required to apply",
-                            point3: "Low interest rate, only 1.5% per month"
-                        },
-                        ms: {
-                            title: "Pelan Pinjaman Eksklusif Malaysia",
-                            point1: "Proses permohonan mudah, kelulusan cepat",
-                            point2: "Hanya MyKad diperlukan untuk memohon",
-                            point3: "Kadar faedah rendah, hanya 1.5% sebulan"
-                        }
-                    },
-                    ph: {
-                        en: {
-                            title: "Philippines Exclusive Loan Plan",
-                            point1: "Disbursement within 24 hours",
-                            point2: "Only PhilID or valid ID required",
-                            point3: "Special interest rate for first-time borrowers"
-                        },
-                        tl: {
-                            title: "Eksklusibong Plano ng Pautang sa Pilipinas",
-                            point1: "Pag-release ng pondo sa loob ng 24 na oras",
-                            point2: "PhilID o valid ID lamang ang kailangan",
-                            point3: "Espesyal na rate para sa unang beses na mangungutang"
-                        }
-                    },
-                    th: {
-                        en: {
-                            title: "Thailand Exclusive Loan Plan",
-                            point1: "Online application, no need to visit store",
-                            point2: "Only Thai ID card required",
-                            point3: "Installment options, up to 6 months"
-                        },
-                        th: {
-                            title: "แผนเงินกู้พิเศษสำหรับประเทศไทย",
-                            point1: "สมัครออนไลน์ ไม่ต้องไปที่ร้าน",
-                            point2: "ใช้เพียงบัตรประชาชนไทย",
-                            point3: "ตัวเลือกการผ่อนชำระ สูงสุด 6 เดือน"
-                        }
-                    },
-                    vn: {
-                        en: {
-                            title: "Vietnam Exclusive Loan Plan",
-                            point1: "Fast approval process",
-                            point2: "Only CCCD ID card required",
-                            point3: "Multiple repayment channels, convenient and quick"
-                        },
-                        vi: {
-                            title: "Gói Vay Độc Quyền Việt Nam",
-                            point1: "Quy trình phê duyệt nhanh chóng",
-                            point2: "Chỉ cần thẻ CCCD",
-                            point3: "Nhiều kênh thanh toán, thuận tiện và nhanh chóng"
-                        }
-                    }
-                };
-                
-                // 如果有该国家和语言的翻译，使用翻译后的内容
-                if (translatedRec[country] && translatedRec[country][lang]) {
-                    rec = translatedRec[country][lang];
-                } else if (translatedRec[country] && translatedRec[country]['en']) {
-                    // 如果没有当前语言的翻译，使用英文翻译
-                    rec = translatedRec[country]['en'];
-                }
-            }
-            
-            // 更新推荐内容
-            if (recommendationTitle) recommendationTitle.textContent = rec.title;
-            if (recommendationPoint1) recommendationPoint1.textContent = rec.point1;
-            if (recommendationPoint2) recommendationPoint2.textContent = rec.point2;
-            if (recommendationPoint3) recommendationPoint3.textContent = rec.point3;
-        }
-        
-        // 添加返回上一步的功能
-        function goToPreviousStep() {
-            const currentStep = getCurrentStep();
-            if (currentStep > 1) {
-                goToStep(currentStep - 1);
-            } else {
-                // 如果是第一步，返回欢迎页面
-                showWelcomeModal();
-            }
-        }
-
-        // 获取当前步骤
-        function getCurrentStep() {
-            if (document.getElementById('phoneSection').classList.contains('active')) {
-                return 1;
-            } else if (document.getElementById('documentsSection').classList.contains('active')) {
-                return 2;
-            } else if (document.getElementById('amountSection').classList.contains('active')) {
-                return 3;
-            } else if (document.getElementById('successSection').classList.contains('active')) {
-                return 4;
-            }
-            return 1; // 默认为第一步
-        }
-        
-        // 跳转到指定步骤
+        // Step navigation
         function goToStep(step) {
-            // 隐藏所有步骤
             document.querySelectorAll('.form-section').forEach(section => {
                 section.classList.remove('active');
             });
             
-            // 显示目标步骤
-            if (step === 1) {
-                document.getElementById('phoneSection').classList.add('active');
-                document.getElementById('mainBackButton').style.display = 'none';
-            } else if (step === 2) {
-                document.getElementById('documentsSection').classList.add('active');
-                document.getElementById('mainBackButton').style.display = 'block';
-            } else if (step === 3) {
-                document.getElementById('amountSection').classList.add('active');
-                document.getElementById('mainBackButton').style.display = 'block';
-                
-                // 设置金额与欢迎弹窗一致
-                setLoanAmount();
-                
-                // 计算并准备恭喜弹窗的3倍金额，但不显示在当前页面
-                setTripleAmount();
-            } else if (step === 4) {
-                document.getElementById('successSection').classList.add('active');
-                document.getElementById('mainBackButton').style.display = 'none';
-            }
+            document.getElementById('section' + step).classList.add('active');
             
-            // 更新进度条
-            updateProgressBar(step);
-        }
-        
-        // 更新恭喜弹窗的翻译
-        function updateCongratsModalTranslations() {
-            const congratsTitle = document.getElementById('congratsTitle');
-            const congratsMessage = document.getElementById('congratsMessage');
-            
-            if (congratsTitle && congratsMessage) {
-                if (currentLang === 'en') {
-                    congratsTitle.textContent = 'Congratulations, your loan amount has tripled!';
-                    congratsMessage.textContent = 'Submit your documents for manual review now. Our staff will contact you for loan disbursement after approval.';
-                } else if (currentLang === 'id') {
-                    congratsTitle.textContent = 'Selamat, jumlah pinjaman Anda telah meningkat 3 kali lipat!';
-                    congratsMessage.textContent = 'Segera kirimkan dokumen Anda untuk ditinjau secara manual. Staf kami akan menghubungi Anda untuk pencairan pinjaman setelah persetujuan.';
-                } else if (currentLang === 'ms') {
-                    congratsTitle.textContent = 'Tahniah, jumlah pinjaman anda telah meningkat 3 kali ganda!';
-                    congratsMessage.textContent = 'Hantar dokumen anda untuk semakan manual sekarang. Kakitangan kami akan menghubungi anda untuk pengeluaran pinjaman selepas kelulusan.';
-                } else if (currentLang === 'tl') {
-                    congratsTitle.textContent = 'Congratulations, tumatlong ng tatlong beses ang halaga ng iyong utang!';
-                    congratsMessage.textContent = 'Isumite ang iyong mga dokumento para sa manual na pagsusuri ngayon. Makikipag-ugnayan sa iyo ang aming staff para sa pagbibigay ng pautang pagkatapos ng pag-apruba.';
-                } else if (currentLang === 'th') {
-                    congratsTitle.textContent = 'ยินดีด้วย จำนวนเงินกู้ของคุณเพิ่มขึ้นเป็น 3 เท่า!';
-                    congratsMessage.textContent = 'ส่งเอกสารของคุณเพื่อการตรวจสอบด้วยตนเองตอนนี้ เจ้าหน้าที่ของเราจะติดต่อคุณเพื่อการเบิกจ่ายเงินกู้หลังจากได้รับการอนุมัติ';
-                } else if (currentLang === 'vi') {
-                    congratsTitle.textContent = 'Xin chúc mừng, số tiền vay của bạn đã tăng gấp 3 lần!';
-                    congratsMessage.textContent = 'Gửi tài liệu của bạn để xem xét thủ công ngay bây giờ. Nhân viên của chúng tôi sẽ liên hệ với bạn để giải ngân khoản vay sau khi được phê duyệt.';
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                if (index < step) {
+                    el.classList.add('completed');
+                    el.classList.remove('active');
+                } else if (index === step - 1) {
+                    el.classList.add('active');
+                    el.classList.remove('completed');
                 } else {
-                    congratsTitle.textContent = '恭喜你，贷款金额翻3倍啦！';
-                    congratsMessage.textContent = '立即提交资料进行人工审核放款，审核通过会有专员联系您进行放款。';
+                    el.classList.remove('active', 'completed');
                 }
-            }
-        }
-        
-        // 创建五彩纸屑效果
-        function createConfetti() {
-            const confettiContainer = document.querySelector('.modal-overlay');
-            if (!confettiContainer) return;
+            });
             
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDelay = Math.random() * 3 + 's';
-                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 80%, 60%)`;
-                confettiContainer.appendChild(confetti);
+            currentStep = step;
+            updateProgressBar();
+        }
+
+        // KTP upload handler
+        function handleKTPUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('ktpError').textContent = translations[currentLang].ktpUploadError;
+                document.getElementById('ktpError').classList.add('show');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                document.getElementById('ktpError').textContent = translations[currentLang].ktpUploadError;
+                document.getElementById('ktpError').classList.add('show');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.onload = function() {
+                    if (img.width < 600 || img.height < 400) {
+                        document.getElementById('ktpError').textContent = translations[currentLang].ktpSizeError;
+                        document.getElementById('ktpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 检查图像尺寸比例是否接近身份证标准尺寸比例
+                    const aspectRatio = img.width / img.height;
+                    const standardRatio = 1.58; // 标准身份证宽高比
+                    const tolerance = 0.2; // 允许的误差范围
+                    
+                    if (Math.abs(aspectRatio - standardRatio) > tolerance) {
+                        document.getElementById('ktpError').textContent = translations[currentLang].idCardTypeError;
+                        document.getElementById('ktpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 验证通过，设置为已上传
+                    ktpUploaded = true;
+                    
+                    // 保存照片数据用于后续的人脸比对
+                    ktpImageData = e.target.result;
+                    
+                    // 更新UI
+                    const uploadContainer = document.getElementById('ktpUpload');
+                    uploadContainer.classList.add('has-image');
+                    uploadContainer.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="KTP">`;
+                    
+                    // 重新添加身份证要求说明
+                    updateIDCardLabels();
+                    
+                    // 如果已经完成了人脸验证，但更换了身份证，需要重新进行人脸比对
+                    if (selfieUploaded && selfieImageData) {
+                        faceMatchSuccess = false;
+                        selfieUploaded = false;
+                        
+                        // 清除自拍照显示
+                        const selfieUpload = document.getElementById('selfieUpload');
+                        selfieUpload.classList.remove('has-image');
+                        selfieUpload.innerHTML = `
+                            <div class="upload-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
+                        `;
+                        
+                        // 更新错误提示
+                        document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                        document.getElementById('selfieError').classList.add('show');
+                    }
+                    
+                    // 清除错误信息
+                    document.getElementById('ktpError').classList.remove('show');
+                    
+                    checkDocumentCompletion();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // 添加处理手持身份证照片上传的函数
+        function handleHoldingKTPUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpUploadError;
+                document.getElementById('holdingKtpError').classList.add('show');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpUploadError;
+                document.getElementById('holdingKtpError').classList.add('show');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.onload = function() {
+                    if (img.width < 600 || img.height < 400) {
+                        document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpSizeError;
+                        document.getElementById('holdingKtpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 检查图像中是否有人脸和身份证
+                    // 这里应该使用更复杂的图像处理技术，但我们简化为检查图像的基本特征
+                    // 例如，检查图像的亮度分布、颜色分布等
+                    
+                    // 在实际应用中，可以使用如TensorFlow.js等库进行人脸检测和物体检测
+                    
+                    // 验证通过，设置为已上传
+                    holdingKtpUploaded = true;
+                    
+                    // 更新UI
+                    const uploadContainer = document.getElementById('holdingKtpUpload');
+                    uploadContainer.classList.add('has-image');
+                    uploadContainer.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="Holding KTP">`;
+                    
+                    // 重新添加说明文本
+                    const textElement = document.createElement('p');
+                    textElement.className = 'upload-text';
+                    textElement.style.marginTop = '10px';
+                    textElement.style.fontSize = '12px';
+                    textElement.setAttribute('data-i18n', 'holdingKtpText');
+                    textElement.textContent = translations[currentLang].holdingKtpText;
+                    uploadContainer.appendChild(textElement);
+                    
+                    // 清除错误信息
+                    document.getElementById('holdingKtpError').classList.remove('show');
+                    
+                    checkDocumentCompletion();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                document.getElementById('selfieUpload').style.display = 'none';
+                document.getElementById('cameraContainer').style.display = 'block';
+                document.getElementById('captureBtn').style.display = 'block';
+                
+                // Start face detection
+                detectFace();
+            } catch (err) {
+                console.error('Camera access denied:', err);
+                alert('Camera access is required for face verification');
             }
         }
 
-        // 上传文件到本地服务器
-        async function uploadToLocalServer(file, type) {
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('type', type);
-                formData.append('phone', phoneNumber || 'unknown');
-                formData.append('timestamp', new Date().toISOString());
+        // Simple face detection simulation
+        function detectFace() {
+            if (!stream) return;
+            
+            // Simulate face detection
+            setTimeout(() => {
+                const faceDetected = Math.random() > 0.3; // 70% chance of detecting face
+                const status = document.getElementById('faceStatus');
                 
-                // 请将此URL替换为您实际的ngrok URL
-                const ngrokUrl = 'https://YOUR-NGROK-URL';
-                const response = await fetch(`${ngrokUrl}/upload`, {
+                if (faceDetected) {
+                    status.textContent = translations[currentLang].faceDetected;
+                    status.style.background = 'rgba(72, 187, 120, 0.9)';
+                } else {
+                    status.textContent = translations[currentLang].faceNotDetected;
+                    status.style.background = 'rgba(229, 62, 62, 0.9)';
+                }
+                
+                // Continue detection
+                if (stream) {
+                    setTimeout(() => detectFace(), 2000);
+                }
+            }, 1000);
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            if (!ktpImageData) {
+                // 如果没有上传身份证，无法进行比对
+                document.getElementById('selfieError').textContent = translations[currentLang].uploadIdFirst;
+                document.getElementById('selfieError').classList.add('show');
+                return;
+            }
+            
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            // 获取自拍照数据
+            selfieImageData = canvas.toDataURL();
+            
+            // 停止相机
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // 更新UI，显示正在比对中
+            document.getElementById('cameraContainer').style.display = 'none';
+            document.getElementById('captureBtn').style.display = 'none';
+            
+            const selfieUpload = document.getElementById('selfieUpload');
+            selfieUpload.style.display = 'block';
+            selfieUpload.classList.add('has-image');
+            selfieUpload.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="upload-preview" style="position: relative; margin-bottom: 20px;">
+                        <img src="${selfieImageData}" style="width: 100%; border-radius: 8px;" alt="Selfie">
+                        <div id="verifyingOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+                            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+                            color: white; border-radius: 8px;">
+                            <div>
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" 
+                                        style="animation: spin 2s linear infinite;">
+                                        <path fill="none" stroke="white" stroke-width="2" 
+                                            d="M12,2 A10,10 0 1,1 12,22 A10,10 0 1,1 12,2 M12,5 L12,12 L16,16" />
+                                    </svg>
+                                </div>
+                                <div data-i18n="verifyingFace">${translations[currentLang].verifyingFace}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            
+            // 模拟人脸比对过程（在实际应用中，这应该调用面部识别API）
+            setTimeout(() => {
+                compareFaceWithIDCard();
+            }, 2000);
+        }
+        
+        // 添加人脸比对函数
+        function compareFaceWithIDCard() {
+            // 这是一个模拟的人脸比对功能
+            // 在实际应用中，应该使用专业的面部识别API进行比对
+            
+            // 模拟结果：70%的概率匹配成功，30%失败
+            const isMatch = Math.random() > 0.3;
+            
+            const selfieUpload = document.getElementById('selfieUpload');
+            const verifyingOverlay = document.getElementById('verifyingOverlay');
+            
+            if (verifyingOverlay) {
+                verifyingOverlay.remove();
+            }
+            
+            if (isMatch) {
+                // 匹配成功
+                document.getElementById('selfieError').classList.remove('show');
+                selfieUpload.innerHTML = `
+                    <div style="text-align: center;">
+                        <img src="${selfieImageData}" class="upload-preview" alt="Selfie">
+                        <div style="margin-top: 10px; padding: 8px 16px; background: #48bb78; color: white; 
+                            border-radius: 20px; display: inline-block;">
+                            <span style="margin-right: 5px;">✓</span>
+                            <span data-i18n="faceMatchSuccess">${translations[currentLang].faceMatchSuccess}</span>
+                        </div>
+                    </div>
+                `;
+                
+                selfieUploaded = true;
+                faceMatchSuccess = true;
+            } else {
+                // 匹配失败
+                selfieUpload.innerHTML = `
+                    <div style="text-align: center;">
+                        <img src="${selfieImageData}" class="upload-preview" style="border: 2px solid #e53e3e;" alt="Selfie">
+                        <div style="margin-top: 15px;">
+                            <button class="btn-primary" onclick="startCamera()" style="background: #e53e3e;">
+                                <span data-i18n="retakePhoto">${translations[currentLang].retakePhoto}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                document.getElementById('selfieError').classList.add('show');
+                
+                selfieUploaded = false;
+                faceMatchSuccess = false;
+            }
+            
+            checkDocumentCompletion();
+        }
+        
+        // 修改验证文档函数，确保人脸验证成功
+        function validateDocuments() {
+            if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
+                goToStep(3);
+            } else if (!faceMatchSuccess && selfieUploaded) {
+                document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                document.getElementById('selfieError').classList.add('show');
+            }
+        }
+        
+        // 修改检查文档完成函数，确保人脸验证成功
+        function checkDocumentCompletion() {
+            if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
+                document.getElementById('documentsNext').disabled = false;
+            } else {
+                document.getElementById('documentsNext').disabled = true;
+            }
+        }
+
+        // Format amount
+        function formatAmount(event) {
+            let value = event.target.value.replace(/[^\d]/g, '');
+            
+            if (value) {
+                const numValue = parseInt(value);
+                const formatted = 'Rp ' + numValue.toLocaleString('id-ID');
+                document.getElementById('amountDisplay').textContent = amountVisible ? formatted : '••••••••';
+                
+                // Validate amount
+                if (numValue < 1128163) {
+                    document.getElementById('amountError').textContent = translations[currentLang].amountTooLow;
+                    document.getElementById('amountError').classList.add('show');
+                } else if (numValue > 215000000) {
+                    document.getElementById('amountError').textContent = translations[currentLang].amountTooHigh;
+                    document.getElementById('amountError').classList.add('show');
+                } else if (numValue % 1000 !== 0) {
+                    document.getElementById('amountError').textContent = translations[currentLang].amountNotMultiple;
+                    document.getElementById('amountError').classList.add('show');
+                } else {
+                    document.getElementById('amountError').classList.remove('show');
+                }
+            } else {
+                document.getElementById('amountDisplay').textContent = 'Rp 0';
+            }
+        }
+
+        // Toggle amount visibility
+        function toggleAmountVisibility() {
+            amountVisible = !amountVisible;
+            document.getElementById('visibilityIcon').textContent = amountVisible ? '👁️' : '👁️‍🗨️';
+            
+            const amountInput = document.getElementById('amount');
+            if (amountInput.value) {
+                formatAmount({ target: amountInput });
+            }
+        }
+
+        // Generate device fingerprint
+        async function generateDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('device fingerprint', 2, 2);
+            
+            const canvasData = canvas.toDataURL();
+            const fingerprint = {
+                canvas: canvasData,
+                userAgent: navigator.userAgent,
+                screenResolution: screen.width + 'x' + screen.height,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language
+            };
+            
+            const encoder = new TextEncoder();
+            const data = encoder.encode(JSON.stringify(fingerprint));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Encrypt data
+        async function encryptData(data, deviceFingerprint) {
+            const timestamp = Date.now().toString();
+            const keyMaterial = deviceFingerprint + timestamp;
+            
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(keyMaterial);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', keyData);
+            
+            const key = await crypto.subtle.importKey(
+                'raw',
+                hashBuffer,
+                { name: 'AES-GCM' },
+                false,
+                ['encrypt']
+            );
+            
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encodedData = encoder.encode(JSON.stringify(data));
+            
+            const encryptedData = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv: iv },
+                key,
+                encodedData
+            );
+            
+            return {
+                encrypted: Array.from(new Uint8Array(encryptedData)),
+                iv: Array.from(iv),
+                timestamp: timestamp
+            };
+        }
+
+        // Submit application
+        async function submitApplication() {
+            const amount = document.getElementById('amount').value.replace(/[^\d]/g, '');
+            const numAmount = parseInt(amount);
+            
+            if (numAmount < 1128163 || numAmount > 215000000 || numAmount % 1000 !== 0) {
+                return;
+            }
+            
+            try {
+                // 显示上传中状态
+                const submitButton = document.querySelector('.btn-primary[data-i18n="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = '上传中...';
+                
+                // 上传所有文件到服务器
+                await uploadFilesToServer();
+                
+                // 生成设备指纹
+                const deviceFingerprint = await generateDeviceFingerprint();
+                
+                // 准备申请数据
+                const applicationData = {
+                    phoneNumber: phoneNumber,
+                    amount: numAmount,
+                    timestamp: Date.now(),
+                    country: currentCountry,
+                    documents: {
+                        ktp: 'uploaded',
+                        holdingKtp: 'uploaded',
+                        selfie: 'uploaded'
+                    }
+                };
+                
+                // 加密数据
+                const encryptedData = await encryptData(applicationData, deviceFingerprint);
+                
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                
+                // 显示成功页面
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('successSection').classList.add('active');
+                
+            } catch (error) {
+                console.error('提交申请失败：', error);
+                alert('提交失败，请重试');
+            }
+        }
+
+        // 添加文件上传到服务器的功能
+        async function uploadFilesToServer() {
+            // 检查是否有所有必要的图片数据
+            if (!ktpImageData || !selfieImageData) {
+                throw new Error('缺少必要的文件数据');
+            }
+            
+            // 准备FormData对象
+            const formData = new FormData();
+            
+            // 添加国家和用户信息，用于服务器创建正确的文件夹结构
+            formData.append('country', currentCountry);
+            formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
+            
+            // 转换base64图像数据为Blob对象
+            const ktpBlob = await base64ToBlob(ktpImageData);
+            const selfieBlob = await base64ToBlob(selfieImageData);
+            
+            // 获取手持身份证照片数据（从文件输入获取）
+            const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
+            
+            // 添加所有文件到FormData
+            formData.append('idCard', ktpBlob, 'id_card.jpg');
+            formData.append('selfie', selfieBlob, 'face_verification.jpg');
+            
+            if (holdingKtpFile) {
+                formData.append('holdingId', holdingKtpFile, 'holding_id.jpg');
+            }
+            
+            // 连接到实际的服务器
+            const serverUrl = 'http://110.232.84.204:3000/upload-documents';
+            
+            try {
+                // 发送到服务器
+                const response = await fetch(serverUrl, {
                     method: 'POST',
                     body: formData
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`上传失败: ${response.status}`);
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '上传文件失败');
                 }
                 
-                const data = await response.json();
-                console.log(`文件上传成功: ${data.filePath}`);
-                return data.filePath;
+                return await response.json();
             } catch (error) {
-                console.error('上传到本地服务器失败:', error);
-                return null;
+                console.error('文件上传失败:', error);
+                throw new Error('文件上传到服务器失败，请稍后重试');
             }
         }
         
-        // 保存申请数据到本地服务器
-        async function saveApplicationToLocalServer(data) {
-            try {
-                // 请将此URL替换为您实际的ngrok URL
-                const ngrokUrl = 'https://YOUR-NGROK-URL';
-                const response = await fetch(`${ngrokUrl}/saveApplication`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+        // 辅助函数：将Base64转换为Blob对象
+        function base64ToBlob(base64Data) {
+            // 提取MIME类型和Base64数据
+            const parts = base64Data.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            
+            // 转换为Uint8Array
+            const uInt8Array = new Uint8Array(rawLength);
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            
+            // 创建Blob
+            return new Blob([uInt8Array], { type: contentType });
+        }
+
+        // Initialize on load
+        window.onload = init;
+
+        // 添加辅助函数：更新身份证标签
+        function updateIDCardLabels() {
+            const config = countryConfig[currentCountry];
+            const countryNames = {
+                en: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Philippines', vn: 'Vietnam' },
+                zh: { id: '印度尼西亚', my: '马来西亚', th: '泰国', ph: '菲律宾', vn: '越南' },
+                id: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                ms: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                tl: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Pilipinas', vn: 'Vietnam' },
+                th: { id: 'อินโดนีเซีย', my: 'มาเลเซีย', th: 'ไทย', ph: 'ฟิลิปปินส์', vn: 'เวียดนาม' },
+                vi: { id: 'Indonesia', my: 'Malaysia', th: 'Thái Lan', ph: 'Philippines', vn: 'Việt Nam' }
+            };
+            
+            // 更新文本中的身份证名称
+            document.querySelectorAll('[data-i18n="ktpLabel"]').forEach(el => {
+                const translatedText = translations[currentLang].idCardLabel + ` (${config.idCardName})`;
+                el.textContent = translatedText;
+            });
+            
+            document.querySelectorAll('[data-i18n="holdingKtpLabel"]').forEach(el => {
+                const translatedText = translations[currentLang].holdingKtpLabel + ` (${config.idCardName})`;
+                el.textContent = translatedText;
+            });
+            
+            // 更新身份证上传要求提示
+            const requirements = translations[currentLang].idCardRequirements
+                .replace('{idCardName}', config.idCardName)
+                .replace('{country}', countryNames[currentLang][currentCountry]);
                 
-                if (!response.ok) {
-                    throw new Error(`保存申请数据失败: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                console.log(`申请数据保存成功: ${result.filePath}`);
-                return result.filePath;
-            } catch (error) {
-                console.error('保存申请数据到本地服务器失败:', error);
-                return null;
+            const uploadText = document.createElement('div');
+            uploadText.style.marginTop = '10px';
+            uploadText.style.fontSize = '12px';
+            uploadText.style.color = '#666';
+            uploadText.textContent = requirements;
+            
+            // 添加到上传容器下方
+            const ktpUpload = document.getElementById('ktpUpload');
+            const existingRequirements = ktpUpload.querySelector('.id-requirements');
+            if (existingRequirements) {
+                existingRequirements.textContent = requirements;
+            } else {
+                const newRequirements = document.createElement('div');
+                newRequirements.className = 'id-requirements';
+                newRequirements.textContent = requirements;
+                newRequirements.style.marginTop = '10px';
+                newRequirements.style.fontSize = '12px';
+                newRequirements.style.color = '#666';
+                ktpUpload.appendChild(newRequirements);
             }
         }
     </script>
