@@ -1670,10 +1670,276 @@
                     
                     // 检查图像尺寸比例是否接近身份证标准尺寸比例
                     const aspectRatio = img.width / img.height;
-                    const standardRatio = 1.58; // 标准身份证宽高比
-                    const tolerance = 0.2; // 允许的误差范围
                     
-                    if (Math.abs(aspectRatio - standardRatio) > tolerance) {
+                    // 为不同国家的身份证设置不同的标准比例和容差
+                    let standardRatio = 1.58; // 默认标准身份证宽高比
+                    let tolerance = 0.2;      // 默认允许的误差范围
+                    
+                    // 根据不同国家调整标准比例和容差
+                    if (currentCountry === 'id') { // 印尼
+                        standardRatio = 1.58;
+                        tolerance = 0.25; // 给印尼身份证更宽松的容差
+                    } else if (currentCountry === 'my') { // 马来西亚
+                        standardRatio = 1.6;
+                        tolerance = 0.2;
+                    } else if (currentCountry === 'th') { // 泰国
+                        standardRatio = 1.55;
+                        tolerance = 0.2;
+                    } else if (currentCountry === 'ph') { // 菲律宾
+                        standardRatio = 1.59;
+                        tolerance = 0.2;
+                    } else if (currentCountry === 'vn') { // 越南
+                        standardRatio = 1.57;
+                        tolerance = 0.2;
+                    }
+                    
+                    // 检查纵横比是否符合规范
+                    const isValidRatio = Math.abs(aspectRatio - standardRatio) <= tolerance;
+                    
+                    // 获取当前国家的配置
+                    const config = countryConfig[currentCountry];
+                    
+                    // 创建一个canvas用于图像分析
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    
+                    // 使用canvas进行简单的图像分析
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // 使用基于颜色分布的简单检测方法
+                    let idCardScore = 0; // 初始分数
+                    let totalScore = 5;  // 总分
+                    
+                    // 1. 检查纵横比 (2分)
+                    if (isValidRatio) {
+                        idCardScore += 2;
+                    }
+                    
+                    // 2. 检查颜色分布 (印尼KTP通常有特定的颜色特征，如特定的蓝色或红色) (1分)
+                    let hasExpectedColors = false;
+                    
+                    // 印尼KTP特有的颜色特征检测
+                    if (currentCountry === 'id') {
+                        // 检查顶部是否有蓝色区域（印尼国徽和头部区域）
+                        let bluePixelsTop = 0;
+                        let totalPixelsTop = 0;
+                        
+                        // 检查图像顶部区域
+                        for (let y = 0; y < canvas.height / 3; y++) {
+                            for (let x = 0; x < canvas.width; x++) {
+                                const idx = (y * canvas.width + x) * 4;
+                                const r = data[idx];
+                                const g = data[idx + 1];
+                                const b = data[idx + 2];
+                                
+                                // 检测蓝色或深蓝色像素
+                                if (b > r + 20 && b > g + 20) {
+                                    bluePixelsTop++;
+                                }
+                                totalPixelsTop++;
+                            }
+                        }
+                        
+                        // 如果顶部区域有足够的蓝色像素，可能是印尼KTP
+                        if (bluePixelsTop / totalPixelsTop > 0.05) {
+                            hasExpectedColors = true;
+                            idCardScore += 1;
+                        }
+                    } else if (currentCountry === 'my') {
+                        // 马来西亚MyKad的颜色特征检测
+                        // 检查是否有蓝色区域（马来西亚国徽和背景）
+                        let bluePixels = 0;
+                        let totalPixels = canvas.width * canvas.height;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            // 检测蓝色或深蓝色像素
+                            if (b > r + 20 && b > g + 20) {
+                                bluePixels++;
+                            }
+                        }
+                        
+                        if (bluePixels / (totalPixels) > 0.1) {
+                            hasExpectedColors = true;
+                            idCardScore += 1;
+                        }
+                    } else if (currentCountry === 'th') {
+                        // 泰国身份证颜色特征检测
+                        // 泰国身份证通常有蓝色背景
+                        let bluePixels = 0;
+                        let totalPixels = canvas.width * canvas.height;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            // 检测蓝色像素
+                            if (b > r + 10 && b > g + 10) {
+                                bluePixels++;
+                            }
+                        }
+                        
+                        if (bluePixels / (totalPixels) > 0.05) {
+                            hasExpectedColors = true;
+                            idCardScore += 1;
+                        }
+                    } else if (currentCountry === 'ph') {
+                        // 菲律宾PhilSys ID颜色特征检测
+                        // 通常有蓝色和红色元素
+                        let blueRedPixels = 0;
+                        let totalPixels = canvas.width * canvas.height;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            // 检测蓝色或红色像素
+                            if ((b > r + 20 && b > g + 20) || (r > b + 20 && r > g + 20)) {
+                                blueRedPixels++;
+                            }
+                        }
+                        
+                        if (blueRedPixels / (totalPixels) > 0.1) {
+                            hasExpectedColors = true;
+                            idCardScore += 1;
+                        }
+                    } else if (currentCountry === 'vn') {
+                        // 越南身份证颜色特征检测
+                        // 越南身份证通常有红色元素
+                        let redPixels = 0;
+                        let totalPixels = canvas.width * canvas.height;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            
+                            // 检测红色像素
+                            if (r > b + 20 && r > g + 20) {
+                                redPixels++;
+                            }
+                        }
+                        
+                        if (redPixels / (totalPixels) > 0.05) {
+                            hasExpectedColors = true;
+                            idCardScore += 1;
+                        }
+                    }
+                    
+                    // 3. 检查亮度分布 (通常身份证有特定的亮度模式，如照片区域较暗，背景较亮) (1分)
+                    let hasExpectedBrightness = false;
+                    let darkRegions = 0;
+                    let brightRegions = 0;
+                    let totalRegions = 0;
+                    
+                    // 将图像分为网格，检查每个网格的亮度
+                    const gridSize = 20; // 网格大小
+                    const gridWidth = Math.floor(canvas.width / gridSize);
+                    const gridHeight = Math.floor(canvas.height / gridSize);
+                    
+                    for (let gy = 0; gy < gridSize; gy++) {
+                        for (let gx = 0; gx < gridSize; gx++) {
+                            let brightness = 0;
+                            let pixels = 0;
+                            
+                            // 计算网格内的平均亮度
+                            for (let y = gy * gridHeight; y < (gy + 1) * gridHeight && y < canvas.height; y++) {
+                                for (let x = gx * gridWidth; x < (gx + 1) * gridWidth && x < canvas.width; x++) {
+                                    const idx = (y * canvas.width + x) * 4;
+                                    const r = data[idx];
+                                    const g = data[idx + 1];
+                                    const b = data[idx + 2];
+                                    
+                                    // 简单的亮度计算
+                                    const bright = (r + g + b) / 3;
+                                    brightness += bright;
+                                    pixels++;
+                                }
+                            }
+                            
+                            if (pixels > 0) {
+                                const avgBrightness = brightness / pixels;
+                                if (avgBrightness < 80) { // 暗区域
+                                    darkRegions++;
+                                } else if (avgBrightness > 150) { // 亮区域
+                                    brightRegions++;
+                                }
+                                totalRegions++;
+                            }
+                        }
+                    }
+                    
+                    // 如果既有暗区域又有亮区域，符合身份证的特征
+                    if (darkRegions > totalRegions * 0.2 && brightRegions > totalRegions * 0.3) {
+                        hasExpectedBrightness = true;
+                        idCardScore += 1;
+                    }
+                    
+                    // 4. 检查图像边缘 (身份证通常有明显的矩形边缘) (1分)
+                    // 这需要复杂的边缘检测算法，简化为检查图像四周的对比度
+                    let hasStrongEdges = false;
+                    let edgeStrength = 0;
+                    let edgeCount = 0;
+                    
+                    // 检查左右边缘
+                    for (let y = 0; y < canvas.height; y += 10) { // 每10像素采样一次
+                        // 左边缘
+                        const leftIdx1 = (y * canvas.width + 0) * 4;
+                        const leftIdx2 = (y * canvas.width + 5) * 4;
+                        const leftDiff = Math.abs(data[leftIdx1] - data[leftIdx2]) + 
+                                        Math.abs(data[leftIdx1 + 1] - data[leftIdx2 + 1]) + 
+                                        Math.abs(data[leftIdx1 + 2] - data[leftIdx2 + 2]);
+                        
+                        // 右边缘
+                        const rightIdx1 = (y * canvas.width + (canvas.width - 1)) * 4;
+                        const rightIdx2 = (y * canvas.width + (canvas.width - 6)) * 4;
+                        const rightDiff = Math.abs(data[rightIdx1] - data[rightIdx2]) + 
+                                         Math.abs(data[rightIdx1 + 1] - data[rightIdx2 + 1]) + 
+                                         Math.abs(data[rightIdx1 + 2] - data[rightIdx2 + 2]);
+                        
+                        edgeStrength += leftDiff + rightDiff;
+                        edgeCount += 2;
+                    }
+                    
+                    // 检查上下边缘
+                    for (let x = 0; x < canvas.width; x += 10) { // 每10像素采样一次
+                        // 上边缘
+                        const topIdx1 = (0 * canvas.width + x) * 4;
+                        const topIdx2 = (5 * canvas.width + x) * 4;
+                        const topDiff = Math.abs(data[topIdx1] - data[topIdx2]) + 
+                                       Math.abs(data[topIdx1 + 1] - data[topIdx2 + 1]) + 
+                                       Math.abs(data[topIdx1 + 2] - data[topIdx2 + 2]);
+                        
+                        // 下边缘
+                        const bottomIdx1 = ((canvas.height - 1) * canvas.width + x) * 4;
+                        const bottomIdx2 = ((canvas.height - 6) * canvas.width + x) * 4;
+                        const bottomDiff = Math.abs(data[bottomIdx1] - data[bottomIdx2]) + 
+                                          Math.abs(data[bottomIdx1 + 1] - data[bottomIdx2 + 1]) + 
+                                          Math.abs(data[bottomIdx1 + 2] - data[bottomIdx2 + 2]);
+                        
+                        edgeStrength += topDiff + bottomDiff;
+                        edgeCount += 2;
+                    }
+                    
+                    if (edgeCount > 0 && edgeStrength / edgeCount > 30) {
+                        hasStrongEdges = true;
+                        idCardScore += 1;
+                    }
+                    
+                    // 最终评分和验证
+                    const scorePercentage = (idCardScore / totalScore) * 100;
+                    
+                    // 如果分数低于阈值，显示错误
+                    if (scorePercentage < 60) {
                         document.getElementById('ktpError').textContent = translations[currentLang].idCardTypeError;
                         document.getElementById('ktpError').classList.add('show');
                         return;
@@ -1755,11 +2021,136 @@
                         return;
                     }
                     
-                    // 检查图像中是否有人脸和身份证
-                    // 这里应该使用更复杂的图像处理技术，但我们简化为检查图像的基本特征
-                    // 例如，检查图像的亮度分布、颜色分布等
+                    // 创建canvas用于图像分析
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
                     
-                    // 在实际应用中，可以使用如TensorFlow.js等库进行人脸检测和物体检测
+                    // 使用canvas进行简单的图像分析
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // 检查是否有人脸和身份证
+                    let detectionScore = 0;
+                    let totalScore = 3; // 总分
+                    
+                    // 1. 通过肤色检测人脸区域 (1分)
+                    let skinColorPixels = 0;
+                    let totalPixels = canvas.width * canvas.height;
+                    
+                    for (let i = 0; i < data.length; i += 16) { // 采样，提高性能
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        // 简单的肤色检测 (适用于多种肤色)
+                        // 基于RGB比例的肤色检测
+                        if (
+                            r > 60 && g > 40 && b > 20 && // 确保不是太暗
+                            r > g && r > b && // 红色分量通常最高
+                            Math.abs(r - g) > 15 && // 红绿差异
+                            r - b > 15 && // 红蓝差异
+                            g - b > 0 // 绿色通常大于蓝色
+                        ) {
+                            skinColorPixels++;
+                        }
+                    }
+                    
+                    // 如果有足够的肤色像素，可能是有人脸的图像
+                    if (skinColorPixels / (totalPixels / 16) > 0.05) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 2. 检测矩形边缘 (可能是身份证) (1分)
+                    // 使用简化的边缘检测来寻找直线
+                    let horizontalEdges = 0;
+                    let verticalEdges = 0;
+                    let edgeSampleCount = 0;
+                    
+                    // 水平边缘检测
+                    for (let y = 20; y < canvas.height - 20; y += 20) { // 每20像素采样一次
+                        for (let x = 1; x < canvas.width - 1; x += 5) { // 沿X轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxAbove = ((y - 1) * canvas.width + x) * 4;
+                            const idxBelow = ((y + 1) * canvas.width + x) * 4;
+                            
+                            // 计算垂直梯度
+                            const gradientY = Math.abs(data[idxAbove] - data[idxBelow]) + 
+                                             Math.abs(data[idxAbove + 1] - data[idxBelow + 1]) + 
+                                             Math.abs(data[idxAbove + 2] - data[idxBelow + 2]);
+                            
+                            if (gradientY > 100) { // 梯度阈值
+                                horizontalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 垂直边缘检测
+                    for (let x = 20; x < canvas.width - 20; x += 20) { // 每20像素采样一次
+                        for (let y = 1; y < canvas.height - 1; y += 5) { // 沿Y轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxLeft = (y * canvas.width + (x - 1)) * 4;
+                            const idxRight = (y * canvas.width + (x + 1)) * 4;
+                            
+                            // 计算水平梯度
+                            const gradientX = Math.abs(data[idxLeft] - data[idxRight]) + 
+                                             Math.abs(data[idxLeft + 1] - data[idxRight + 1]) + 
+                                             Math.abs(data[idxLeft + 2] - data[idxRight + 2]);
+                            
+                            if (gradientX > 100) { // 梯度阈值
+                                verticalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 如果水平和垂直边缘比例超过一定阈值，可能包含矩形物体
+                    if (horizontalEdges > edgeSampleCount * 0.05 && verticalEdges > edgeSampleCount * 0.05) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 3. 检测手部区域 (1分)
+                    // 手部区域通常有更多的肤色区域，且形状更复杂
+                    let handRegionPixels = 0;
+                    
+                    // 我们假设图像下半部分更可能包含手部
+                    for (let y = canvas.height / 2; y < canvas.height; y++) {
+                        for (let x = 0; x < canvas.width; x += 4) { // 采样，提高性能
+                            const idx = (y * canvas.width + x) * 4;
+                            const r = data[idx];
+                            const g = data[idx + 1];
+                            const b = data[idx + 2];
+                            
+                            // 与上面相同的肤色检测
+                            if (
+                                r > 60 && g > 40 && b > 20 && 
+                                r > g && r > b && 
+                                Math.abs(r - g) > 15 && 
+                                r - b > 15 && 
+                                g - b > 0
+                            ) {
+                                handRegionPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 如果下半部分有更多的肤色像素，可能是手持图像
+                    if (handRegionPixels / ((canvas.width * canvas.height / 2) / 4) > 0.08) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 评分百分比
+                    const scorePercentage = (detectionScore / totalScore) * 100;
+                    
+                    // 如果分数低于阈值，显示错误
+                    if (scorePercentage < 50) {
+                        document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingIdError;
+                        document.getElementById('holdingKtpError').classList.add('show');
+                        return;
+                    }
                     
                     // 验证通过，设置为已上传
                     holdingKtpUploaded = true;
@@ -1908,58 +2299,315 @@
         
         // 添加人脸比对函数
         function compareFaceWithIDCard() {
-            // 这是一个模拟的人脸比对功能
+            // 这是一个增强版的人脸比对功能
             // 在实际应用中，应该使用专业的面部识别API进行比对
             
-            // 模拟结果：70%的概率匹配成功，30%失败
-            const isMatch = Math.random() > 0.3;
-            
-            const selfieUpload = document.getElementById('selfieUpload');
-            const verifyingOverlay = document.getElementById('verifyingOverlay');
-            
-            if (verifyingOverlay) {
-                verifyingOverlay.remove();
-            }
-            
-            if (isMatch) {
-                // 匹配成功
-                document.getElementById('selfieError').classList.remove('show');
-                selfieUpload.innerHTML = `
-                    <div style="text-align: center;">
-                        <img src="${selfieImageData}" class="upload-preview" alt="Selfie">
-                        <div style="margin-top: 10px; padding: 8px 16px; background: #48bb78; color: white; 
-                            border-radius: 20px; display: inline-block;">
-                            <span style="margin-right: 5px;">✓</span>
-                            <span data-i18n="faceMatchSuccess">${translations[currentLang].faceMatchSuccess}</span>
-                        </div>
-                    </div>
-                `;
-                
-                selfieUploaded = true;
-                faceMatchSuccess = true;
-            } else {
-                // 匹配失败
-                selfieUpload.innerHTML = `
-                    <div style="text-align: center;">
-                        <img src="${selfieImageData}" class="upload-preview" style="border: 2px solid #e53e3e;" alt="Selfie">
-                        <div style="margin-top: 15px;">
-                            <button class="btn-primary" onclick="startCamera()" style="background: #e53e3e;">
-                                <span data-i18n="retakePhoto">${translations[currentLang].retakePhoto}</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+            // 如果没有身份证图像，无法比对
+            if (!ktpImageData) {
+                document.getElementById('selfieError').textContent = translations[currentLang].uploadIdFirst;
                 document.getElementById('selfieError').classList.add('show');
-                
-                selfieUploaded = false;
-                faceMatchSuccess = false;
+                return;
             }
             
-            checkDocumentCompletion();
+            // 创建canvas用于分析自拍照和身份证照
+            const selfieImg = new Image();
+            const idCardImg = new Image();
+            
+            // 加载自拍照
+            selfieImg.onload = function() {
+                // 加载身份证照
+                idCardImg.onload = function() {
+                    // 创建两个canvas，用于分析两张图片
+                    const selfieCanvas = document.createElement('canvas');
+                    const idCardCanvas = document.createElement('canvas');
+                    const selfieCtx = selfieCanvas.getContext('2d');
+                    const idCardCtx = idCardCanvas.getContext('2d');
+                    
+                    // 设置canvas尺寸
+                    selfieCanvas.width = selfieImg.width;
+                    selfieCanvas.height = selfieImg.height;
+                    idCardCanvas.width = idCardImg.width;
+                    idCardCanvas.height = idCardImg.height;
+                    
+                    // 绘制图像
+                    selfieCtx.drawImage(selfieImg, 0, 0, selfieImg.width, selfieImg.height);
+                    idCardCtx.drawImage(idCardImg, 0, 0, idCardImg.width, idCardImg.height);
+                    
+                    // 获取图像数据
+                    const selfieData = selfieCtx.getImageData(0, 0, selfieCanvas.width, selfieCanvas.height).data;
+                    const idCardData = idCardCtx.getImageData(0, 0, idCardCanvas.width, idCardCanvas.height).data;
+                    
+                    // 使用简单的图像分析方法进行人脸比对
+                    // 1. 肤色分布比较
+                    // 2. 主要特征区域亮度分布比较
+                    
+                    // 由于这是一个模拟，我们会计算一个相似度分数
+                    let similarityScore = 0;
+                    const maxScore = 5;
+                    
+                    // 1. 检测自拍照中的人脸区域
+                    let selfieSkintonePixels = 0;
+                    let selfieTotalPixels = 0;
+                    
+                    // 假设人脸在图像的中心区域
+                    const centerX = selfieCanvas.width / 2;
+                    const centerY = selfieCanvas.height / 2;
+                    const faceRadius = Math.min(selfieCanvas.width, selfieCanvas.height) * 0.3;
+                    
+                    for (let y = 0; y < selfieCanvas.height; y += 4) {
+                        for (let x = 0; x < selfieCanvas.width; x += 4) {
+                            // 检查像素是否在假定的人脸区域内
+                            const distanceFromCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                            if (distanceFromCenter <= faceRadius) {
+                                const idx = (y * selfieCanvas.width + x) * 4;
+                                const r = selfieData[idx];
+                                const g = selfieData[idx + 1];
+                                const b = selfieData[idx + 2];
+                                
+                                // 检测肤色
+                                if (
+                                    r > 60 && g > 40 && b > 20 && 
+                                    r > g && r > b && 
+                                    Math.abs(r - g) > 15 && 
+                                    r - b > 15 && 
+                                    g - b > 0
+                                ) {
+                                    selfieSkintonePixels++;
+                                }
+                                selfieTotalPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 2. 检测身份证照片中的人脸区域
+                    // 身份证照片中，人脸通常在左上角或右上角部分
+                    let idCardSkintonePixels = 0;
+                    let idCardTotalPixels = 0;
+                    
+                    // 根据不同国家的身份证设置不同的人脸区域
+                    let faceRegion = {x: 0, y: 0, width: 0, height: 0};
+                    
+                    if (currentCountry === 'id') { // 印尼KTP
+                        // 印尼KTP人脸通常在左上角
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.4)
+                        };
+                    } else if (currentCountry === 'my') { // 马来西亚MyKad
+                        // MyKad人脸在右侧
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.7), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'th') { // 泰国身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'ph') { // 菲律宾身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'vn') { // 越南身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    }
+                    
+                    for (let y = faceRegion.y; y < faceRegion.y + faceRegion.height; y += 2) {
+                        for (let x = faceRegion.x; x < faceRegion.x + faceRegion.width; x += 2) {
+                            if (x >= 0 && x < idCardCanvas.width && y >= 0 && y < idCardCanvas.height) {
+                                const idx = (y * idCardCanvas.width + x) * 4;
+                                const r = idCardData[idx];
+                                const g = idCardData[idx + 1];
+                                const b = idCardData[idx + 2];
+                                
+                                // 检测肤色
+                                if (
+                                    r > 60 && g > 40 && b > 20 && 
+                                    r > g && r > b && 
+                                    Math.abs(r - g) > 15 && 
+                                    r - b > 15 && 
+                                    g - b > 0
+                                ) {
+                                    idCardSkintonePixels++;
+                                }
+                                idCardTotalPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 3. 计算肤色比例相似度 (2分)
+                    const selfieSkinRatio = selfieSkintonePixels / selfieTotalPixels;
+                    const idCardSkinRatio = idCardSkintonePixels / idCardTotalPixels;
+                    
+                    // 如果比例相近，加分
+                    if (Math.abs(selfieSkinRatio - idCardSkinRatio) < 0.15) {
+                        similarityScore += 2;
+                    } else if (Math.abs(selfieSkinRatio - idCardSkinRatio) < 0.25) {
+                        similarityScore += 1;
+                    }
+                    
+                    // 4. 颜色直方图比较 (3分)
+                    // 创建简化的颜色直方图
+                    const selfieHist = createColorHistogram(selfieData, selfieCanvas.width, selfieCanvas.height);
+                    const idCardHist = createColorHistogram(idCardData, idCardCanvas.width, idCardCanvas.height, faceRegion);
+                    
+                    // 计算直方图相似度
+                    const histSimilarity = compareHistograms(selfieHist, idCardHist);
+                    
+                    // 根据相似度加分
+                    if (histSimilarity > 0.7) {
+                        similarityScore += 3;
+                    } else if (histSimilarity > 0.5) {
+                        similarityScore += 2;
+                    } else if (histSimilarity > 0.3) {
+                        similarityScore += 1;
+                    }
+                    
+                    // 计算最终相似度百分比
+                    const matchPercentage = (similarityScore / maxScore) * 100;
+                    
+                    const selfieUpload = document.getElementById('selfieUpload');
+                    const verifyingOverlay = document.getElementById('verifyingOverlay');
+                    
+                    if (verifyingOverlay) {
+                        verifyingOverlay.remove();
+                    }
+                    
+                    // 根据相似度决定是否匹配成功
+                    // 提高阈值以减少误匹配率
+                    const isMatch = matchPercentage >= 60;
+                    
+                    if (isMatch) {
+                        // 匹配成功
+                        document.getElementById('selfieError').classList.remove('show');
+                        selfieUpload.innerHTML = `
+                            <div style="text-align: center;">
+                                <img src="${selfieImageData}" class="upload-preview" alt="Selfie">
+                                <div style="margin-top: 10px; padding: 8px 16px; background: #48bb78; color: white; 
+                                    border-radius: 20px; display: inline-block;">
+                                    <span style="margin-right: 5px;">✓</span>
+                                    <span data-i18n="faceMatchSuccess">${translations[currentLang].faceMatchSuccess}</span>
+                                </div>
+                            </div>
+                        `;
+                        
+                        selfieUploaded = true;
+                        faceMatchSuccess = true;
+                    } else {
+                        // 匹配失败
+                        selfieUpload.innerHTML = `
+                            <div style="text-align: center;">
+                                <img src="${selfieImageData}" class="upload-preview" style="border: 2px solid #e53e3e;" alt="Selfie">
+                                <div style="margin-top: 15px;">
+                                    <button class="btn-primary" onclick="startCamera()" style="background: #e53e3e;">
+                                        <span data-i18n="retakePhoto">${translations[currentLang].retakePhoto}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                        document.getElementById('selfieError').classList.add('show');
+                        
+                        selfieUploaded = false;
+                        faceMatchSuccess = false;
+                    }
+                    
+                    checkDocumentCompletion();
+                };
+                
+                idCardImg.src = ktpImageData;
+            };
+            
+            selfieImg.src = selfieImageData;
         }
-        
+
+        // 创建颜色直方图的辅助函数
+        function createColorHistogram(imageData, width, height, region = null) {
+            // 创建一个简化的颜色直方图
+            // 我们使用5x5x5的颜色空间分区来简化计算
+            const bins = 5;
+            const histogram = new Array(bins * bins * bins).fill(0);
+            
+            // 确定要分析的区域
+            let startX = 0;
+            let startY = 0;
+            let endX = width;
+            let endY = height;
+            
+            if (region) {
+                startX = region.x;
+                startY = region.y;
+                endX = region.x + region.width;
+                endY = region.y + region.height;
+            }
+            
+            // 确保区域不超出图像边界
+            startX = Math.max(0, startX);
+            startY = Math.max(0, startY);
+            endX = Math.min(width, endX);
+            endY = Math.min(height, endY);
+            
+            // 采样像素计算直方图
+            let pixelCount = 0;
+            for (let y = startY; y < endY; y += 4) {
+                for (let x = startX; x < endX; x += 4) {
+                    const idx = (y * width + x) * 4;
+                    const r = imageData[idx];
+                    const g = imageData[idx + 1];
+                    const b = imageData[idx + 2];
+                    
+                    // 将RGB值映射到直方图的bin索引
+                    const rBin = Math.floor(r / 256 * bins);
+                    const gBin = Math.floor(g / 256 * bins);
+                    const bBin = Math.floor(b / 256 * bins);
+                    
+                    // 计算一维索引
+                    const index = (rBin * bins * bins) + (gBin * bins) + bBin;
+                    histogram[index]++;
+                    pixelCount++;
+                }
+            }
+            
+            // 归一化直方图
+            if (pixelCount > 0) {
+                for (let i = 0; i < histogram.length; i++) {
+                    histogram[i] /= pixelCount;
+                }
+            }
+            
+            return histogram;
+        }
+
+        // 比较两个直方图的相似度
+        function compareHistograms(hist1, hist2) {
+            if (hist1.length !== hist2.length) {
+                return 0;
+            }
+            
+            // 使用巴氏距离(Bhattacharyya distance)计算相似度
+            let similarity = 0;
+            for (let i = 0; i < hist1.length; i++) {
+                similarity += Math.sqrt(hist1[i] * hist2[i]);
+            }
+            
+            return similarity;
+        }
+
         // 修改验证文档函数，确保人脸验证成功
         function validateDocuments() {
             if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
