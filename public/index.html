@@ -693,6 +693,127 @@
         .phone-input-container input[type="tel"] {
             border-radius: 0 8px 8px 0;
         }
+
+        /* 添加身份证示例样式 */
+        .id-card-examples {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e0;
+        }
+        
+        .examples-title {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .examples-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .example-item {
+            flex: 1;
+            min-width: 120px;
+            max-width: 150px;
+            text-align: center;
+        }
+        
+        .example-image {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .example-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .example-label {
+            font-size: 12px;
+            color: #4a5568;
+            margin-top: 5px;
+        }
+        
+        .example-animation {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .animated-icon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+        
+        .animated-hand {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23667eea'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: moveHand 3s infinite;
+            z-index: 2;
+        }
+        
+        @keyframes moveHand {
+            0% {
+                top: 70%;
+                left: 20%;
+                transform: rotate(0deg);
+            }
+            25% {
+                top: 50%;
+                left: 40%;
+                transform: rotate(10deg);
+            }
+            50% {
+                top: 30%;
+                left: 60%;
+                transform: rotate(20deg);
+            }
+            75% {
+                top: 50%;
+                left: 40%;
+                transform: rotate(10deg);
+            }
+            100% {
+                top: 70%;
+                left: 20%;
+                transform: rotate(0deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -812,6 +933,26 @@
         <div class="form-section" id="section2">
             <div class="form-group">
                 <label data-i18n="ktpLabel">KTP (Identity Card)</label>
+                
+                <!-- 添加身份证示例 -->
+                <div class="id-card-examples">
+                    <div class="examples-title" data-i18n="idCardExamplesTitle">ID Card Upload Examples</div>
+                    <div class="examples-container">
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 60\' fill=\'%23667eea\'%3E%3Crect x=\'5\' y=\'5\' width=\'90\' height=\'50\' rx=\'3\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Ccircle cx=\'25\' cy=\'25\' r=\'12\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'15\' width=\'40\' height=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'25\' width=\'40\' height=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'35\' width=\'20\' height=\'5\' fill=\'%234a5568\'/%3E%3C/svg%3E');"></div>
+                            </div>
+                            <div class="example-label" data-i18n="idCardFrontExample">ID Card Front Side</div>
+                        </div>
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 60\' fill=\'%23667eea\'%3E%3Crect x=\'5\' y=\'5\' width=\'90\' height=\'50\' rx=\'3\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Cpath d=\'M20 15 H80 V45 H20 Z\' fill=\'%23cbd5e0\' stroke=\'%234a5568\'/%3E%3Cpath d=\'M30 25 L40 35 L50 20 L60 30 L70 25\' stroke=\'%234a5568\' stroke-width=\'2\' fill=\'none\'/%3E%3C/svg%3E');"></div>
+                            </div>
+                            <div class="example-label" data-i18n="idCardBackExample">Full Card in Frame</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
                     <div class="upload-icon">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -827,6 +968,27 @@
 
             <div class="form-group">
                 <label data-i18n="holdingKtpLabel">Holding ID Card (Front)</label>
+                
+                <!-- 添加手持身份证示例 -->
+                <div class="id-card-examples">
+                    <div class="examples-title" data-i18n="holdingIdCardExamplesTitle">Holding ID Card Examples</div>
+                    <div class="examples-container">
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23667eea\'%3E%3Ccircle cx=\'50\' cy=\'35\' r=\'20\' fill=\'%23ecc94b\'/%3E%3Cpath d=\'M30 60 C30 60, 40 100, 70 100 C90 100, 90 60, 70 60 Z\' fill=\'%23ecc94b\'/%3E%3Crect x=\'35\' y=\'65\' width=\'40\' height=\'25\' rx=\'2\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3C/svg%3E');"></div>
+                                <div class="animated-hand"></div>
+                            </div>
+                            <div class="example-label" data-i18n="holdingIdCardExample">Hold ID Card Clearly</div>
+                        </div>
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' fill=\'%23667eea\'%3E%3Ccircle cx=\'50\' cy=\'30\' r=\'20\' fill=\'%23ecc94b\'/%3E%3Cpath d=\'M30 55 C30 55, 40 95, 70 95 C90 95, 90 55, 70 55 Z\' fill=\'%23ecc94b\'/%3E%3Crect x=\'25\' y=\'60\' width=\'50\' height=\'30\' rx=\'2\' fill=\'%23e2e8f0\' stroke=\'%234a5568\' stroke-width=\'2\'/%3E%3Ccircle cx=\'35\' cy=\'70\' r=\'5\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'65\' width=\'20\' height=\'3\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'72\' width=\'20\' height=\'3\' fill=\'%234a5568\'/%3E%3Crect x=\'45\' y=\'79\' width=\'10\' height=\'3\' fill=\'%234a5568\'/%3E%3C/svg%3E');"></div>
+                            </div>
+                            <div class="example-label" data-i18n="holdingIdCardFaceExample">Face and ID Card Visible</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
                     <div class="upload-icon">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1080,7 +1242,13 @@
                 faceMatchSuccess: "Face verification successful!",
                 verifyingFace: "Comparing with ID photo...",
                 retakePhoto: "Retake Photo",
-                uploadIdFirst: "Please upload your ID card first."
+                uploadIdFirst: "Please upload your ID card first.",
+                idCardExamplesTitle: "ID Card Upload Examples",
+                idCardFrontExample: "ID Card Front Side",
+                idCardBackExample: "Full Card in Frame",
+                holdingIdCardExamplesTitle: "Holding ID Card Examples",
+                holdingIdCardExample: "Hold ID Card Clearly",
+                holdingIdCardFaceExample: "Face and ID Card Visible"
             },
             zh: {
                 title: "微额贷款申请",
@@ -1131,7 +1299,13 @@
                 faceMatchSuccess: "面部验证成功！",
                 verifyingFace: "正在与身份证照片比对...",
                 retakePhoto: "重新拍照",
-                uploadIdFirst: "请先上传您的身份证。"
+                uploadIdFirst: "请先上传您的身份证。",
+                idCardExamplesTitle: "身份证上传示例",
+                idCardFrontExample: "身份证人像面",
+                idCardBackExample: "完整卡片在框内",
+                holdingIdCardExamplesTitle: "手持身份证示例",
+                holdingIdCardExample: "清晰持证",
+                holdingIdCardFaceExample: "人脸与身份证可见"
             },
             id: {
                 title: "Pengajuan Pinjaman Mikro",
@@ -1182,7 +1356,13 @@
                 faceMatchSuccess: "Verifikasi wajah berhasil!",
                 verifyingFace: "Membandingkan dengan foto KTP...",
                 retakePhoto: "Ambil Ulang Foto",
-                uploadIdFirst: "Harap unggah kartu identitas Anda terlebih dahulu."
+                uploadIdFirst: "Harap unggah kartu identitas Anda terlebih dahulu.",
+                idCardExamplesTitle: "Contoh Unggahan KTP",
+                idCardFrontExample: "Sisi Depan KTP",
+                idCardBackExample: "Kartu Lengkap dalam Bingkai",
+                holdingIdCardExamplesTitle: "Contoh Memegang KTP",
+                holdingIdCardExample: "Pegang KTP dengan Jelas",
+                holdingIdCardFaceExample: "Wajah dan KTP Terlihat"
             },
             ms: {
                 title: "Permohonan Pinjaman Mikro",
@@ -1233,7 +1413,13 @@
                 faceMatchSuccess: "Pengesahan wajah berjaya!",
                 verifyingFace: "Membandingkan dengan gambar ID...",
                 retakePhoto: "Ambil Semula Foto",
-                uploadIdFirst: "Sila muat naik kad pengenalan anda dahulu."
+                uploadIdFirst: "Sila muat naik kad pengenalan anda dahulu.",
+                idCardExamplesTitle: "Contoh Muat Naik Kad Pengenalan",
+                idCardFrontExample: "Bahagian Depan Kad Pengenalan",
+                idCardBackExample: "Kad Penuh dalam Bingkai",
+                holdingIdCardExamplesTitle: "Contoh Memegang Kad Pengenalan",
+                holdingIdCardExample: "Pegang Kad Pengenalan dengan Jelas",
+                holdingIdCardFaceExample: "Wajah dan Kad Pengenalan Kelihatan"
             },
             tl: {
                 title: "Aplikasyon ng Mikro-Pinagkamaynayon",
@@ -1284,7 +1470,13 @@
                 faceMatchSuccess: "Matagumpay ang pag-verify ng mukha!",
                 verifyingFace: "Pinaghahambing sa larawan ng ID...",
                 retakePhoto: "Kumuha Muli ng Larawan",
-                uploadIdFirst: "Mangyaring i-upload muna ang iyong ID card."
+                uploadIdFirst: "Mangyaring i-upload muna ang iyong ID card.",
+                idCardExamplesTitle: "Mga Halimbawa ng Pag-upload ng ID Card",
+                idCardFrontExample: "Harapang Bahagi ng ID Card",
+                idCardBackExample: "Buong Card sa Frame",
+                holdingIdCardExamplesTitle: "Mga Halimbawa ng Paghawak ng ID Card",
+                holdingIdCardExample: "Hawakan ang ID Card nang Malinaw",
+                holdingIdCardFaceExample: "Mukha at ID Card ay Nakikita"
             },
             th: {
                 title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
@@ -1335,7 +1527,13 @@
                 faceMatchSuccess: "การยืนยันใบหน้าสำเร็จ!",
                 verifyingFace: "กำลังเปรียบเทียบกับรูปถ่ายบัตรประจำตัว...",
                 retakePhoto: "ถ่ายภาพใหม่",
-                uploadIdFirst: "กรุณาอัปโหลดบัตรประจำตัวของคุณก่อน"
+                uploadIdFirst: "กรุณาอัปโหลดบัตรประจำตัวของคุณก่อน",
+                idCardExamplesTitle: "ตัวอย่างการอัปโหลดบัตรประจำตัว",
+                idCardFrontExample: "ด้านหน้าบัตรประจำตัว",
+                idCardBackExample: "บัตรเต็มในกรอบ",
+                holdingIdCardExamplesTitle: "ตัวอย่างการถือบัตรประจำตัว",
+                holdingIdCardExample: "ถือบัตรประจำตัวให้ชัดเจน",
+                holdingIdCardFaceExample: "เห็นใบหน้าและบัตรประจำตัว"
             },
             vi: {
                 title: "Ứng dụng Vay vốn nhỏ",
@@ -1386,7 +1584,13 @@
                 faceMatchSuccess: "Xác minh khuôn mặt thành công!",
                 verifyingFace: "Đang so sánh với ảnh trên thẻ...",
                 retakePhoto: "Chụp lại ảnh",
-                uploadIdFirst: "Vui lòng tải lên thẻ căn cước của bạn trước."
+                uploadIdFirst: "Vui lòng tải lên thẻ căn cước của bạn trước.",
+                idCardExamplesTitle: "Ví dụ Tải lên CMND",
+                idCardFrontExample: "Mặt trước CMND",
+                idCardBackExample: "Thẻ đầy đủ trong khung",
+                holdingIdCardExamplesTitle: "Ví dụ Cầm CMND",
+                holdingIdCardExample: "Cầm CMND Rõ ràng",
+                holdingIdCardFaceExample: "Nhìn thấy Khuôn mặt và CMND"
             }
         };
 
