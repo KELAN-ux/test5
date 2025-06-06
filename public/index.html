@@ -1372,6 +1372,7 @@
                 holdingIdCardExample: "Hold ID Card Clearly",
                 holdingIdCardFaceExample: "Face and ID Card Visible",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Click to reupload"
             },
             zh: {
                 title: "微额贷款申请",
@@ -1430,6 +1431,7 @@
                 holdingIdCardExample: "清晰持证",
                 holdingIdCardFaceExample: "人脸与身份证可见",
                 desktopNoFaceVerification: "电脑端不需要进行人脸验证。",
+                clickToReupload: "点击重新上传"
             },
             id: {
                 title: "Pengajuan Pinjaman Mikro",
@@ -1488,6 +1490,7 @@
                 holdingIdCardExample: "Pegang KTP dengan Jelas",
                 holdingIdCardFaceExample: "Wajah dan KTP Terlihat",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Klik untuk unggah ulang"
             },
             ms: {
                 title: "Permohonan Pinjaman Mikro",
@@ -1546,6 +1549,7 @@
                 holdingIdCardExample: "Pegang Kad Pengenalan dengan Jelas",
                 holdingIdCardFaceExample: "Wajah dan Kad Pengenalan Kelihatan",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Klik untuk muat naik semula"
             },
             tl: {
                 title: "Aplikasyon ng Mikro-Pinagkamaynayon",
@@ -1604,6 +1608,7 @@
                 holdingIdCardExample: "Hawakan ang ID Card nang Malinaw",
                 holdingIdCardFaceExample: "Mukha at ID Card ay Nakikita",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "I-click upang mag-upload muli"
             },
             th: {
                 title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
@@ -1662,6 +1667,7 @@
                 holdingIdCardExample: "ถือบัตรประจำตัวให้ชัดเจน",
                 holdingIdCardFaceExample: "เห็นใบหน้าและบัตรประจำตัว",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "คลิกเพื่ออัปโหลดใหม่"
             },
             vi: {
                 title: "Ứng dụng Vay vốn nhỏ",
@@ -1720,6 +1726,7 @@
                 holdingIdCardExample: "Cầm CMND Rõ ràng",
                 holdingIdCardFaceExample: "Nhìn thấy Khuôn mặt và CMND",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Nhấp để tải lại"
             }
         };
 
@@ -2228,12 +2235,76 @@
                     // 保存照片数据用于后续的人脸比对
                     ktpImageData = e.target.result;
                     
-                    // 更新UI
+                    // 更新UI - 修改此部分以支持点击重新上传
                     const uploadContainer = document.getElementById('ktpUpload');
                     uploadContainer.classList.add('has-image');
-                    uploadContainer.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="KTP">`;
                     
-                    // 重新添加身份证要求说明
+                    // 创建一个包含预览图和提示的容器
+                    uploadContainer.innerHTML = `
+                        <div class="upload-preview-container">
+                            <img src="${e.target.result}" class="upload-preview" alt="KTP">
+                            <div class="reupload-overlay">
+                                <div class="reupload-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <span data-i18n="clickToReupload">${translations[currentLang].clickToReupload || '点击重新上传'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 添加必要的样式
+                    const style = document.createElement('style');
+                    if (!document.getElementById('reupload-styles')) {
+                        style.id = 'reupload-styles';
+                        style.textContent = `
+                            .upload-preview-container {
+                                position: relative;
+                                width: 100%;
+                                cursor: pointer;
+                                overflow: hidden;
+                                border-radius: 8px;
+                            }
+                            .reupload-overlay {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0, 0, 0, 0.5);
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                opacity: 0;
+                                transition: opacity 0.3s ease;
+                                color: white;
+                                text-align: center;
+                            }
+                            .upload-preview-container:hover .reupload-overlay {
+                                opacity: 1;
+                            }
+                            .reupload-icon {
+                                width: 40px;
+                                height: 40px;
+                                margin-bottom: 8px;
+                            }
+                            .reupload-icon svg {
+                                width: 100%;
+                                height: 100%;
+                                stroke: white;
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                    
+                    // 点击图片可以重新上传
+                    uploadContainer.onclick = function() {
+                        document.getElementById('ktpInput').click();
+                    };
+                    
+                    // 更新身份证要求说明
                     updateIDCardLabels();
                     
                     // 如果已经完成了人脸验证，但更换了身份证，需要重新进行人脸比对
@@ -2432,19 +2503,29 @@
                     // 验证通过，设置为已上传
                     holdingKtpUploaded = true;
                     
-                    // 更新UI
+                    // 更新UI - 修改此部分以支持点击重新上传
                     const uploadContainer = document.getElementById('holdingKtpUpload');
                     uploadContainer.classList.add('has-image');
-                    uploadContainer.innerHTML = `<img src="${e.target.result}" class="upload-preview" alt="Holding KTP">`;
                     
-                    // 重新添加说明文本
-                    const textElement = document.createElement('p');
-                    textElement.className = 'upload-text';
-                    textElement.style.marginTop = '10px';
-                    textElement.style.fontSize = '12px';
-                    textElement.setAttribute('data-i18n', 'holdingKtpText');
-                    textElement.textContent = translations[currentLang].holdingKtpText;
-                    uploadContainer.appendChild(textElement);
+                    // 创建一个包含预览图和提示的容器
+                    uploadContainer.innerHTML = `
+                        <div class="upload-preview-container">
+                            <img src="${e.target.result}" class="upload-preview" alt="Holding KTP">
+                            <div class="reupload-overlay">
+                                <div class="reupload-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <span data-i18n="clickToReupload">${translations[currentLang].clickToReupload || '点击重新上传'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 点击图片可以重新上传
+                    uploadContainer.onclick = function() {
+                        document.getElementById('holdingKtpInput').click();
+                    };
                     
                     // 清除错误信息
                     document.getElementById('holdingKtpError').classList.remove('show');
