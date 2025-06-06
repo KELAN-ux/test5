@@ -333,6 +333,45 @@
             align-items: center;
             justify-content: center;
         }
+        
+        /* 问号动画样式 */
+        .question-marks {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-marks span {
+            display: inline-block;
+            font-size: 36px;
+            color: #667eea;
+            font-weight: bold;
+            animation: pulse 1.5s infinite alternate;
+        }
+        
+        .question-marks span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .question-marks span:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .question-marks span:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
 
         .amount-toggle {
             position: absolute;
@@ -1095,200 +1134,139 @@
             border-radius: 8px;
         }
 
-        .progress-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px auto 30px;
-            max-width: 400px;
-        }
-        
-        .progress-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* Success Modal Styles */
+        .success-modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
             position: relative;
         }
-        
-        .progress-step.active .step-number {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .step-number {
-            width: 30px;
-            height: 30px;
+
+        .success-modal .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #48bb78;
             border-radius: 50%;
-            background-color: #e0e0e0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            margin-bottom: 5px;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.3s ease;
         }
-        
-        .progress-line {
-            flex-grow: 1;
-            height: 3px;
-            background-color: #e0e0e0;
-            margin: 0 15px;
-            position: relative;
-            top: -15px;
-        }
-        
-        .step-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .document-summary {
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .summary-title {
-            font-size: 1rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .document-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        .document-item {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .document-icon {
+
+        .success-modal .success-icon svg {
             width: 40px;
             height: 40px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-right: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #e8f5e9;
+            stroke: white;
+            stroke-width: 3;
         }
-        
-        .document-thumbnail {
-            width: 24px;
-            height: 24px;
-        }
-        
-        .document-detail {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .document-status {
-            color: #4CAF50;
+
+        .success-modal .success-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 16px;
             font-weight: bold;
         }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+
+        .success-modal .success-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
-        
-        .btn-secondary {
-            background-color: #f1f1f1;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-        
-        .loan-amount-display {
-            background-color: white;
+
+        .success-modal .compliance-notice {
+            background: #f7fafc;
             border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4a5568;
         }
-        
-        .loan-amount-container {
-            text-align: center;
-            margin-bottom: 15px;
+
+        .success-modal .compliance-notice strong {
+            color: #2d3748;
         }
-        
-        .loan-amount-label {
-            font-size: 1rem;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        
-        .loan-amount-value {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-        }
-        
-        .currency-symbol {
-            font-size: 1.8rem;
-            margin-right: 5px;
-        }
-        
-        .amount-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .amount-control-btn {
-            background-color: #e8f5e9;
-            color: #2e7d32;
+
+        .success-modal .success-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .amount-control-btn:hover {
-            background-color: #c8e6c9;
-        }
-        
-        .double-icon {
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
             font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            animation: buttonPulse 2s infinite;
+        }
+
+        .success-modal .success-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
         }
         
-        .loan-info {
-            background-color: #f5f5f5;
-            border-radius: 6px;
-            padding: 10px 15px;
+        /* 成功弹窗的动画效果 */
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
         
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            font-size: 0.9rem;
+        @keyframes slideIn {
+            0% { transform: translateY(-20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
         
-        .info-label {
-            color: #666;
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
         }
         
-        .info-value {
-            font-weight: 500;
-            color: #333;
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+        
+        .success-ripple {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(72, 187, 120, 0.2);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 1.5s ease-out infinite;
+        }
+        
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 0.8; }
+            100% { width: 200px; height: 200px; opacity: 0; }
+        }
+        
+        .success-confetti {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            opacity: 0.8;
+            border-radius: 3px;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+            10% { transform: translateY(0) rotate(45deg); opacity: 1; }
+            50% { transform: translateY(40px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
@@ -1369,155 +1347,152 @@
             </div>
         </div>
 
-        <!-- 进度指示器部分 - 添加明确的步骤指示 -->
-        <div class="progress-container" id="progressIndicator">
-            <div class="progress-step" id="stepUpload">
-                <div class="step-number">1</div>
-                <div class="step-label" data-i18n="uploadDocsStepLabel">上传资料</div>
+        <div class="progress-container">
+            <div class="progress-line">
+                <div class="progress-line-fill" id="progressFill"></div>
             </div>
-            <div class="progress-line"></div>
-            <div class="progress-step" id="stepApplication">
-                <div class="step-number">2</div>
-                <div class="step-label" data-i18n="submitApplicationStepLabel">提交申请</div>
+            <div class="progress-step active" id="step1">
+                <div class="progress-circle">1</div>
+                <div class="progress-label" data-i18n="step1">Phone</div>
+            </div>
+            <div class="progress-step" id="step2">
+                <div class="progress-circle">2</div>
+                <div class="progress-label" data-i18n="step2">Documents</div>
+            </div>
+            <div class="progress-step" id="step3">
+                <div class="progress-circle">3</div>
+                <div class="progress-label" data-i18n="step3">Amount</div>
             </div>
         </div>
 
-        <!-- 上传资料页面 -->
-        <div class="form-section" id="uploadDocumentsSection">
-            <h2 class="section-title" data-i18n="uploadDocuments">上传资料</h2>
-            <p class="section-description" data-i18n="uploadDocumentsDesc">请上传您的身份证正面照片和手持身份证照片</p>
-            
-            <!-- 身份证上传 -->
-            <div class="upload-section">
-                <h3 class="upload-title" data-i18n="idCardUpload">身份证照片</h3>
-                <div class="upload-container" id="ktpContainer">
-                    <div class="upload-placeholder" id="ktpPlaceholder">
-                        <img src="assets/id-card-icon.svg" alt="ID Card" class="placeholder-icon">
-                        <p data-i18n="uploadIdCard">点击上传身份证照片</p>
-                        <span class="upload-description" data-i18n="idCardRequirement">请确保照片清晰可见</span>
+        <!-- Step 1: Phone Number -->
+        <div class="form-section active" id="section1">
+            <div class="form-group">
+                <label for="phone" data-i18n="phoneLabel">Phone Number</label>
+                <div class="phone-input-container">
+                    <div class="country-code" id="countryCode">
+                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia flag" id="countryFlag" />
+                        <span id="phoneCodeDisplay">+62</span>
                     </div>
-                    <div class="image-preview" id="ktpPreview">
-                        <img id="ktpImage" src="#" alt="KTP Preview">
-                        <div class="reupload-overlay">
-                            <span data-i18n="clickToReupload">点击重新上传</span>
-                        </div>
-                    </div>
+                    <input type="tel" id="phone" placeholder="812 3456 7890" autocomplete="tel">
                 </div>
-                <input type="file" id="ktpInput" accept="image/*" capture="environment" style="display: none;">
+                <div class="error-message" id="phoneError" data-i18n="phoneError">Please enter a valid phone number</div>
             </div>
-            
-            <!-- 手持身份证上传 -->
-            <div class="upload-section">
-                <h3 class="upload-title" data-i18n="holdingIdCardUpload">手持身份证照片</h3>
-                <div class="upload-container" id="holdingKtpContainer">
-                    <div class="upload-placeholder" id="holdingKtpPlaceholder">
-                        <img src="assets/holding-id-icon.svg" alt="Holding ID Card" class="placeholder-icon">
-                        <p data-i18n="uploadHoldingIdCard">点击上传手持身份证照片</p>
-                        <span class="upload-description" data-i18n="holdingIdCardRequirement">请确保您的脸和身份证同时可见</span>
-                    </div>
-                    <div class="image-preview" id="holdingKtpPreview">
-                        <img id="holdingKtpImage" src="#" alt="Holding KTP Preview">
-                        <div class="reupload-overlay">
-                            <span data-i18n="clickToReupload">点击重新上传</span>
-                        </div>
-                    </div>
-                </div>
-                <input type="file" id="holdingKtpInput" accept="image/*" capture="environment" style="display: none;">
-            </div>
-
-            <!-- 移动端需要自拍照部分 -->
-            <div class="upload-section" id="selfieSection" style="display: none;">
-                <h3 class="upload-title" data-i18n="selfieUpload">自拍照片</h3>
-                <div class="upload-container" id="selfieContainer">
-                    <div class="upload-placeholder" id="selfiePlaceholder">
-                        <img src="assets/selfie-icon.svg" alt="Selfie" class="placeholder-icon">
-                        <p data-i18n="uploadSelfie">点击上传自拍照片</p>
-                        <span class="upload-description" data-i18n="selfieRequirement">请确保您的脸部清晰可见</span>
-                    </div>
-                    <div class="image-preview" id="selfiePreview">
-                        <img id="selfieImage" src="#" alt="Selfie Preview">
-                        <div class="reupload-overlay">
-                            <span data-i18n="clickToReupload">点击重新上传</span>
-                        </div>
-                    </div>
-                </div>
-                <input type="file" id="selfieInput" accept="image/*" capture="user" style="display: none;">
-            </div>
-            
-            <!-- 继续按钮 - 前往申请页面 -->
-            <button class="btn-primary" id="continueToApplication" disabled data-i18n="continue">继续</button>
-        </div>
-
-        <!-- 申请提交页面 -->
-        <div class="form-section" id="applicationSubmitSection" style="display: none;">
-            <h2 class="section-title" data-i18n="submitApplication">提交申请</h2>
-            <p class="section-description" data-i18n="submitApplicationDesc">请确认以下信息并提交您的贷款申请</p>
-            
-            <!-- 贷款金额显示 -->
-            <div class="loan-amount-display">
-                <div class="loan-amount-container">
-                    <h3 class="loan-amount-label" data-i18n="loanAmountLabel">贷款金额</h3>
-                    <div class="loan-amount-value" id="displayedLoanAmount">
-                        <span class="currency-symbol" id="currencySymbol">¥</span>
-                        <span class="amount-value" id="amountValue">10,000</span>
-                    </div>
-                    <div class="amount-controls">
-                        <button class="amount-control-btn" id="doubleAmountBtn">
-                            <span data-i18n="doubleAmount">翻倍</span>
-                            <span class="double-icon">×2</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="loan-info">
-                    <div class="info-item">
-                        <span class="info-label" data-i18n="interestRate">利率</span>
-                        <span class="info-value">12% / <span data-i18n="year">年</span></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label" data-i18n="loanTerm">贷款期限</span>
-                        <span class="info-value">12 <span data-i18n="months">个月</span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 文件上传状态概览 -->
-            <div class="document-summary">
-                <h3 class="summary-title" data-i18n="uploadedDocuments">已上传文件</h3>
-                <div class="document-list">
-                    <div class="document-item">
-                        <div class="document-icon">
-                            <img src="assets/id-card-check.svg" alt="ID Card" class="document-thumbnail">
-                        </div>
-                        <div class="document-detail">
-                            <span class="document-name" data-i18n="idCardDocument">身份证照片</span>
-                            <span class="document-status">✓</span>
-                        </div>
-                    </div>
-                    <div class="document-item">
-                        <div class="document-icon">
-                            <img src="assets/holding-id-check.svg" alt="Holding ID Card" class="document-thumbnail">
-                        </div>
-                        <div class="document-detail">
-                            <span class="document-name" data-i18n="holdingIdCardDocument">手持身份证照片</span>
-                            <span class="document-status">✓</span>
-                        </div>
-                    </div>
-                    <div class="document-item" id="selfieDocumentItem" style="display: none;">
-                        <div class="document-icon">
-                            <img src="assets/selfie-check.svg" alt="Selfie" class="document-thumbnail">
-                        </div>
-                        <div class="document-detail">
-                            <span class="document-name" data-i18n="selfieDocument">自拍照片</span>
-                            <span class="document-status">✓</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 返回和提交按钮 -->
             <div class="button-group">
-                <button class="btn-secondary" id="backToUpload" data-i18n="back">返回</button>
-                <button class="btn-primary" id="submitApplicationBtn" data-i18n="submit">提交申请</button>
+                <button class="btn-primary" onclick="validatePhone()" data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload Documents -->
+        <div class="form-section" id="section2">
+            <div class="form-group">
+                <label for="ktpInput" data-i18n="ktpLabel">KTP (Identity Card)</label>
+                <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
+                    <input type="file" id="ktpInput" accept="image/*" onchange="handleKTPUpload(event)" style="display: none;">
+                    <div class="upload-preview-container" style="display: none;">
+                        <img id="ktpPreview" class="upload-preview">
+                    </div>
+                    <div class="upload-placeholder">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                        <p class="upload-requirements" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                    </div>
+                </div>
+                <div class="error-message" id="ktpError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="holdingKtpInput" data-i18n="holdingKtpLabel">Holding KTP (Front)</label>
+                <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
+                    <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKTPUpload(event)" style="display: none;">
+                    <div class="upload-preview-container" style="display: none;">
+                        <img id="holdingKtpPreview" class="upload-preview">
+                    </div>
+                    <div class="upload-placeholder">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                        <p class="upload-requirements" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                    </div>
+                </div>
+                <div class="error-message" id="holdingKtpError"></div>
+            </div>
+
+            <div class="form-group" id="faceVerificationGroup" style="display: none;">
+                <label for="selfie" data-i18n="selfieLabel">Face Verification</label>
+                <div class="camera-container" id="cameraContainer">
+                    <video id="video" autoplay playsinline muted style="display: none;"></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div class="camera-overlay"></div>
+                    <div class="face-detection-status" id="faceStatus" data-i18n="positionFace">Position your face in the frame</div>
+                    <div class="camera-placeholder" id="cameraPlaceholder" onclick="startCamera()">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M18 12h-6"></path>
+                                <path d="M12 6v12"></path>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
+                    </div>
+                </div>
+                <button class="btn-primary" id="captureBtn" style="display: none; width: 100%; margin-top: 10px;" onclick="capturePhoto()" data-i18n="capture">Capture Photo</button>
+                <div class="error-message" id="selfieError"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="console.log('返回按钮被点击, 当前步骤:', currentStep); goToStep(1)" data-i18n="back">Back</button>
+                <button class="btn-primary" onclick="validateDocuments()" id="documentsNext" disabled data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Loan Amount -->
+        <div class="form-section" id="section3">
+            <div class="form-group">
+                <label for="amount" data-i18n="amountLabel">Loan Amount (IDR)</label>
+                <div class="amount-display-container">
+                    <div class="amount-display" id="amountDisplay">
+                        <div class="question-marks">
+                            <span>?</span>
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                    </div>
+                    <div class="doubled-amount-container">
+                        <div class="doubled-badge" data-i18n="doubledAmount">Doubled!</div>
+                        <div class="original-amount" id="originalAmountDisplay">Rp 0</div>
+                        <svg class="double-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 7l5-5 5 5M7 17l5 5 5-5"/>
+                        </svg>
+                    </div>
+                </div>
+                <p style="font-size: 14px; color: #48bb78; margin-top: 15px; text-align: center; font-weight: bold;" data-i18n="congratsDoubled">Congratulations! Your loan amount has been doubled!</p>
+            </div>
+
+            <div class="form-group approval-notice">
+                <div class="approval-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <path d="M22 4L12 14.01l-3-3"></path>
+                    </svg>
+                </div>
+                <p data-i18n="manualReviewNotice">After submitting, your application will be reviewed by our team. A representative will contact you soon.</p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="console.log('返回按钮被点击, 当前步骤:', currentStep); goToStep(2)" data-i18n="back">Back</button>
+                <button class="btn-primary submit-btn" onclick="showFinalConfirmation()" data-i18n="submitNow">Submit Application Now</button>
             </div>
         </div>
 
@@ -1542,8 +1517,26 @@
             </div>
         </div>
 
-        <!-- Success Screen -->
-        <div class="form-section" id="successSection">
+        <!-- Success Modal -->
+        <div id="successModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content success-modal">
+                <div class="success-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 data-i18n="successTitle">申请已提交！</h2>
+                <p class="modal-message" data-i18n="successMessage">您的贷款申请已加密并成功提交。</p>
+                <div class="compliance-notice">
+                    <strong data-i18n="complianceTitle">POJK 35/2018 合规性：</strong>
+                    <p data-i18n="complianceMessage">您的数据已使用AES-256加密，并将在30天后自动删除。</p>
+                </div>
+                <button class="modal-button success-button" onclick="closeSuccessModal()">完成</button>
+            </div>
+        </div>
+        
+        <!-- Success Screen (保留但隐藏，供后续参考) -->
+        <div class="form-section" id="successSection" style="display: none;">
             <div class="success-container">
                 <div class="success-icon">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2308,9 +2301,6 @@
             document.getElementById('modalTitle').textContent = translations[currentLang].congratsTitle;
             document.getElementById('modalMessage').textContent = translations[currentLang].congratsMessage;
             document.getElementById('modalButton').textContent = translations[currentLang].congratsButton;
-            
-            // 更新金额显示
-            document.getElementById('amountDisplay').textContent = getFormattedAmount(currentLang);
         }
 
         // 弹窗语言切换
@@ -2384,6 +2374,158 @@
 
         // Step navigation
         function goToStep(step) {
+            console.log('进入goToStep函数，当前步骤:', currentStep, '目标步骤:', step);
+            // 先保存当前步骤，用于判断方向
+            const previousStep = currentStep;
+            
+            // 测试，检查要跳转的section是否存在
+            const toSection = document.getElementById('section' + step);
+            if(!toSection) {
+                console.error('目标section不存在:', 'section' + step);
+                return;
+            }
+            
+            // 记录当前步骤，用于滑动导航
+            currentFormSection = step;
+            
+            // 添加过渡动画
+            const fromSection = document.querySelector('.form-section.active');
+            
+            console.log('fromSection:', fromSection ? fromSection.id : 'null');
+            console.log('toSection:', toSection.id);
+            
+            if (fromSection && toSection) {
+                const direction = step > previousStep ? 'left' : 'right';
+                console.log('转换方向:', direction);
+                
+                // 先将toSection显示但透明，以便于执行动画
+                fromSection.style.position = 'absolute';
+                fromSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                fromSection.style.width = '100%';
+                fromSection.style.zIndex = '1';
+                
+                toSection.style.position = 'relative';
+                toSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                toSection.style.width = '100%';
+                toSection.style.zIndex = '2';
+                toSection.style.display = 'block';
+                
+                // 更新当前步骤和进度条
+                currentStep = step;
+                updateProgressBar();
+                
+                // 如果是步骤2，根据设备类型决定是否显示人脸验证
+                if (step === 2) {
+                    if (isDesktop) {
+                        document.getElementById('faceVerificationGroup').style.display = 'none';
+                    } else {
+                        document.getElementById('faceVerificationGroup').style.display = 'block';
+                    }
+                }
+                
+                // 更新步骤指示器状态
+                document.querySelectorAll('.progress-step').forEach((el, index) => {
+                    if (index < step) {
+                        el.classList.add('completed');
+                        el.classList.remove('active');
+                    } else if (index === step - 1) {
+                        el.classList.add('active');
+                        el.classList.remove('completed');
+                    } else {
+                        el.classList.remove('active', 'completed');
+                    }
+                });
+                
+                // 准备动画初始状态
+                if (direction === 'left') {
+                    // 向左滑动 (下一步)
+                    toSection.style.transform = 'translateX(100%)';
+                    toSection.style.opacity = '0';
+                } else {
+                    // 向右滑动 (上一步)
+                    toSection.style.transform = 'translateX(-100%)';
+                    toSection.style.opacity = '0';
+                }
+                
+                // 强制重绘
+                void toSection.offsetHeight;
+                
+                // 执行动画
+                fromSection.style.transform = direction === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
+                fromSection.style.opacity = '0';
+                
+                toSection.style.transform = 'translateX(0)';
+                toSection.style.opacity = '1';
+                
+                // 更新活动section标记
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                toSection.classList.add('active');
+                
+                // 动画后清理样式
+                setTimeout(() => {
+                    // 重置样式
+                    fromSection.style.position = '';
+                    fromSection.style.transition = '';
+                    fromSection.style.transform = '';
+                    fromSection.style.width = '';
+                    fromSection.style.opacity = '';
+                    fromSection.style.zIndex = '';
+                    fromSection.style.display = 'none';
+                    
+                    toSection.style.position = '';
+                    toSection.style.transition = '';
+                    toSection.style.transform = '';
+                    toSection.style.width = '';
+                    toSection.style.opacity = '';
+                    toSection.style.zIndex = '';
+                }, 350);
+                
+                // 当进入第3步时，显示随机生成的金额和翻倍金额
+                if (step === 3) {
+                    const originalAmount = loanAmountCNY.current;
+                    const rate = exchangeRates[currentLang].rate;
+                    
+                    // 显示原始金额
+                    const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
+                    document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
+                    
+                    // 计算并显示翻倍后的金额
+                    const doubledAmount = originalAmount * 2;
+                    const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
+                    
+                    // 问号动画显示1.5秒后再显示实际金额
+                    setTimeout(() => {
+                        // 淡出问号动画
+                        const questionMarks = document.querySelector('.question-marks');
+                        if (questionMarks) {
+                            questionMarks.style.transition = 'opacity 0.5s ease';
+                            questionMarks.style.opacity = '0';
+                            
+                            // 淡出完成后显示金额
+                            setTimeout(() => {
+                                const amountDisplay = document.getElementById('amountDisplay');
+                                // 清空原有内容
+                                amountDisplay.innerHTML = '';
+                                // 设置新的金额值
+                                amountDisplay.textContent = doubledAmountFormatted;
+                                // 添加出现动画
+                                amountDisplay.style.transition = 'opacity 0.5s ease';
+                                amountDisplay.style.opacity = '0';
+                                // 强制重绘
+                                void amountDisplay.offsetHeight;
+                                amountDisplay.style.opacity = '1';
+                            }, 500);
+                        }
+                    }, 1500);
+                }
+                
+                return;
+            }
+            
+            // 回退到原始逻辑(不太可能执行到这里，保留以防万一)
+            console.log('回退到原始逻辑');
             document.querySelectorAll('.form-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -2413,6 +2555,21 @@
             
             currentStep = step;
             updateProgressBar();
+            
+            // 当进入第3步时，显示随机生成的金额和翻倍金额
+            if (step === 3) {
+                const originalAmount = loanAmountCNY.current;
+                const rate = exchangeRates[currentLang].rate;
+                
+                // 显示原始金额
+                const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
+                document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
+                
+                // 计算翻倍后的金额
+                const doubledAmount = originalAmount * 2;
+                const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
+                document.getElementById('amountDisplay').textContent = doubledAmountFormatted;
+            }
         }
 
         // KTP upload handler
@@ -3426,14 +3583,27 @@
             }
         }
 
-        // Format amount
+        // Format amount with separator
         function formatAmount(event) {
-            let value = event.target.value.replace(/[^\d]/g, '');
+            const input = event.target;
+            const value = input.value.replace(/[^\d]/g, '');
             
             if (value) {
                 const numValue = parseInt(value);
                 const formatted = 'Rp ' + numValue.toLocaleString('id-ID');
-                document.getElementById('amountDisplay').textContent = amountVisible ? formatted : '••••••••';
+                
+                // 更新输入框显示金额，根据可见性设置
+                const amountDisplay = document.getElementById('amountDisplay');
+                
+                // 清空原有内容
+                amountDisplay.innerHTML = '';
+                
+                // 根据可见性显示金额或者点
+                if (amountVisible) {
+                    amountDisplay.textContent = formatted;
+                } else {
+                    amountDisplay.textContent = '••••••••';
+                }
                 
                 // Validate amount
                 if (numValue < 1128163) {
@@ -3449,7 +3619,15 @@
                     document.getElementById('amountError').classList.remove('show');
                 }
             } else {
-                document.getElementById('amountDisplay').textContent = 'Rp 0';
+                // 当没有输入值时，显示问号动画
+                const amountDisplay = document.getElementById('amountDisplay');
+                amountDisplay.innerHTML = `
+                    <div class="question-marks">
+                        <span>?</span>
+                        <span>?</span>
+                        <span>?</span>
+                    </div>
+                `;
             }
         }
 
@@ -3557,11 +3735,11 @@
                 // 隐藏确认弹窗
                 document.getElementById('finalConfirmationModal').style.display = 'none';
                 
-                // 显示成功页面
-                document.querySelectorAll('.form-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                document.getElementById('successSection').classList.add('active');
+                // 显示成功弹窗（而不是原来的页面）
+                document.getElementById('successModal').style.display = 'flex';
+                
+                // 添加提交成功的动画效果
+                animateSuccessModal();
                 
                 // 记录成功状态到localStorage
                 localStorage.setItem('applicationSubmitted', 'true');
@@ -3579,6 +3757,60 @@
                     submitButton.disabled = false;
                     submitButton.textContent = translations[currentLang].finalSubmit || 'Submit Application';
                 }
+            }
+        }
+        
+        // 关闭成功弹窗
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            
+            // 返回到第一步，重置表单
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('section1').classList.add('active');
+            currentStep = 1;
+            updateProgressBar();
+            
+            // 清空表单字段
+            document.getElementById('phone').value = '';
+            
+            // 重新生成随机金额
+            generateRandomLoanAmount();
+        }
+        
+        // 成功弹窗动画效果
+        function animateSuccessModal() {
+            // 添加动画效果
+            const modal = document.querySelector('.success-modal');
+            const icon = modal.querySelector('.success-icon');
+            
+            // 让图标有弹跳效果
+            icon.style.animation = 'bounce 0.6s ease-in-out';
+            
+            // 创建扩散效果
+            const ripple = document.createElement('div');
+            ripple.className = 'success-ripple';
+            icon.appendChild(ripple);
+            
+            // 创建庆祝粒子效果
+            createSuccessConfetti();
+        }
+        
+        // 创建成功提交时的庆祝彩纸效果
+        function createSuccessConfetti() {
+            const confettiContainer = document.querySelector('.success-modal');
+            const colors = ['#48bb78', '#667eea', '#f6e05e', '#ed64a6', '#5a67d8'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'success-confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 30 + '%';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confettiContainer.appendChild(confetti);
             }
         }
 
@@ -3959,84 +4191,6 @@
             });
         }
         
-        // 改进步骤导航
-        const originalGoToStep = goToStep;
-        goToStep = function(step) {
-            // 记录当前步骤，用于滑动导航
-            currentFormSection = step;
-            
-            // 添加过渡动画
-            const fromSection = document.querySelector('.form-section.active');
-            const toSection = document.getElementById('section' + step);
-            
-            if (fromSection && toSection) {
-                const direction = step > currentStep ? 'left' : 'right';
-                
-                // 设置动画
-                fromSection.style.position = 'absolute';
-                fromSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                fromSection.style.width = '100%';
-                
-                toSection.style.position = 'relative';
-                toSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                toSection.style.width = '100%';
-                
-                if (direction === 'left') {
-                    // 向左滑动 (下一步)
-                    fromSection.style.transform = 'translateX(-100%)';
-                    fromSection.style.opacity = '0';
-                    
-                    toSection.style.transform = 'translateX(100%)';
-                    toSection.style.display = 'block';
-                    toSection.style.opacity = '0';
-                    
-                    // 强制重绘
-                    toSection.offsetHeight;
-                    
-                    toSection.style.transform = 'translateX(0)';
-                    toSection.style.opacity = '1';
-                } else {
-                    // 向右滑动 (上一步)
-                    fromSection.style.transform = 'translateX(100%)';
-                    fromSection.style.opacity = '0';
-                    
-                    toSection.style.transform = 'translateX(-100%)';
-                    toSection.style.display = 'block';
-                    toSection.style.opacity = '0';
-                    
-                    // 强制重绘
-                    toSection.offsetHeight;
-                    
-                    toSection.style.transform = 'translateX(0)';
-                    toSection.style.opacity = '1';
-                }
-                
-                // 动画后清理样式
-                setTimeout(() => {
-                    // 调用原始函数来处理其他逻辑
-                    originalGoToStep(step);
-                    
-                    // 重置样式
-                    fromSection.style.position = '';
-                    fromSection.style.transition = '';
-                    fromSection.style.transform = '';
-                    fromSection.style.width = '';
-                    fromSection.style.opacity = '';
-                    
-                    toSection.style.position = '';
-                    toSection.style.transition = '';
-                    toSection.style.transform = '';
-                    toSection.style.width = '';
-                    toSection.style.opacity = '';
-                }, 300);
-                
-                return;
-            }
-            
-            // 回退到原始函数
-            originalGoToStep(step);
-        };
-        
         // 优化文本框输入体验
         function enhanceMobileInput() {
             const inputs = document.querySelectorAll('input');
@@ -4072,61 +4226,6 @@
             // 更新最终弹窗中的金额显示
             document.getElementById('doubledAmountFinal').textContent = getFormattedAmount(currentLang);
         }
-        
-        // 修改页面跳转函数，当进入第3步时显示翻倍金额
-        const existingGoToStep = goToStep;
-        goToStep = function(step) {
-            // 保留原来的功能
-            if (typeof existingGoToStep === 'function') {
-                existingGoToStep(step);
-            } else {
-                // 如果existingGoToStep不是函数，执行原始代码
-                document.querySelectorAll('.form-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                document.getElementById('section' + step).classList.add('active');
-                
-                // 如果是步骤2，根据设备类型决定是否显示人脸验证
-                if (step === 2) {
-                    if (isDesktop) {
-                        document.getElementById('faceVerificationGroup').style.display = 'none';
-                    } else {
-                        document.getElementById('faceVerificationGroup').style.display = 'block';
-                    }
-                }
-                
-                document.querySelectorAll('.progress-step').forEach((el, index) => {
-                    if (index < step) {
-                        el.classList.add('completed');
-                        el.classList.remove('active');
-                    } else if (index === step - 1) {
-                        el.classList.add('active');
-                        el.classList.remove('completed');
-                    } else {
-                        el.classList.remove('active', 'completed');
-                    }
-                });
-                
-                currentStep = step;
-                updateProgressBar();
-            }
-            
-            // 当进入第3步时，显示随机生成的金额和翻倍金额
-            if (step === 3) {
-                const originalAmount = loanAmountCNY.current;
-                const rate = exchangeRates[currentLang].rate;
-                
-                // 显示原始金额
-                const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
-                document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
-                
-                // 计算并显示翻倍后的金额
-                const doubledAmount = originalAmount * 2;
-                const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
-                document.getElementById('amountDisplay').textContent = doubledAmountFormatted;
-            }
-        };
         
         // 添加错误提示弹窗函数
         function showErrorModal(errorMessage) {
@@ -4227,185 +4326,6 @@
         translations.vi.errorTitle = "Gửi Thất Bại";
         translations.vi.networkError = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn và thử lại.";
         translations.vi.tryAgain = "Thử Lại";
-
-        // 修改导航逻辑以支持两个独立页面之间的切换
-        document.addEventListener('DOMContentLoaded', function() {
-            // 获取页面元素
-            const uploadSection = document.getElementById('uploadDocumentsSection');
-            const applicationSection = document.getElementById('applicationSubmitSection');
-            const stepUpload = document.getElementById('stepUpload');
-            const stepApplication = document.getElementById('stepApplication');
-            const continueBtn = document.getElementById('continueToApplication');
-            const backBtn = document.getElementById('backToUpload');
-            const submitBtn = document.getElementById('submitApplicationBtn');
-            const selfieSection = document.getElementById('selfieSection');
-            const selfieDocumentItem = document.getElementById('selfieDocumentItem');
-            
-            // 初始化进度指示器
-            stepUpload.classList.add('active');
-            
-            // 检查设备类型
-            if (!isDesktop) {
-                selfieSection.style.display = 'block';
-                selfieDocumentItem.style.display = 'flex';
-            }
-            
-            // 监听文件上传状态，启用/禁用继续按钮
-            function checkUploadStatus() {
-                if (ktpImageData && document.getElementById('holdingKtpInput').files.length > 0) {
-                    if (isDesktop || (!isDesktop && selfieImageData)) {
-                        continueBtn.disabled = false;
-                    } else {
-                        continueBtn.disabled = !isDesktop && !selfieImageData;
-                    }
-                } else {
-                    continueBtn.disabled = true;
-                }
-            }
-            
-            // 为上传输入添加事件监听器
-            document.getElementById('ktpInput').addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    processKtpImage(this.files[0]);
-                    checkUploadStatus();
-                }
-            });
-            
-            document.getElementById('holdingKtpInput').addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    const file = this.files[0];
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        document.getElementById('holdingKtpImage').src = e.target.result;
-                        document.getElementById('holdingKtpPlaceholder').style.display = 'none';
-                        document.getElementById('holdingKtpPreview').style.display = 'block';
-                        checkUploadStatus();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            if (!isDesktop) {
-                document.getElementById('selfieInput').addEventListener('change', function() {
-                    if (this.files.length > 0) {
-                        processSelfieImage(this.files[0]);
-                        checkUploadStatus();
-                    }
-                });
-            }
-            
-            // 页面切换按钮事件处理
-            continueBtn.addEventListener('click', function() {
-                uploadSection.style.display = 'none';
-                applicationSection.style.display = 'block';
-                stepUpload.classList.remove('active');
-                stepApplication.classList.add('active');
-                
-                // 在申请页面显示随机贷款金额
-                updateLoanAmountDisplay();
-            });
-            
-            backBtn.addEventListener('click', function() {
-                applicationSection.style.display = 'none';
-                uploadSection.style.display = 'block';
-                stepApplication.classList.remove('active');
-                stepUpload.classList.add('active');
-            });
-            
-            // 金额翻倍按钮逻辑
-            document.getElementById('doubleAmountBtn').addEventListener('click', function() {
-                loanAmountCNY.current *= 2;
-                if (loanAmountCNY.current > loanAmountCNY.max) {
-                    loanAmountCNY.current = loanAmountCNY.max;
-                }
-                updateLoanAmountDisplay();
-                
-                // 添加动画效果
-                const amountValue = document.getElementById('amountValue');
-                amountValue.classList.add('highlight');
-                setTimeout(() => {
-                    amountValue.classList.remove('highlight');
-                }, 500);
-            });
-            
-            // 更新贷款金额显示
-            function updateLoanAmountDisplay() {
-                const formattedAmount = new Intl.NumberFormat().format(loanAmountCNY.current);
-                document.getElementById('amountValue').textContent = formattedAmount;
-                document.getElementById('currencySymbol').textContent = getCurrencySymbol();
-            }
-            
-            // 获取当前语言的货币符号
-            function getCurrencySymbol() {
-                return exchangeRates[currentLang].symbol;
-            }
-            
-            // 提交按钮事件处理
-            submitBtn.addEventListener('click', function() {
-                // 显示确认弹窗
-                showFinalConfirmationModal();
-            });
-        });
-
-        // 添加高亮动画样式
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes highlight {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.1); color: #4CAF50; }
-                100% { transform: scale(1); }
-            }
-            
-            .highlight {
-                animation: highlight 0.5s ease;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // 添加多语言支持
-        translations.en.uploadDocsStepLabel = "Upload Documents";
-        translations.en.submitApplicationStepLabel = "Submit Application";
-        translations.en.uploadedDocuments = "Uploaded Documents";
-        translations.en.idCardDocument = "ID Card Photo";
-        translations.en.holdingIdCardDocument = "Holding ID Card Photo";
-        translations.en.selfieDocument = "Selfie Photo";
-        translations.en.back = "Back";
-        translations.en.continue = "Continue";
-        translations.en.doubleAmount = "Double";
-        translations.en.loanAmountLabel = "Loan Amount";
-        translations.en.interestRate = "Interest Rate";
-        translations.en.loanTerm = "Loan Term";
-        translations.en.months = "months";
-
-        translations.zh.uploadDocsStepLabel = "上传资料";
-        translations.zh.submitApplicationStepLabel = "提交申请";
-        translations.zh.uploadedDocuments = "已上传文件";
-        translations.zh.idCardDocument = "身份证照片";
-        translations.zh.holdingIdCardDocument = "手持身份证照片";
-        translations.zh.selfieDocument = "自拍照片";
-        translations.zh.back = "返回";
-        translations.zh.continue = "继续";
-        translations.zh.doubleAmount = "翻倍";
-        translations.zh.loanAmountLabel = "贷款金额";
-        translations.zh.interestRate = "利率";
-        translations.zh.loanTerm = "贷款期限";
-        translations.zh.months = "个月";
-
-        translations.id.uploadDocsStepLabel = "Unggah Dokumen";
-        translations.id.submitApplicationStepLabel = "Kirim Aplikasi";
-        translations.id.uploadedDocuments = "Dokumen Terunggah";
-        translations.id.idCardDocument = "Foto KTP";
-        translations.id.holdingIdCardDocument = "Foto Memegang KTP";
-        translations.id.selfieDocument = "Foto Selfie";
-        translations.id.back = "Kembali";
-        translations.id.continue = "Lanjutkan";
-        translations.id.doubleAmount = "Gandakan";
-        translations.id.loanAmountLabel = "Jumlah Pinjaman";
-        translations.id.interestRate = "Suku Bunga";
-        translations.id.loanTerm = "Jangka Waktu";
-        translations.id.months = "bulan";
-
-        // 为其他语言添加类似的翻译
     </script>
 </body>
 </html>
