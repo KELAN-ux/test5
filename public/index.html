@@ -3853,17 +3853,17 @@
                 // 获取手持身份证照片数据
                 const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
                 
-                // 添加所有文件到FormData
-                formData.append('idCard', ktpBlob, 'id_card.jpg');
+                // 添加所有文件到FormData - 使用'files'作为字段名
+                formData.append('files', ktpBlob, 'id_card.jpg');
                 
                 if (holdingKtpFile) {
-                    formData.append('holdingId', holdingKtpFile, 'holding_id.jpg');
+                    formData.append('files', holdingKtpFile, 'holding_id.jpg');
                 }
                 
                 // 仅当是移动设备并且有自拍照时，才添加自拍照数据
                 if (!isDesktop && selfieImageData) {
                     const selfieBlob = await base64ToBlob(selfieImageData);
-                    formData.append('selfie', selfieBlob, 'face_verification.jpg');
+                    formData.append('files', selfieBlob, 'face_verification.jpg');
                 }
                 
                 // 连接到本地服务器
