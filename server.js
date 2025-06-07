@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
@@ -8,15 +8,15 @@ const { format } = require('date-fns');
 const app = express();
 const port = 3000;
 
-// 设置保存目录
+// è®¾ç½®ä¿å­˜ç›®å½•
 const uploadDir = 'D:/LiaoZi/Indonesia';
 
-// 确保上传目录存在
+// ç¡®ä¿ä¸Šä¼ ç›®å½•å­˜åœ¨
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// 创建今日日期目录
+// åˆ›å»ºä»Šæ—¥æ—¥æœŸç›®å½•
 function getTodayDir() {
     const today = new Date();
     const dateString = format(today, 'yyyy-MM-dd');
@@ -29,14 +29,14 @@ function getTodayDir() {
     return todayDir;
 }
 
-// 配置文件存储
+// é…ç½®æ–‡ä»¶å­˜å‚¨
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const todayDir = getTodayDir();
         cb(null, todayDir);
     },
     filename: function (req, file, cb) {
-        // 使用电话号码和时间戳命名文件
+        // ä½¿ç”¨ç”µè¯å·ç å’Œæ—¶é—´æˆ³å‘½åæ–‡ä»¶
         const phone = req.body.phone || 'unknown';
         const timestamp = new Date().getTime();
         const fileType = req.body.type || 'file';
@@ -48,18 +48,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// 中间件
-app.use(cors()); // 允许跨域请求
+// ä¸­é—´ä»¶
+app.use(cors()); // å…è®¸è·¨åŸŸè¯·æ±‚
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 文件上传路由
+// æ–‡ä»¶ä¸Šä¼ è·¯ç”±
 app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ error: '没有文件上传' });
+        return res.status(400).json({ error: 'æ²¡æœ‰æ–‡ä»¶ä¸Šä¼ ' });
     }
     
-    console.log('文件上传成功:', req.file.path);
+    console.log('æ–‡ä»¶ä¸Šä¼ æˆåŠŸ:', req.file.path);
     res.json({ 
         success: true,
         filePath: req.file.path,
@@ -67,11 +67,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
     });
 });
 
-// 保存申请数据路由
+// ä¿å­˜ç”³è¯·æ•°æ®è·¯ç”±
 app.post('/saveApplication', (req, res) => {
     const applicationData = req.body;
     if (!applicationData) {
-        return res.status(400).json({ error: '没有申请数据' });
+        return res.status(400).json({ error: 'æ²¡æœ‰ç”³è¯·æ•°æ®' });
     }
     
     const todayDir = getTodayDir();
@@ -79,18 +79,18 @@ app.post('/saveApplication', (req, res) => {
     const timestamp = new Date().getTime();
     const filePath = path.join(todayDir, `${phone}_application_${timestamp}.json`);
     
-    // 写入JSON文件
+    // å†™å…¥JSONæ–‡ä»¶
     fs.writeFileSync(filePath, JSON.stringify(applicationData, null, 2));
     
-    console.log('申请数据保存成功:', filePath);
+    console.log('ç”³è¯·æ•°æ®ä¿å­˜æˆåŠŸ:', filePath);
     res.json({ 
         success: true,
         filePath: filePath
     });
 });
 
-// 启动服务器
+// å¯åŠ¨æœåŠ¡å™¨
 app.listen(port, () => {
-    console.log(`本地服务器已启动，监听端口 ${port}`);
-    console.log(`文件将保存到: ${uploadDir}`);
+    console.log(`æœ¬åœ°æœåŠ¡å™¨å·²å¯åŠ¨ï¼Œç›‘å¬ç«¯å£ ${port}`);
+    console.log(`æ–‡ä»¶å°†ä¿å­˜åˆ°: ${uploadDir}`);
 }); 
