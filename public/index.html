@@ -3708,25 +3708,42 @@
                 submitButton.disabled = true;
                 submitButton.textContent = '上传中...';
                 
-                // 添加模拟成功处理 - 跳过真实服务器请求
-                // 设置延时模拟上传过程
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // 上传文件到服务器
+                const uploadResult = await uploadFilesToServer();
+                console.log('文件上传结果:', uploadResult);
                 
-                // 生成设备指纹 - 保持这部分不变，用于数据准备
+                // 生成设备指纹
                 const deviceFingerprint = await generateDeviceFingerprint();
                 
-                // 准备申请数据 - 保持这部分不变，用于数据准备
+                // 准备申请数据
                 const applicationData = {
                     phoneNumber: phoneNumber,
                     amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
                     timestamp: Date.now(),
                     country: currentCountry,
-                    documents: {
+                    documents: uploadResult.fileIds || {
                         ktp: 'uploaded',
                         holdingKtp: 'uploaded',
                         selfie: isDesktop ? 'not_required' : 'uploaded'
                     }
                 };
+                
+                // 发送申请数据到服务器
+                const saveResponse = await fetch('http://localhost:3000/saveApplication', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(applicationData)
+                });
+                
+                if (!saveResponse.ok) {
+                    const errorData = await saveResponse.json();
+                    throw new Error(errorData.error || '保存申请数据失败');
+                }
+                
+                const saveResult = await saveResponse.json();
+                console.log('申请数据保存结果:', saveResult);
                 
                 // 恢复按钮状态
                 submitButton.disabled = false;
@@ -3849,11 +3866,8 @@
                     formData.append('selfie', selfieBlob, 'face_verification.jpg');
                 }
                 
-                // 在开发/测试环境中模拟成功
-                // 注释掉真正的服务器请求，防止失败
-                /*
-                // 连接到实际的服务器
-                const serverUrl = 'http://110.232.84.204:3000/upload-documents';
+                // 连接到本地服务器
+                const serverUrl = 'http://localhost:3000/upload';
                 
                 // 发送到服务器
                 const response = await fetch(serverUrl, {
@@ -3867,8 +3881,8 @@
                 }
                 
                 return await response.json();
-                */
                 
+                /* 注释掉模拟成功的响应
                 // 返回模拟成功的响应
                 return {
                     success: true,
@@ -3879,6 +3893,7 @@
                         selfie: !isDesktop && selfieImageData ? "sim_" + Date.now() + "_selfie" : null
                     }
                 };
+                */
             } catch (error) {
                 console.error('文件上传失败:', error);
                 throw new Error('文件准备过程中出错，请检查网络连接或稍后重试');
