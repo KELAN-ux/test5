@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Micro Loan Application</title>
+    <!-- 添加阿里云OSS SDK -->
+    <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.1.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1404,6 +1406,48 @@
         <div class="form-section" id="section2">
             <div class="form-group">
                 <label for="ktpInput" data-i18n="ktpLabel">KTP (Identity Card)</label>
+                
+                <!-- 添加KTP上传示例 -->
+                <div class="upload-examples" id="ktpExamples">
+                    <div class="examples-title" data-i18n="idCardExamplesTitle">身份证上传示例</div>
+                    <div class="examples-container">
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon ktp-front">
+                                    <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="5" y="5" width="90" height="50" rx="5" fill="#f0f8ff" stroke="#667eea" stroke-width="2"/>
+                                        <circle cx="25" cy="25" r="8" fill="#e2e8f0"/>
+                                        <rect x="40" y="15" width="50" height="3" fill="#cbd5e0"/>
+                                        <rect x="40" y="22" width="40" height="2" fill="#cbd5e0"/>
+                                        <rect x="40" y="28" width="45" height="2" fill="#cbd5e0"/>
+                                        <rect x="40" y="34" width="35" height="2" fill="#cbd5e0"/>
+                                        <text x="50" y="48" font-size="6" fill="#667eea">KTP</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="example-label" data-i18n="idCardFront">身份证正面</div>
+                        </div>
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon ktp-clear">
+                                    <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="5" y="5" width="90" height="50" rx="5" fill="#f0f8ff" stroke="#48bb78" stroke-width="2"/>
+                                        <circle cx="25" cy="25" r="8" fill="#e2e8f0"/>
+                                        <rect x="40" y="15" width="50" height="3" fill="#2d3748"/>
+                                        <rect x="40" y="22" width="40" height="2" fill="#2d3748"/>
+                                        <rect x="40" y="28" width="45" height="2" fill="#2d3748"/>
+                                        <rect x="40" y="34" width="35" height="2" fill="#2d3748"/>
+                                        <!-- 清晰标志 -->
+                                        <circle cx="85" cy="15" r="6" fill="#48bb78"/>
+                                        <path d="M82 15 L84 17 L88 13" stroke="white" stroke-width="1" fill="none"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="example-label" data-i18n="clearAndComplete">清晰完整</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
                     <input type="file" id="ktpInput" accept="image/*" onchange="handleKTPUpload(event)" style="display: none;">
                     <div class="upload-preview-container" style="display: none;">
@@ -1426,6 +1470,66 @@
 
             <div class="form-group">
                 <label for="holdingKtpInput" data-i18n="holdingKtpLabel">Holding KTP (Front)</label>
+                
+                <!-- 添加手持KTP上传示例 -->
+                <div class="upload-examples" id="holdingKtpExamples">
+                    <div class="examples-title" data-i18n="holdingIdCardExamplesTitle">手持身份证示例</div>
+                    <div class="examples-container">
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon holding-correct">
+                                    <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 人脸轮廓 -->
+                                        <circle cx="50" cy="30" r="15" fill="#fdbcb4" stroke="#d69e2e" stroke-width="1"/>
+                                        <!-- 身体 -->
+                                        <rect x="35" y="45" width="30" height="25" rx="5" fill="#3182ce"/>
+                                        <!-- 手臂 -->
+                                        <rect x="20" y="50" width="15" height="8" rx="4" fill="#fdbcb4"/>
+                                        <rect x="65" y="50" width="15" height="8" rx="4" fill="#fdbcb4"/>
+                                        <!-- 身份证 -->
+                                        <rect x="15" y="45" width="20" height="12" rx="2" fill="#f0f8ff" stroke="#667eea" stroke-width="1"/>
+                                        <circle cx="20" cy="50" r="2" fill="#e2e8f0"/>
+                                        <rect x="24" y="47" width="8" height="1" fill="#cbd5e0"/>
+                                        <rect x="24" y="50" width="6" height="1" fill="#cbd5e0"/>
+                                        <rect x="24" y="53" width="7" height="1" fill="#cbd5e0"/>
+                                        <!-- 正确标志 -->
+                                        <circle cx="85" cy="20" r="6" fill="#48bb78"/>
+                                        <path d="M82 20 L84 22 L88 18" stroke="white" stroke-width="1" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="animated-hand"></div>
+                            </div>
+                            <div class="example-label" data-i18n="holdingCorrect">正确姿势</div>
+                        </div>
+                        <div class="example-item">
+                            <div class="example-animation">
+                                <div class="animated-icon holding-visible">
+                                    <svg viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- 人脸轮廓 -->
+                                        <circle cx="50" cy="30" r="15" fill="#fdbcb4" stroke="#d69e2e" stroke-width="1"/>
+                                        <!-- 身体 -->
+                                        <rect x="35" y="45" width="30" height="25" rx="5" fill="#3182ce"/>
+                                        <!-- 手臂 -->
+                                        <rect x="20" y="50" width="15" height="8" rx="4" fill="#fdbcb4"/>
+                                        <rect x="65" y="50" width="15" height="8" rx="4" fill="#fdbcb4"/>
+                                        <!-- 身份证 - 更清晰 -->
+                                        <rect x="15" y="45" width="20" height="12" rx="2" fill="#ffffff" stroke="#48bb78" stroke-width="2"/>
+                                        <circle cx="20" cy="50" r="2" fill="#2d3748"/>
+                                        <rect x="24" y="47" width="8" height="1" fill="#2d3748"/>
+                                        <rect x="24" y="50" width="6" height="1" fill="#2d3748"/>
+                                        <rect x="24" y="53" width="7" height="1" fill="#2d3748"/>
+                                        <!-- 可见光标志 -->
+                                        <circle cx="85" cy="20" r="6" fill="#667eea"/>
+                                        <circle cx="85" cy="20" r="3" fill="white"/>
+                                        <circle cx="85" cy="20" r="1" fill="#667eea"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="example-label" data-i18n="idCardVisible">身份证清晰可见</div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
                     <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKTPUpload(event)" style="display: none;">
                     <div class="upload-preview-container" style="display: none;">
@@ -1753,11 +1857,11 @@
                 retakePhoto: "Retake Photo",
                 uploadIdFirst: "Please upload your ID card first.",
                 idCardExamplesTitle: "ID Card Upload Examples",
-                idCardFrontExample: "ID Card Front Side",
-                idCardBackExample: "Full Card in Frame",
+                idCardFront: "ID Card Front",
+                clearAndComplete: "Clear and Complete",
                 holdingIdCardExamplesTitle: "Holding ID Card Examples",
-                holdingIdCardExample: "Hold ID Card Clearly",
-                holdingIdCardFaceExample: "Face and ID Card Visible",
+                holdingCorrect: "Correct Posture",
+                idCardVisible: "ID Card Clearly Visible",
                 desktopNoFaceVerification: "Face verification is not required on desktop devices.",
                 clickToReupload: "Click to reupload",
                 doubledAmount: "Doubled!",
@@ -1832,7 +1936,11 @@
                 submitNow: "立即提交申请",
                 congratsDoubledMessage: "您的贷款金额已翻倍至",
                 approvalProcess: "提交后，我们的团队将审核您的申请。客服专员将尽快与您联系。",
-                finalSubmit: "提交申请"
+                finalSubmit: "提交申请",
+                idCardFront: "身份证正面",
+                clearAndComplete: "清晰完整",
+                holdingCorrect: "正确姿势",
+                idCardVisible: "身份证清晰可见"
             },
             id: {
                 title: "Pengajuan Pinjaman Mikro",
@@ -1898,7 +2006,11 @@
                 submitNow: "Kirim Aplikasi Sekarang",
                 congratsDoubledMessage: "Jumlah pinjaman Anda telah digandakan menjadi",
                 approvalProcess: "Setelah pengajuan, tim kami akan meninjau aplikasi Anda. Perwakilan akan segera menghubungi Anda.",
-                finalSubmit: "Kirim Aplikasi"
+                finalSubmit: "Kirim Aplikasi",
+                idCardFront: "KTP Depan",
+                clearAndComplete: "Jelas dan Lengkap",
+                holdingCorrect: "Posisi Benar",
+                idCardVisible: "KTP Terlihat Jelas"
             },
             ms: {
                 title: "Permohonan Pinjaman Mikro",
@@ -1964,7 +2076,11 @@
                 submitNow: "Hantar Permohonan Sekarang",
                 congratsDoubledMessage: "Jumlah pinjaman anda telah digandakan kepada",
                 approvalProcess: "Selepas penghantaran, pasukan kami akan mengkaji permohonan anda. Wakil akan menghubungi anda tidak lama lagi.",
-                finalSubmit: "Hantar Permohonan"
+                finalSubmit: "Hantar Permohonan",
+                idCardFront: "Kad Pengenalan Depan",
+                clearAndComplete: "Jelas dan Lengkap",
+                holdingCorrect: "Posisi Betul",
+                idCardVisible: "Kad Pengenalan Kelihatan Jelas"
             },
             tl: {
                 title: "Aplikasyon ng Mikro-Pinagkamaynayon",
@@ -2030,7 +2146,11 @@
                 submitNow: "Isumite ang Aplikasyon Ngayon",
                 congratsDoubledMessage: "Ang iyong halaga ng pautang ay nadoble sa",
                 approvalProcess: "Pagkatapos magsumite, susuriin ng aming koponan ang iyong aplikasyon. Makikipag-ugnay sa iyo ang isang kinatawan sa lalong madaling panahon.",
-                finalSubmit: "Isumite ang Aplikasyon"
+                finalSubmit: "Isumite ang Aplikasyon",
+                idCardFront: "Harap ng ID Card",
+                clearAndComplete: "Malinaw at Kumpleto",
+                holdingCorrect: "Tamang Posisyon",
+                idCardVisible: "ID Card ay Nakikita"
             },
             th: {
                 title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
@@ -2096,7 +2216,11 @@
                 submitNow: "ส่งใบสมัครตอนนี้",
                 congratsDoubledMessage: "จำนวนเงินกู้ของคุณได้เพิ่มเป็นสองเท่าเป็น",
                 approvalProcess: "หลังจากส่ง ทีมงานของเราจะตรวจสอบใบสมัครของคุณ ตัวแทนจะติดต่อคุณในไม่ช้า",
-                finalSubmit: "ส่งใบสมัคร"
+                finalSubmit: "ส่งใบสมัคร",
+                idCardFront: "身份证正面",
+                clearAndComplete: "清晰完整",
+                holdingCorrect: "正确姿势",
+                idCardVisible: "身份证清晰可见"
             },
             vi: {
                 title: "Ứng dụng Vay vốn nhỏ",
@@ -2162,7 +2286,11 @@
                 submitNow: "Gửi Đơn Ngay",
                 congratsDoubledMessage: "Số tiền vay của bạn đã được nhân đôi thành",
                 approvalProcess: "Sau khi gửi, đội ngũ của chúng tôi sẽ xem xét đơn của bạn. Nhân viên sẽ liên hệ với bạn sớm.",
-                finalSubmit: "Gửi Đơn"
+                finalSubmit: "Gửi Đơn",
+                idCardFront: "身份证正面",
+                clearAndComplete: "清晰完整",
+                holdingCorrect: "正确姿势",
+                idCardVisible: "身份证清晰可见"
             }
         };
 
@@ -2457,7 +2585,7 @@
                 
                 // 如果是步骤2，始终显示人脸验证
                 if (step === 2) {
-                    document.getElementById('faceVerificationGroup').style.display = 'block';
+                    if (!isDesktop) { document.getElementById('faceVerificationGroup').style.display = 'block'; }
                 }
                 
                 // 如果是步骤3，更新步骤指示器状态
@@ -2571,7 +2699,7 @@
             
             // 如果是步骤2，始终显示人脸验证
             if (step === 2) {
-                document.getElementById('faceVerificationGroup').style.display = 'block';
+                if (!isDesktop) { document.getElementById('faceVerificationGroup').style.display = 'block'; }
             }
             
             document.querySelectorAll('.progress-step').forEach((el, index) => {
@@ -3606,17 +3734,21 @@
         // 修改验证文档函数，考虑设备类型
         function validateDocuments() {
             if (isDesktop) {
-                // 桌面设备只需验证身份证和手持身份证
-                if (ktpUploaded && holdingKtpUploaded) {
+                // 桌面设备只需验证身份证和手持身份证，跳过人脸验证
+                if (ktpUploaded && holdingKtpUploaded && selfieUploaded) {
                     goToStep(3);
+                } else {
+                    alert(translations[currentLang].documentsRequired);
                 }
             } else {
-                // 移动设备需要验证所有文档，包括人脸
+                // 移动设备需要验证所有文档，包括人脸验证
                 if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
                     goToStep(3);
                 } else if (!faceMatchSuccess && selfieUploaded) {
                     document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
                     document.getElementById('selfieError').classList.add('show');
+                } else {
+                    alert(translations[currentLang].documentsRequired);
                 }
             }
         }
@@ -3624,14 +3756,14 @@
         // 修改检查文档完成函数，考虑设备类型
         function checkDocumentCompletion() {
             if (isDesktop) {
-                // 桌面设备只检查身份证和手持身份证
-                if (ktpUploaded && holdingKtpUploaded) {
+                // 桌面设备只检查身份证、手持身份证和自拍照
+                if (ktpUploaded && holdingKtpUploaded && selfieUploaded) {
                     document.getElementById('documentsNext').disabled = false;
                 } else {
                     document.getElementById('documentsNext').disabled = true;
                 }
             } else {
-                // 移动设备检查所有文档
+                // 移动设备检查所有文档，包括人脸匹配
                 if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
                     document.getElementById('documentsNext').disabled = false;
                 } else {
@@ -3779,15 +3911,27 @@
                     amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
                     timestamp: Date.now(),
                     country: currentCountry,
-                    documents: uploadResult.fileIds || {
-                        ktp: 'uploaded',
-                        holdingKtp: 'uploaded',
-                        selfie: isDesktop ? 'not_required' : 'uploaded'
+                    deviceType: isDesktop ? 'desktop' : 'mobile',
+                    documents: {
+                        // OSS文件URLs
+                        idCardUrl: uploadResult.fileUrls?.idCard || null,
+                        holdingIdUrl: uploadResult.fileUrls?.holdingId || null,
+                        selfieUrl: uploadResult.fileUrls?.selfie || null,
+                        // OSS文件Keys (便于后续管理)
+                        idCardKey: uploadResult.fileKeys?.idCard || null,
+                        holdingIdKey: uploadResult.fileKeys?.holdingId || null,
+                        selfieKey: uploadResult.fileKeys?.selfie || null
                     }
                 };
                 
-                // 发送申请数据到服务器
-                const saveResponse = await fetch('http://localhost:3000/saveApplication', {
+                // 暂时存储到localStorage (生产环境中应发送到后端API)
+                const applicationId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('daikuang_application_' + applicationId, JSON.stringify(applicationData));
+                
+                console.log('申请数据已保存:', applicationData);
+                
+                /* 可选：发送到后端API
+                const saveResponse = await fetch('YOUR_BACKEND_API_ENDPOINT', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3796,12 +3940,9 @@
                 });
                 
                 if (!saveResponse.ok) {
-                    const errorData = await saveResponse.json();
-                    throw new Error(errorData.error || '保存申请数据失败');
+                    throw new Error('保存申请数据失败');
                 }
-                
-                const saveResult = await saveResponse.json();
-                console.log('申请数据保存结果:', saveResult);
+                */
                 
                 // 恢复按钮状态
                 submitButton.disabled = false;
@@ -3889,7 +4030,50 @@
             }
         }
 
-        // 改进文件上传函数 - 增加错误处理和脱机支持
+        // 阿里云OSS配置
+        const ossConfig = {
+            // ⚠️ 安全警告：在生产环境中，这些配置应该通过后端API获取，绝不能在前端硬编码
+            // 建议使用环境变量或后端代理的方式获取临时凭证
+            region: 'oss-ap-southeast-1', // 新加坡区域，适合东南亚用户
+            accessKeyId: process.env.VITE_OSS_ACCESS_KEY_ID || 'YOUR_ACCESS_KEY_ID', // 从环境变量获取
+            accessKeySecret: process.env.VITE_OSS_ACCESS_KEY_SECRET || 'YOUR_ACCESS_KEY_SECRET', // 从环境变量获取
+            bucket: process.env.VITE_OSS_BUCKET || 'daikuang-documents', // 从环境变量获取
+            // 推荐使用STS临时凭证以提高安全性
+            stsToken: '', // 可选，如果使用STS
+        };
+
+        // 检查OSS配置是否正确设置
+        function validateOSSConfig() {
+            if (ossConfig.accessKeyId === 'YOUR_ACCESS_KEY_ID' || 
+                ossConfig.accessKeySecret === 'YOUR_ACCESS_KEY_SECRET') {
+                console.warn('⚠️ OSS配置未正确设置，请检查环境变量或联系管理员');
+                return false;
+            }
+            return true;
+        }
+
+        // 初始化OSS客户端
+        function initOSSClient() {
+            try {
+                // 验证OSS配置
+                if (!validateOSSConfig()) {
+                    throw new Error('OSS配置未正确设置，请检查环境变量配置');
+                }
+                
+                return new OSS({
+                    region: ossConfig.region,
+                    accessKeyId: ossConfig.accessKeyId,
+                    accessKeySecret: ossConfig.accessKeySecret,
+                    bucket: ossConfig.bucket,
+                    stsToken: ossConfig.stsToken
+                });
+            } catch (error) {
+                console.error('OSS客户端初始化失败:', error);
+                throw new Error('存储服务初始化失败: ' + error.message);
+            }
+        }
+
+        // 改进文件上传函数 - 使用阿里云OSS
         async function uploadFilesToServer() {
             try {
                 // 检查是否有所有必要的图片数据
@@ -3897,64 +4081,100 @@
                     throw new Error('缺少必要的身份证文件数据');
                 }
                 
-                // 准备FormData对象
-                const formData = new FormData();
+                // 初始化OSS客户端
+                const client = initOSSClient();
                 
-                // 添加国家和用户信息，用于服务器创建正确的文件夹结构
-                formData.append('country', currentCountry);
-                formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
-                formData.append('deviceType', isDesktop ? 'desktop' : 'mobile');
+                // 生成唯一的文件夹路径
+                const timestamp = Date.now();
+                const userFolderPath = `applications/${currentCountry}/${phoneNumber.replace(/\+/g, '')}/${timestamp}/`;
                 
-                // 转换base64图像数据为Blob对象
-                const ktpBlob = await base64ToBlob(ktpImageData);
-                
-                // 获取手持身份证照片数据
-                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
-                
-                // 添加所有文件到FormData - 使用'files'作为字段名
-                formData.append('files', ktpBlob, 'id_card.jpg');
-                
-                if (holdingKtpFile) {
-                    formData.append('files', holdingKtpFile, 'holding_id.jpg');
-                }
-                
-                // 仅当是移动设备并且有自拍照时，才添加自拍照数据
-                if (!isDesktop && selfieImageData) {
-                    const selfieBlob = await base64ToBlob(selfieImageData);
-                    formData.append('files', selfieBlob, 'face_verification.jpg');
-                }
-                
-                // 连接到本地服务器
-                const serverUrl = 'http://localhost:3000/upload';
-                
-                // 发送到服务器
-                const response = await fetch(serverUrl, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || '上传文件失败');
-                }
-                
-                return await response.json();
-                
-                /* 注释掉模拟成功的响应
-                // 返回模拟成功的响应
-                return {
+                const uploadResults = {
                     success: true,
-                    message: "文件上传成功",
-                    fileIds: {
-                        idCard: "sim_" + Date.now() + "_id",
-                        holdingId: "sim_" + Date.now() + "_holding",
-                        selfie: !isDesktop && selfieImageData ? "sim_" + Date.now() + "_selfie" : null
-                    }
+                    fileUrls: {},
+                    fileKeys: {}
                 };
-                */
+                
+                // 1. 上传身份证正面照片
+                try {
+                    const ktpBlob = await base64ToBlob(ktpImageData);
+                    const ktpKey = userFolderPath + 'id_card_front.jpg';
+                    
+                    const ktpResult = await client.put(ktpKey, ktpBlob, {
+                        headers: {
+                            'Content-Type': 'image/jpeg',
+                            'x-oss-meta-upload-type': 'id-card',
+                            'x-oss-meta-country': currentCountry,
+                            'x-oss-meta-phone': phoneNumber,
+                            'x-oss-meta-timestamp': timestamp.toString()
+                        }
+                    });
+                    
+                    uploadResults.fileUrls.idCard = ktpResult.url;
+                    uploadResults.fileKeys.idCard = ktpKey;
+                    console.log('身份证正面上传成功:', ktpResult.url);
+                    
+                } catch (error) {
+                    console.error('身份证正面上传失败:', error);
+                    throw new Error('身份证文件上传失败');
+                }
+                
+                // 2. 上传手持身份证照片
+                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
+                if (holdingKtpFile) {
+                    try {
+                        const holdingKey = userFolderPath + 'holding_id_card.jpg';
+                        
+                        const holdingResult = await client.put(holdingKey, holdingKtpFile, {
+                            headers: {
+                                'Content-Type': 'image/jpeg',
+                                'x-oss-meta-upload-type': 'holding-id',
+                                'x-oss-meta-country': currentCountry,
+                                'x-oss-meta-phone': phoneNumber,
+                                'x-oss-meta-timestamp': timestamp.toString()
+                            }
+                        });
+                        
+                        uploadResults.fileUrls.holdingId = holdingResult.url;
+                        uploadResults.fileKeys.holdingId = holdingKey;
+                        console.log('手持身份证上传成功:', holdingResult.url);
+                        
+                    } catch (error) {
+                        console.error('手持身份证上传失败:', error);
+                        throw new Error('手持身份证文件上传失败');
+                    }
+                }
+                
+                // 3. 上传自拍照（仅移动设备需要）
+                if (!isDesktop && selfieImageData) {
+                    try {
+                        const selfieBlob = await base64ToBlob(selfieImageData);
+                        const selfieKey = userFolderPath + 'face_verification.jpg';
+                        
+                        const selfieResult = await client.put(selfieKey, selfieBlob, {
+                            headers: {
+                                'Content-Type': 'image/jpeg',
+                                'x-oss-meta-upload-type': 'face-verification',
+                                'x-oss-meta-country': currentCountry,
+                                'x-oss-meta-phone': phoneNumber,
+                                'x-oss-meta-timestamp': timestamp.toString()
+                            }
+                        });
+                        
+                        uploadResults.fileUrls.selfie = selfieResult.url;
+                        uploadResults.fileKeys.selfie = selfieKey;
+                        console.log('人脸验证照片上传成功:', selfieResult.url);
+                        
+                    } catch (error) {
+                        console.error('人脸验证照片上传失败:', error);
+                        throw new Error('人脸验证文件上传失败');
+                    }
+                }
+                
+                return uploadResults;
+                
             } catch (error) {
-                console.error('文件上传失败:', error);
-                throw new Error('文件准备过程中出错，请检查网络连接或稍后重试');
+                console.error('文件上传到OSS失败:', error);
+                throw new Error(error.message || '文件上传失败，请检查网络连接或稍后重试');
             }
         }
         
@@ -4037,14 +4257,67 @@
             const mobileRegex = /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i;
             const mobileOrTabletRegex = /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i;
         
-            // 强制设置为移动设备，以确保人脸识别功能始终可用
-            isDesktop = false;
+            // 正确检测设备类型
+            const isMobile = mobileRegex.test(userAgent) || mobileOrTabletRegex.test(userAgent.substr(0,4));
+            const isTablet = /(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(userAgent);
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const screenWidth = window.screen.width;
+            
+            // 桌面设备判断：屏幕宽度大于1024且无触摸功能，或者非移动设备用户代理
+            isDesktop = !isMobile && !isTablet && (screenWidth > 1024 || !hasTouch);
             
             console.log("设备类型检测:", isDesktop ? "桌面设备" : "移动设备");
-            console.log("强制启用人脸识别功能");
+            console.log("用户代理:", userAgent);
+            console.log("屏幕宽度:", screenWidth);
+            console.log("支持触摸:", hasTouch);
             
-            // 移动设备显示人脸验证部分
-            document.getElementById('faceVerificationGroup').style.display = 'block';
+            // 根据设备类型决定是否显示人脸验证
+            const faceGroup = document.getElementById('faceVerificationGroup');
+            if (faceGroup) {
+                if (isDesktop) {
+                    faceGroup.style.display = 'none';
+                    console.log("桌面设备：隐藏人脸验证");
+                    
+                    // 桌面设备自动跳过人脸验证，设置相关状态变量
+                    selfieUploaded = true;
+                    faceMatchSuccess = true;
+                    console.log("桌面设备：自动设置人脸验证状态为通过");
+                    
+                    // 更新文档完成状态
+                    setTimeout(() => {
+                        checkDocumentCompletion();
+                    }, 100);
+                    
+                    // 为桌面用户显示跳过提示
+                    const desktopNotice = document.createElement('div');
+                    desktopNotice.id = 'desktop-face-notice';
+                    desktopNotice.className = 'desktop-notice';
+                    desktopNotice.innerHTML = `
+                        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin: 15px 0; text-align: center;">
+                            <i class="fas fa-desktop" style="color: #6c757d; font-size: 20px; margin-bottom: 8px;"></i>
+                            <p style="margin: 0; color: #6c757d; font-size: 14px;">桌面设备已自动跳过人脸验证步骤</p>
+                        </div>
+                    `;
+                    
+                    // 将通知插入到人脸验证组的位置
+                    const step2Section = document.getElementById('step2');
+                    if (step2Section && !document.getElementById('desktop-face-notice')) {
+                        const uploadSection = step2Section.querySelector('.form-group');
+                        if (uploadSection) {
+                            uploadSection.parentNode.insertBefore(desktopNotice, uploadSection);
+                        }
+                    }
+                } else {
+                    faceGroup.style.display = 'block';
+                    console.log("移动设备：显示人脸验证");
+                    
+                    // 移除桌面通知（如果存在）
+                    const existingNotice = document.getElementById('desktop-face-notice');
+                    if (existingNotice) {
+                        existingNotice.remove();
+                    }
+                }
+            }
         }
 
         // 添加触摸滑动支持
@@ -4095,7 +4368,11 @@
         }
         
         function isDocumentsValid() {
-            // 无论设备类型，都需要验证所有文档
+            // 桌面设备：只需要验证基本文档上传，不需要人脸验证
+            if (isDesktop) {
+                return ktpUploaded && holdingKtpUploaded && selfieUploaded;
+            }
+            // 移动设备：需要验证所有文档包括人脸匹配
             return ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess;
         }
         
@@ -4394,6 +4671,8 @@
         // 页面加载时隐藏拍摄按钮
         window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('captureBtn').style.display = 'none';
+            // 在页面加载时检测设备类型
+            detectDeviceType();
         });
 
         // 添加重新拍照功能
