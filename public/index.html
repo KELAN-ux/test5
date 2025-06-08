@@ -4032,34 +4032,18 @@
 
         // 阿里云OSS配置
         const ossConfig = {
-            // ⚠️ 安全警告：在生产环境中，这些配置应该通过后端API获取，绝不能在前端硬编码
-            // 建议使用环境变量或后端代理的方式获取临时凭证
+            // 注意：在生产环境中，这些配置应该通过后端API获取，而不是硬编码在前端
             region: 'oss-ap-southeast-1', // 新加坡区域，适合东南亚用户
-            accessKeyId: process.env.VITE_OSS_ACCESS_KEY_ID || 'YOUR_ACCESS_KEY_ID', // 从环境变量获取
-            accessKeySecret: process.env.VITE_OSS_ACCESS_KEY_SECRET || 'YOUR_ACCESS_KEY_SECRET', // 从环境变量获取
-            bucket: process.env.VITE_OSS_BUCKET || 'daikuang-documents', // 从环境变量获取
-            // 推荐使用STS临时凭证以提高安全性
+            accessKeyId: 'YOUR_ACCESS_KEY_ID', // 替换为您的AccessKeyId
+            accessKeySecret: 'YOUR_ACCESS_KEY_SECRET', // 替换为您的AccessKeySecret  
+            bucket: 'daikuang-documents', // 替换为您的Bucket名称
+            // 使用STS临时凭证会更安全
             stsToken: '', // 可选，如果使用STS
         };
-
-        // 检查OSS配置是否正确设置
-        function validateOSSConfig() {
-            if (ossConfig.accessKeyId === 'YOUR_ACCESS_KEY_ID' || 
-                ossConfig.accessKeySecret === 'YOUR_ACCESS_KEY_SECRET') {
-                console.warn('⚠️ OSS配置未正确设置，请检查环境变量或联系管理员');
-                return false;
-            }
-            return true;
-        }
 
         // 初始化OSS客户端
         function initOSSClient() {
             try {
-                // 验证OSS配置
-                if (!validateOSSConfig()) {
-                    throw new Error('OSS配置未正确设置，请检查环境变量配置');
-                }
-                
                 return new OSS({
                     region: ossConfig.region,
                     accessKeyId: ossConfig.accessKeyId,
@@ -4069,7 +4053,7 @@
                 });
             } catch (error) {
                 console.error('OSS客户端初始化失败:', error);
-                throw new Error('存储服务初始化失败: ' + error.message);
+                throw new Error('存储服务初始化失败');
             }
         }
 
