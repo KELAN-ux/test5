@@ -1,0 +1,4449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Micro Loan Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+            touch-action: manipulation; /* 改进触摸体验 */
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 移动端优化的容器样式 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+                border-radius: 15px;
+                max-width: 100%;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+        
+        /* 更多移动端优化样式 */
+        @media (max-width: 768px) {
+            button {
+                min-height: 48px; /* 增加触摸区域 */
+                touch-action: manipulation;
+            }
+            
+            input[type="tel"],
+            input[type="text"] {
+                font-size: 16px; /* 防止iOS缩放 */
+                padding: 15px 16px; /* 增加触摸面积 */
+            }
+            
+            .form-group {
+                margin-bottom: 25px;
+            }
+            
+            .progress-step {
+                touch-action: none; /* 防止滑动干扰 */
+            }
+        }
+
+        .language-selector {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            z-index: 10;
+        }
+
+        .language-selector select {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-selector select:hover {
+            border-color: #667eea;
+        }
+
+        .language-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            flex: 1;
+        }
+
+        .progress-circle {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active .progress-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        .progress-step.completed .progress-circle {
+            background: #48bb78;
+            color: white;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="tel"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="tel"]:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-container {
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-container:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-container.has-image {
+            padding: 0;
+            border-style: solid;
+        }
+
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            background: #f7fafc;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #667eea;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .upload-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 250px;
+            border: 3px solid #fff;
+            border-radius: 12px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+
+        .face-detection-status {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .amount-input-container {
+            position: relative;
+        }
+
+        .amount-display {
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 问号动画样式 */
+        .question-marks {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .question-marks span {
+            display: inline-block;
+            font-size: 36px;
+            color: #667eea;
+            font-weight: bold;
+            animation: pulse 1.5s infinite alternate;
+        }
+        
+        .question-marks span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .question-marks span:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .question-marks span:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        .amount-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .success-container {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #48bb78;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+        }
+
+        .compliance-notice {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .compliance-notice strong {
+            color: #2d3748;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+            position: relative;
+        }
+
+        /* 弹窗语言选择器样式 */
+        .modal-language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .modal-language-selector select {
+            padding: 6px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-language-selector select:hover {
+            border-color: #667eea;
+        }
+
+        .modal-language-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .celebration-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+            }
+        }
+
+        .celebration-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+
+        .modal-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .amount-highlight {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 24px;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .modal-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            animation: buttonPulse 2s infinite;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .modal-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #667eea;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .progress-label {
+                font-size: 10px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .modal-title {
+                font-size: 24px;
+            }
+
+            .amount-highlight {
+                font-size: 20px;
+            }
+        }
+
+        /* 添加标题容器样式 */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .title-container {
+            flex: 1;
+        }
+
+        /* 修改语言选择器样式，使其适合新的布局 */
+        .language-selector {
+            position: static;
+            margin-left: 20px;
+        }
+
+        /* 添加国家选择器样式 */
+        .country-selector {
+            margin-bottom: 30px;
+        }
+        
+        .country-selector-title {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .country-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .country-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 80px;
+        }
+        
+        .country-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .country-option.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .country-flag {
+            width: 40px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+        
+        .country-name {
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 添加区号样式 */
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .country-code {
+            display: flex;
+            align-items: center;
+            background: #f7fafc;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .country-code img {
+            width: 22px;
+            height: 16px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+        
+        .phone-input-container input[type="tel"] {
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 添加身份证示例样式 */
+        .id-card-examples {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e0;
+        }
+        
+        .examples-title {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .examples-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .example-item {
+            flex: 1;
+            min-width: 120px;
+            max-width: 150px;
+            text-align: center;
+        }
+        
+        .example-image {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .example-image:hover {
+            transform: scale(1.05);
+        }
+        
+        .example-label {
+            font-size: 12px;
+            color: #4a5568;
+            margin-top: 5px;
+        }
+        
+        .example-animation {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            overflow: hidden;
+            border-radius: 6px;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .animated-icon {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: pulse 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+        
+        .animated-hand {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23667eea'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: moveHand 3s infinite;
+            z-index: 2;
+        }
+        
+        @keyframes moveHand {
+            0% {
+                top: 70%;
+                left: 20%;
+                transform: rotate(0deg);
+            }
+            25% {
+                top: 50%;
+                left: 40%;
+                transform: rotate(10deg);
+            }
+            50% {
+                top: 30%;
+                left: 60%;
+                transform: rotate(20deg);
+            }
+            75% {
+                top: 50%;
+                left: 40%;
+                transform: rotate(10deg);
+            }
+            100% {
+                top: 70%;
+                left: 20%;
+                transform: rotate(0deg);
+            }
+        }
+
+        /* 添加滑动手势支持 */
+        .swipe-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .swipe-wrapper {
+            display: flex;
+            transition: transform 0.3s ease-out;
+            width: 100%;
+        }
+        
+        /* 滚动指示器 */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scroll-indicator.visible {
+            opacity: 1;
+        }
+        
+        .scroll-indicator svg {
+            width: 20px;
+            height: 20px;
+            stroke: #667eea;
+        }
+        
+        /* 增强表单元素的可点击区域 */
+        label {
+            padding: 5px 0;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .upload-container {
+            min-height: 150px; /* 确保足够大的触摸区域 */
+        }
+        
+        /* 弹出键盘时的优化 */
+        @media (max-height: 600px) {
+            .container {
+                padding-top: 20px;
+                padding-bottom: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+            
+            .subtitle {
+                margin-bottom: 15px;
+            }
+        }
+        
+        /* 改进在不同移动设备上的显示 */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS特定样式 */
+            .button-group {
+                padding-bottom: env(safe-area-inset-bottom, 0);
+            }
+        }
+
+        /* 金额翻倍样式 */
+        .amount-display-container {
+            position: relative;
+            padding: 30px 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 2px solid #e0e0e0;
+        }
+        
+        .amount-display {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 8px;
+            transform: scale(1);
+            animation: pulsate 2s infinite;
+        }
+        
+        .doubled-amount-container {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 5px;
+        }
+        
+        .original-amount {
+            font-size: 18px;
+            color: #718096;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .doubled-badge {
+            background-color: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            animation: bounce 2s infinite;
+            transform-origin: center bottom;
+        }
+        
+        .double-arrow {
+            width: 20px;
+            height: 20px;
+            stroke: #48bb78;
+            margin-top: 6px;
+            animation: arrowAnim 2s infinite;
+        }
+        
+        @keyframes pulsate {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.9;
+                transform: scale(1.03);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        @keyframes arrowAnim {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(3px);
+            }
+        }
+        
+        .approval-notice {
+            background-color: #ebf8ff;
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            border: 1px solid #bee3f8;
+        }
+        
+        .approval-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #4299e1;
+        }
+        
+        .approval-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+        
+        .approval-notice p {
+            color: #2c5282;
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-size: 18px;
+            padding: 14px 20px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 最终确认弹窗样式 */
+        #finalConfirmationModal .modal-content {
+            max-width: 450px;
+            text-align: center;
+            padding: 40px 30px;
+        }
+        
+        #finalConfirmationModal .celebration-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .approval-message {
+            font-size: 16px;
+            margin-top: 20px;
+            color: #4a5568;
+            line-height: 1.6;
+            padding: 15px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+        }
+
+        /* Success Modal Styles */
+        .success-modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+            position: relative;
+        }
+
+        .success-modal .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #48bb78;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .success-modal .success-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+        }
+
+        .success-modal .success-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+
+        .success-modal .success-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .success-modal .compliance-notice {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .success-modal .compliance-notice strong {
+            color: #2d3748;
+        }
+
+        .success-modal .success-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            animation: buttonPulse 2s infinite;
+        }
+
+        .success-modal .success-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 成功弹窗的动画效果 */
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes slideIn {
+            0% { transform: translateY(-20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+        
+        .success-ripple {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(72, 187, 120, 0.2);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 1.5s ease-out infinite;
+        }
+        
+        @keyframes ripple {
+            0% { width: 0; height: 0; opacity: 0.8; }
+            100% { width: 200px; height: 200px; opacity: 0; }
+        }
+        
+        .success-confetti {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            opacity: 0.8;
+            border-radius: 3px;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+            10% { transform: translateY(0) rotate(45deg); opacity: 1; }
+            50% { transform: translateY(40px) rotate(180deg); opacity: 0.5; }
+            100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
+        }
+
+        .camera-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Modal -->
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal-content">
+            <div class="modal-language-selector">
+                <select id="modalLanguageSelect" onchange="changeModalLanguage()">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="ms">Bahasa Melayu</option>
+                    <option value="tl">Filipino</option>
+                    <option value="th">ภาษาไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                </select>
+            </div>
+            <div class="celebration-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+            </div>
+            <h2 class="modal-title" id="modalTitle">Congratulations!</h2>
+            <p class="modal-message">
+                <span id="modalMessage">You have been pre-approved for a loan amount of</span>
+                <span class="amount-highlight" id="amountDisplay">Rp 1,128,163 - Rp 215,000,000</span>
+            </p>
+            
+            <!-- 国家选择器 -->
+            <div class="country-selector">
+                <div class="country-selector-title" data-i18n="selectCountry">Select your country</div>
+                <div class="country-options">
+                    <div class="country-option" data-country="id" onclick="selectCountry('id')">
+                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia" class="country-flag">
+                        <span class="country-name">Indonesia</span>
+                    </div>
+                    <div class="country-option" data-country="my" onclick="selectCountry('my')">
+                        <img src="https://flagcdn.com/w80/my.png" alt="Malaysia" class="country-flag">
+                        <span class="country-name">Malaysia</span>
+                    </div>
+                    <div class="country-option" data-country="th" onclick="selectCountry('th')">
+                        <img src="https://flagcdn.com/w80/th.png" alt="Thailand" class="country-flag">
+                        <span class="country-name">Thailand</span>
+                    </div>
+                    <div class="country-option" data-country="ph" onclick="selectCountry('ph')">
+                        <img src="https://flagcdn.com/w80/ph.png" alt="Philippines" class="country-flag">
+                        <span class="country-name">Philippines</span>
+                    </div>
+                    <div class="country-option" data-country="vn" onclick="selectCountry('vn')">
+                        <img src="https://flagcdn.com/w80/vn.png" alt="Vietnam" class="country-flag">
+                        <span class="country-name">Vietnam</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="modal-button" onclick="closeModal()" id="modalButton">Click here for instant approval</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 修改HTML结构，使用新的标题容器 -->
+        <div class="header-container">
+            <div class="title-container">
+                <h1 data-i18n="title">Micro Loan Application</h1>
+                <p class="subtitle" data-i18n="subtitle">Quick and secure loan process</p>
+            </div>
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="ms">Bahasa Melayu</option>
+                    <option value="tl">Filipino</option>
+                    <option value="th">ภาษาไทย</option>
+                    <option value="vi">Tiếng Việt</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-line">
+                <div class="progress-line-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-step active" id="step1">
+                <div class="progress-circle">1</div>
+                <div class="progress-label" data-i18n="step1">Phone</div>
+            </div>
+            <div class="progress-step" id="step2">
+                <div class="progress-circle">2</div>
+                <div class="progress-label" data-i18n="step2">Documents</div>
+            </div>
+            <div class="progress-step" id="step3">
+                <div class="progress-circle">3</div>
+                <div class="progress-label" data-i18n="step3">Amount</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Phone Number -->
+        <div class="form-section active" id="section1">
+            <div class="form-group">
+                <label for="phone" data-i18n="phoneLabel">Phone Number</label>
+                <div class="phone-input-container">
+                    <div class="country-code" id="countryCode">
+                        <img src="https://flagcdn.com/w80/id.png" alt="Indonesia flag" id="countryFlag" />
+                        <span id="phoneCodeDisplay">+62</span>
+                    </div>
+                    <input type="tel" id="phone" placeholder="812 3456 7890" autocomplete="tel">
+                </div>
+                <div class="error-message" id="phoneError" data-i18n="phoneError">Please enter a valid phone number</div>
+            </div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="validatePhone()" data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload Documents -->
+        <div class="form-section" id="section2">
+            <div class="form-group">
+                <label for="ktpInput" data-i18n="ktpLabel">KTP (Identity Card)</label>
+                <div class="upload-container" id="ktpUpload" onclick="document.getElementById('ktpInput').click()">
+                    <input type="file" id="ktpInput" accept="image/*" onchange="handleKTPUpload(event)" style="display: none;">
+                    <div class="upload-preview-container" style="display: none;">
+                        <img id="ktpPreview" class="upload-preview">
+                    </div>
+                    <div class="upload-placeholder">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                        <p class="upload-requirements" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                    </div>
+                </div>
+                <div class="error-message" id="ktpError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="holdingKtpInput" data-i18n="holdingKtpLabel">Holding KTP (Front)</label>
+                <div class="upload-container" id="holdingKtpUpload" onclick="document.getElementById('holdingKtpInput').click()">
+                    <input type="file" id="holdingKtpInput" accept="image/*" onchange="handleHoldingKTPUpload(event)" style="display: none;">
+                    <div class="upload-preview-container" style="display: none;">
+                        <img id="holdingKtpPreview" class="upload-preview">
+                    </div>
+                    <div class="upload-placeholder">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="uploadText">Click to upload or drag and drop</p>
+                        <p class="upload-requirements" data-i18n="uploadRequirement">Minimum 600x400px, Max 5MB</p>
+                    </div>
+                </div>
+                <div class="error-message" id="holdingKtpError"></div>
+            </div>
+
+            <div class="form-group" id="faceVerificationGroup">
+                <label for="selfie" data-i18n="selfieLabel">Face Verification</label>
+                <div class="camera-container" id="cameraContainer">
+                    <video id="video" autoplay playsinline muted></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <div class="camera-overlay"></div>
+                    <div class="face-detection-status" id="faceStatus" data-i18n="positionFace">Position your face in the frame</div>
+                    <div class="camera-placeholder" id="cameraPlaceholder" onclick="startCamera()">
+                        <div class="upload-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M18 12h-6"></path>
+                                <path d="M12 6v12"></path>
+                            </svg>
+                        </div>
+                        <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
+                    </div>
+                </div>
+                <div class="upload-container" id="selfieUpload" style="display: none;">
+                    <!-- 自拍照预览将在这里显示 -->
+                </div>
+                <button class="btn-primary" id="captureBtn" style="width: 100%; margin-top: 10px;" onclick="capturePhoto()" data-i18n="capture">Capture Photo</button>
+                <div class="error-message" id="selfieError"></div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="console.log('返回按钮被点击, 当前步骤:', currentStep); goToStep(1)" data-i18n="back">Back</button>
+                <button class="btn-primary" onclick="validateDocuments()" id="documentsNext" disabled data-i18n="next">Next</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Loan Amount -->
+        <div class="form-section" id="section3">
+            <div class="form-group">
+                <label for="amount" data-i18n="amountLabel">Loan Amount (IDR)</label>
+                <div class="amount-display-container">
+                    <div class="amount-display" id="amountDisplay">
+                        <div class="question-marks">
+                            <span>?</span>
+                            <span>?</span>
+                            <span>?</span>
+                        </div>
+                    </div>
+                    <div class="doubled-amount-container">
+                        <div class="doubled-badge" data-i18n="doubledAmount">Doubled!</div>
+                        <div class="original-amount" id="originalAmountDisplay">Rp 0</div>
+                        <svg class="double-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 7l5-5 5 5M7 17l5 5 5-5"/>
+                        </svg>
+                    </div>
+                </div>
+                <p style="font-size: 14px; color: #48bb78; margin-top: 15px; text-align: center; font-weight: bold;" data-i18n="congratsDoubled">Congratulations! Your loan amount has been doubled!</p>
+            </div>
+
+            <div class="form-group approval-notice">
+                <div class="approval-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <path d="M22 4L12 14.01l-3-3"></path>
+                    </svg>
+                </div>
+                <p data-i18n="manualReviewNotice">After submitting, your application will be reviewed by our team. A representative will contact you soon.</p>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-secondary" onclick="console.log('返回按钮被点击, 当前步骤:', currentStep); goToStep(2)" data-i18n="back">Back</button>
+                <button class="btn-primary submit-btn" onclick="showFinalConfirmation()" data-i18n="submitNow">Submit Application Now</button>
+            </div>
+        </div>
+
+        <!-- Final Confirmation Modal -->
+        <div id="finalConfirmationModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="celebration-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#667eea"/>
+                    </svg>
+                </div>
+                <h2 class="modal-title" data-i18n="congratsTitle">Congratulations!</h2>
+                <p class="modal-message">
+                    <span data-i18n="congratsDoubledMessage">Your loan amount has been doubled to</span>
+                    <span class="amount-highlight" id="doubledAmountFinal">Rp 2,256,326</span>
+                </p>
+                <p class="modal-message approval-message" data-i18n="approvalProcess">
+                    After submission, our team will review your application. 
+                    A representative will contact you shortly.
+                </p>
+                <button class="modal-button" onclick="submitApplication()" data-i18n="finalSubmit">Submit Application</button>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div id="successModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content success-modal">
+                <div class="success-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 data-i18n="successTitle">申请已提交！</h2>
+                <p class="modal-message" data-i18n="successMessage">您的贷款申请已加密并成功提交。</p>
+                <div class="compliance-notice">
+                    <strong data-i18n="complianceTitle">POJK 35/2018 合规性：</strong>
+                    <p data-i18n="complianceMessage">您的数据已使用AES-256加密，并将在30天后自动删除。</p>
+                </div>
+                <button class="modal-button success-button" onclick="closeSuccessModal()">完成</button>
+            </div>
+        </div>
+        
+        <!-- Success Screen (保留但隐藏，供后续参考) -->
+        <div class="form-section" id="successSection" style="display: none;">
+            <div class="success-container">
+                <div class="success-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h2 data-i18n="successTitle">Application Submitted!</h2>
+                <p style="color: #666; margin-top: 16px;" data-i18n="successMessage">Your loan application has been encrypted and submitted successfully.</p>
+                <div class="compliance-notice">
+                    <strong data-i18n="complianceTitle">POJK 35/2018 Compliance:</strong>
+                    <p data-i18n="complianceMessage">Your data is encrypted with AES-256 and will be automatically deleted after 30 days.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 国家信息配置
+        const countryConfig = {
+            id: { // 印度尼西亚
+                code: 'id',
+                phoneCode: '+62',
+                phoneRegex: /^(\+62|62|0)[0-9]{9,13}$/,
+                phonePlaceholder: '+62 812 3456 7890',
+                defaultLang: 'id',
+                currencyCode: 'IDR',
+                flagUrl: 'https://flagcdn.com/w80/id.png',
+                // 添加身份证信息
+                idCardName: 'KTP', // Kartu Tanda Penduduk
+                idCardPattern: /^[0-9]{16}$/, // 印尼身份证号是16位数字
+                idCardFormat: 'xxxxxxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['印尼国徽', 'Republik Indonesia', '16位数字']
+            },
+            my: { // 马来西亚
+                code: 'my',
+                phoneCode: '+60',
+                phoneRegex: /^(\+60|60|0)[0-9]{9,11}$/,
+                phonePlaceholder: '+60 12 345 6789',
+                defaultLang: 'ms',
+                currencyCode: 'MYR',
+                flagUrl: 'https://flagcdn.com/w80/my.png',
+                // 添加身份证信息
+                idCardName: 'MyKad', // 马来西亚身份证
+                idCardPattern: /^[0-9]{6}-[0-9]{2}-[0-9]{4}$/, // 格式：YYMMDD-PB-####
+                idCardFormat: 'xxxxxx-xx-xxxx',
+                // 身份证识别特征
+                idCardFeatures: ['马来西亚国徽', 'MALAYSIA', '12位数字(带连字符)']
+            },
+            th: { // 泰国
+                code: 'th',
+                phoneCode: '+66',
+                phoneRegex: /^(\+66|66|0)[0-9]{8,10}$/,
+                phonePlaceholder: '+66 8 1234 5678',
+                defaultLang: 'th',
+                currencyCode: 'THB',
+                flagUrl: 'https://flagcdn.com/w80/th.png',
+                // 添加身份证信息
+                idCardName: 'บัตรประชาชน', // 泰国身份证
+                idCardPattern: /^[0-9]{13}$/, // 13位数字
+                idCardFormat: 'xxxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['泰国国徽', '泰文字符', '13位数字']
+            },
+            ph: { // 菲律宾
+                code: 'ph',
+                phoneCode: '+63',
+                phoneRegex: /^(\+63|63|0)[0-9]{9,12}$/,
+                phonePlaceholder: '+63 917 123 4567',
+                defaultLang: 'tl',
+                currencyCode: 'PHP',
+                flagUrl: 'https://flagcdn.com/w80/ph.png',
+                // 添加身份证信息
+                idCardName: 'PhilSys ID', // 菲律宾国民身份证
+                idCardPattern: /^[0-9]{12}-[0-9]{1}$/, // 12位数字加1位校验码
+                idCardFormat: 'xxxxxxxxxxxx-x',
+                // 身份证识别特征
+                idCardFeatures: ['菲律宾国徽', 'Republic of the Philippines', 'PhilSys']
+            },
+            vn: { // 越南
+                code: 'vn',
+                phoneCode: '+84',
+                phoneRegex: /^(\+84|84|0)[0-9]{9,11}$/,
+                phonePlaceholder: '+84 90 123 4567',
+                defaultLang: 'vi',
+                currencyCode: 'VND',
+                flagUrl: 'https://flagcdn.com/w80/vn.png',
+                // 添加身份证信息
+                idCardName: 'CMND/CCCD', // 越南身份证
+                idCardPattern: /^[0-9]{9}$|^[0-9]{12}$/, // 9位或12位数字
+                idCardFormat: 'xxxxxxxxx / xxxxxxxxxxxx',
+                // 身份证识别特征
+                idCardFeatures: ['越南国徽', 'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', '9位或12位数字']
+            }
+        };
+
+        // 汇率换算（以人民币为基准）
+        const exchangeRates = {
+            en: { symbol: "$", rate: 0.14, format: (amount) => `$${amount.toFixed(2)} USD` },
+            zh: { symbol: "¥", rate: 1, format: (amount) => `¥${amount.toFixed(2)} 人民币` },
+            id: { symbol: "Rp", rate: 2200, format: (amount) => `Rp ${Math.round(amount).toLocaleString('id-ID')}` },
+            ms: { symbol: "RM", rate: 0.65, format: (amount) => `RM ${amount.toFixed(2)}` },
+            tl: { symbol: "₱", rate: 8.5, format: (amount) => `₱${Math.round(amount).toLocaleString('en-PH')}` },
+            th: { symbol: "฿", rate: 5, format: (amount) => `฿${Math.round(amount).toLocaleString('th-TH')}` },
+            vi: { symbol: "₫", rate: 3500, format: (amount) => `${Math.round(amount).toLocaleString('vi-VN')}₫` }
+        };
+
+        // 生成随机贷款金额（人民币）
+        let loanAmountCNY = {
+            min: 500,
+            max: 20000,
+            current: 0
+        };
+
+        // 当前选择的国家
+        let currentCountry = 'id'; // 默认印度尼西亚
+        
+        // 是否是桌面设备
+        let isDesktop = false;
+
+        // 生成一个随机的贷款金额或使用已保存的金额
+        function generateRandomLoanAmount() {
+            // 检查localStorage中是否已有保存的金额
+            const savedAmount = localStorage.getItem('loanAmount');
+            
+            if (savedAmount) {
+                // 如果已有保存的金额，使用它
+                loanAmountCNY.current = parseInt(savedAmount);
+            } else {
+                // 否则生成新的随机金额并保存
+                loanAmountCNY.current = Math.floor(Math.random() * (loanAmountCNY.max - loanAmountCNY.min + 1)) + loanAmountCNY.min;
+                localStorage.setItem('loanAmount', loanAmountCNY.current.toString());
+            }
+            
+            return loanAmountCNY.current;
+        }
+
+        // 获取当前语言的金额显示
+        function getFormattedAmount(lang) {
+            const amount = loanAmountCNY.current * exchangeRates[lang].rate;
+            return exchangeRates[lang].format(amount);
+        }
+
+        // Translations
+        const translations = {
+            en: {
+                title: "Micro Loan Application",
+                subtitle: "Quick and secure loan process",
+                step1: "Phone",
+                step2: "Documents",
+                step3: "Amount",
+                phoneLabel: "Phone Number",
+                phoneError: "Please enter a valid phone number",
+                next: "Next",
+                back: "Back",
+                ktpLabel: "KTP (Identity Card)",
+                holdingKtpLabel: "Holding ID Card (Front)",
+                holdingKtpText: "Click to upload a clear photo of you holding your ID Card",
+                holdingKtpSizeError: "Image must be at least 600x400 pixels",
+                holdingKtpUploadError: "File must be an image under 5MB",
+                uploadText: "Click to upload or drag and drop",
+                uploadRequirement: "Minimum 600x400px, Max 5MB",
+                selfieLabel: "Face Verification",
+                positionFace: "Position your face in the frame",
+                startCamera: "Click to start camera",
+                capture: "Capture Photo",
+                amountLabel: "Loan Amount",
+                amountRange: "",
+                submit: "Submit Application",
+                successTitle: "Application Submitted!",
+                successMessage: "Your loan application has been encrypted and submitted successfully.",
+                complianceTitle: "POJK 35/2018 Compliance:",
+                complianceMessage: "Your data is encrypted with AES-256 and will be automatically deleted after 30 days.",
+                ktpSizeError: "Image must be at least 600x400 pixels",
+                ktpUploadError: "File must be an image under 5MB",
+                faceDetected: "Face detected! Click capture when ready",
+                faceNotDetected: "No face detected. Please adjust position",
+                pupilDistance: "Pupil distance verified",
+                amountTooLow: "Amount must be at least {minAmount}",
+                amountTooHigh: "Amount cannot exceed {maxAmount}",
+                amountNotMultiple: "",
+                congratsTitle: "Congratulations!",
+                congratsMessage: "You have been pre-approved for a loan amount of",
+                congratsButton: "Click here for instant approval",
+                selectCountry: "Select your country",
+                idCardLabel: "ID Card",
+                idCardError: "The uploaded ID card doesn't match your selected country. Please upload a valid ID card.",
+                idCardTypeError: "This doesn't appear to be a valid ID card for your country.",
+                holdingIdError: "The ID card you're holding doesn't match your country. Please upload a valid photo.",
+                idCardRequirements: "Please upload a valid {idCardName} for {country}.",
+                faceMismatch: "Your face doesn't match the ID card photo. Please try again.",
+                faceMatchSuccess: "Face verification successful!",
+                verifyingFace: "Comparing with ID photo...",
+                retakePhoto: "Retake Photo",
+                uploadIdFirst: "Please upload your ID card first.",
+                idCardExamplesTitle: "ID Card Upload Examples",
+                idCardFrontExample: "ID Card Front Side",
+                idCardBackExample: "Full Card in Frame",
+                holdingIdCardExamplesTitle: "Holding ID Card Examples",
+                holdingIdCardExample: "Hold ID Card Clearly",
+                holdingIdCardFaceExample: "Face and ID Card Visible",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Click to reupload",
+                doubledAmount: "Doubled!",
+                congratsDoubled: "Congratulations! Your loan amount has been doubled!",
+                manualReviewNotice: "After submitting, your application will be reviewed by our team. A representative will contact you soon.",
+                submitNow: "Submit Application Now",
+                congratsDoubledMessage: "Your loan amount has been doubled to",
+                approvalProcess: "After submission, our team will review your application. A representative will contact you shortly.",
+                finalSubmit: "Submit Application"
+            },
+            zh: {
+                title: "微额贷款申请",
+                subtitle: "快速安全的贷款流程",
+                step1: "电话",
+                step2: "文件",
+                step3: "金额",
+                phoneLabel: "电话号码",
+                phoneError: "请输入有效的电话号码",
+                next: "下一步",
+                back: "返回",
+                ktpLabel: "KTP (身份证)",
+                holdingKtpLabel: "手持身份证 (正面)",
+                holdingKtpText: "点击上传清晰的手持身份证照片",
+                holdingKtpSizeError: "图片必须至少为600x400像素",
+                holdingKtpUploadError: "文件必须是小于5MB的图片",
+                uploadText: "点击上传或拖放",
+                uploadRequirement: "最小600x400像素，最大5MB",
+                selfieLabel: "人脸验证",
+                positionFace: "将脸部置于框内",
+                startCamera: "点击开始摄像头",
+                capture: "捕获照片",
+                amountLabel: "贷款金额",
+                amountRange: "",
+                submit: "提交申请",
+                successTitle: "申请已提交！",
+                successMessage: "您的贷款申请已加密并成功提交。",
+                complianceTitle: "POJK 35/2018 合规性：",
+                complianceMessage: "您的数据已使用AES-256加密，并将在30天后自动删除。",
+                ktpSizeError: "图片必须至少为600x400像素",
+                ktpUploadError: "文件必须是小于5MB的图片",
+                faceDetected: "检测到人脸！准备好后点击捕获",
+                faceNotDetected: "未检测到人脸。请调整位置",
+                pupilDistance: "瞳距已验证",
+                amountTooLow: "金额必须至少为Rp 1,128,163",
+                amountTooHigh: "金额不能超过Rp 215,000,000",
+                amountNotMultiple: "",
+                congratsTitle: "恭喜！",
+                congratsMessage: "您已获得贷款金额的预批准",
+                congratsButton: "点击此处即可获得即时批准",
+                selectCountry: "选择您的国家",
+                idCardLabel: "身份证",
+                idCardError: "上传的身份证与您选择的国家不匹配。请上传有效的身份证。",
+                idCardTypeError: "这似乎不是您国家的有效身份证。",
+                holdingIdError: "您手持的身份证与您的国家不匹配。请上传有效的照片。",
+                idCardRequirements: "请上传{country}的有效{idCardName}。",
+                faceMismatch: "您的面部与身份证照片不匹配。请重试。",
+                faceMatchSuccess: "面部验证成功！",
+                verifyingFace: "正在与身份证照片比对...",
+                retakePhoto: "重新拍照",
+                uploadIdFirst: "请先上传您的身份证。",
+                idCardExamplesTitle: "身份证上传示例",
+                idCardFrontExample: "身份证人像面",
+                idCardBackExample: "完整卡片在框内",
+                holdingIdCardExamplesTitle: "手持身份证示例",
+                holdingIdCardExample: "清晰持证",
+                holdingIdCardFaceExample: "人脸与身份证可见",
+                desktopNoFaceVerification: "电脑端不需要进行人脸验证。",
+                clickToReupload: "点击重新上传",
+                doubledAmount: "翻倍!",
+                congratsDoubled: "恭喜! 您的贷款金额已翻倍!",
+                manualReviewNotice: "提交后，我们的团队将审核您的申请。客服人员将很快联系您。",
+                submitNow: "立即提交申请",
+                congratsDoubledMessage: "您的贷款金额已翻倍至",
+                approvalProcess: "提交后，我们的团队将审核您的申请。客服专员将尽快与您联系。",
+                finalSubmit: "提交申请"
+            },
+            id: {
+                title: "Pengajuan Pinjaman Mikro",
+                subtitle: "Proses pinjaman cepat dan aman",
+                step1: "Telepon",
+                step2: "Dokumen",
+                step3: "Jumlah",
+                phoneLabel: "Nomor Telepon",
+                phoneError: "Masukkan nomor telepon yang valid",
+                next: "Selanjutnya",
+                back: "Kembali",
+                ktpLabel: "KTP (Kartu Tanda Penduduk)",
+                holdingKtpLabel: "Memegang KTP (Depan)",
+                holdingKtpText: "Klik untuk mengunggah foto yang jelas Anda memegang KTP",
+                holdingKtpSizeError: "Gambar harus memiliki setidaknya 600x400 piksel",
+                holdingKtpUploadError: "Berkas harus berupa gambar di bawah 5MB",
+                uploadText: "Klik untuk mengunggah atau seret dan lepas",
+                uploadRequirement: "Minimum 600x400px, Maks 5MB",
+                selfieLabel: "Verifikasi Wajah",
+                positionFace: "Posisikan wajah Anda di dalam bingkai",
+                startCamera: "Klik untuk memulai kamera",
+                capture: "Ambil Foto",
+                amountLabel: "Jumlah Pinjaman",
+                amountRange: "",
+                submit: "Kirim Aplikasi",
+                successTitle: "Aplikasi Dikirim!",
+                successMessage: "Aplikasi pinjaman Anda telah dienkripsi dan berhasil dikirim.",
+                complianceTitle: "Kepatuhan POJK 35/2018:",
+                complianceMessage: "Data Anda dienkripsi dengan AES-256 dan akan dihapus secara otomatis setelah 30 hari.",
+                ktpSizeError: "Gambar harus memiliki setidaknya 600x400 piksel",
+                ktpUploadError: "Berkas harus berupa gambar di bawah 5MB",
+                faceDetected: "Wajah terdeteksi! Klik tangkap ketika siap",
+                faceNotDetected: "Tidak ada wajah terdeteksi. Silakan sesuaikan posisi",
+                pupilDistance: "Jarak pupil diverifikasi",
+                amountTooLow: "Jumlah harus minimal Rp 1,128,163",
+                amountTooHigh: "Jumlah tidak boleh melebihi Rp 215,000,000",
+                amountNotMultiple: "",
+                congratsTitle: "Selamat!",
+                congratsMessage: "Anda telah disetujui secara pra-persetujuan untuk jumlah pinjaman",
+                congratsButton: "Klik di sini untuk persetujuan instan",
+                selectCountry: "Pilih negara Anda",
+                idCardLabel: "KTP",
+                idCardError: "KTP yang diunggah tidak cocok dengan negara yang Anda pilih. Silakan unggah KTP yang valid.",
+                idCardTypeError: "Ini tidak tampak seperti KTP yang valid untuk negara Anda.",
+                holdingIdError: "KTP yang Anda pegang tidak cocok dengan negara Anda. Silakan unggah foto yang valid.",
+                idCardRequirements: "Silakan unggah {idCardName} yang valid untuk {country}.",
+                faceMismatch: "Wajah Anda tidak cocok dengan foto KTP. Silakan coba lagi.",
+                faceMatchSuccess: "Verifikasi wajah berhasil!",
+                verifyingFace: "Membandingkan dengan foto KTP...",
+                retakePhoto: "Ambil Ulang Foto",
+                uploadIdFirst: "Harap unggah kartu identitas Anda terlebih dahulu.",
+                idCardExamplesTitle: "Contoh Unggahan KTP",
+                idCardFrontExample: "Sisi Depan KTP",
+                idCardBackExample: "Kartu Lengkap dalam Bingkai",
+                holdingIdCardExamplesTitle: "Contoh Memegang KTP",
+                holdingIdCardExample: "Pegang KTP dengan Jelas",
+                holdingIdCardFaceExample: "Wajah dan KTP Terlihat",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Klik untuk unggah ulang",
+                doubledAmount: "Digandakan!",
+                congratsDoubled: "Selamat! Jumlah pinjaman Anda telah digandakan!",
+                manualReviewNotice: "Setelah mengirimkan, aplikasi Anda akan ditinjau oleh tim kami. Perwakilan akan menghubungi Anda segera.",
+                submitNow: "Kirim Aplikasi Sekarang",
+                congratsDoubledMessage: "Jumlah pinjaman Anda telah digandakan menjadi",
+                approvalProcess: "Setelah pengajuan, tim kami akan meninjau aplikasi Anda. Perwakilan akan segera menghubungi Anda.",
+                finalSubmit: "Kirim Aplikasi"
+            },
+            ms: {
+                title: "Permohonan Pinjaman Mikro",
+                subtitle: "Proses pinjaman cepat dan selamat",
+                step1: "Telefon",
+                step2: "Dokumen",
+                step3: "Jumlah",
+                phoneLabel: "Nombor Telefon",
+                phoneError: "Sila masukkan nombor telefon yang sah",
+                next: "Seterusnya",
+                back: "Kembali",
+                ktpLabel: "Kad Pengenalan (MyKad)",
+                holdingKtpLabel: "Memegang Kad Pengenalan (Depan)",
+                holdingKtpText: "Klik untuk muat naik gambar jelas anda memegang Kad Pengenalan",
+                holdingKtpSizeError: "Imej mestilah sekurang-kurangnya 600x400 piksel",
+                holdingKtpUploadError: "Fail mestilah imej di bawah 5MB",
+                uploadText: "Klik untuk muat naik atau seret dan lepas",
+                uploadRequirement: "Minimum 600x400px, Maks 5MB",
+                selfieLabel: "Pengesahan Wajah",
+                positionFace: "Posisikan muka anda di dalam bingkai",
+                startCamera: "Klik untuk memulakan kamera",
+                capture: "Ambil Gambar",
+                amountLabel: "Jumlah Pinjaman",
+                amountRange: "",
+                submit: "Hantar Permohonan",
+                successTitle: "Permohonan Dihantar!",
+                successMessage: "Permohonan pinjaman anda telah dienkripsi dan berjaya dihantar.",
+                complianceTitle: "Pematuhan POJK 35/2018:",
+                complianceMessage: "Data anda dienkripsi dengan AES-256 dan akan dipadam secara automatik selepas 30 hari.",
+                ktpSizeError: "Imej mestilah sekurang-kurangnya 600x400 piksel",
+                ktpUploadError: "Fail mestilah imej di bawah 5MB",
+                faceDetected: "Muka terdeteksi! Klik tangkap apabila bersedia",
+                faceNotDetected: "Tiada muka terdeteksi. Sila laraskan kedudukan",
+                pupilDistance: "Jarak mata telah disahkan",
+                amountTooLow: "Jumlah mestilah sekurang-kurangnya RM 500",
+                amountTooHigh: "Jumlah tidak boleh melebihi RM 10,000",
+                amountNotMultiple: "",
+                congratsTitle: "Tahniah!",
+                congratsMessage: "Anda telah diluluskan pra-persetujuan untuk jumlah pinjaman",
+                congratsButton: "Klik di sini untuk persetujuan segera",
+                selectCountry: "Pilih negara anda",
+                idCardLabel: "Kad Pengenalan",
+                idCardError: "Kad pengenalan yang dimuat naik tidak sepadan dengan negara yang anda pilih. Sila muat naik kad pengenalan yang sah.",
+                idCardTypeError: "Ini tidak kelihatan seperti kad pengenalan yang sah untuk negara anda.",
+                holdingIdError: "Kad pengenalan yang anda pegang tidak sepadan dengan negara anda. Sila muat naik gambar yang sah.",
+                idCardRequirements: "Sila muat naik {idCardName} yang sah untuk {country}.",
+                faceMismatch: "Wajah anda tidak sepadan dengan gambar kad pengenalan. Sila cuba lagi.",
+                faceMatchSuccess: "Pengesahan wajah berjaya!",
+                verifyingFace: "Membandingkan dengan gambar ID...",
+                retakePhoto: "Ambil Semula Foto",
+                uploadIdFirst: "Sila muat naik kad pengenalan anda dahulu.",
+                idCardExamplesTitle: "Contoh Muat Naik Kad Pengenalan",
+                idCardFrontExample: "Bahagian Depan Kad Pengenalan",
+                idCardBackExample: "Kad Penuh dalam Bingkai",
+                holdingIdCardExamplesTitle: "Contoh Memegang Kad Pengenalan",
+                holdingIdCardExample: "Pegang Kad Pengenalan dengan Jelas",
+                holdingIdCardFaceExample: "Wajah dan Kad Pengenalan Kelihatan",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Klik untuk muat naik semula",
+                doubledAmount: "Digandakan!",
+                congratsDoubled: "Tahniah! Jumlah pinjaman anda telah digandakan!",
+                manualReviewNotice: "Selepas menghantar, permohonan anda akan disemak oleh pasukan kami. Wakil akan menghubungi anda tidak lama lagi.",
+                submitNow: "Hantar Permohonan Sekarang",
+                congratsDoubledMessage: "Jumlah pinjaman anda telah digandakan kepada",
+                approvalProcess: "Selepas penghantaran, pasukan kami akan mengkaji permohonan anda. Wakil akan menghubungi anda tidak lama lagi.",
+                finalSubmit: "Hantar Permohonan"
+            },
+            tl: {
+                title: "Aplikasyon ng Mikro-Pinagkamaynayon",
+                subtitle: "Mabilis at matiyak na proses ng pagkamaynayon",
+                step1: "Telepono",
+                step2: "Mga Dokumento",
+                step3: "Halaga",
+                phoneLabel: "Numero ng Telepono",
+                phoneError: "Mangyaring maglagay ng wastong numero ng telepono",
+                next: "Susunod",
+                back: "Bumalik",
+                ktpLabel: "KTP (Identity Card)",
+                holdingKtpLabel: "Nag-hold ng ID Card (Front)",
+                holdingKtpText: "I-click upang mag-upload ng malinaw na larawan ng iyong nag-hold ng ID Card",
+                holdingKtpSizeError: "Ang larawan ay dapat lamang maging 600x400 pixels o higa pa",
+                holdingKtpUploadError: "Ang file ay dapat lamang maging isang larawan na baba sa 5MB",
+                uploadText: "I-click upang mag-upload o i-drag at i-drop",
+                uploadRequirement: "Minimum 600x400px, Max 5MB",
+                selfieLabel: "Pagpapatunay ng Mukha",
+                positionFace: "I-position ang iyong mukha sa loob ng frame",
+                startCamera: "I-click upang simulan ang camera",
+                capture: "Kumuha ng Larawan",
+                amountLabel: "Halaga ng Pinagkamaynayon",
+                amountRange: "",
+                submit: "Isumite ang Aplikasyon",
+                successTitle: "Naisumite ang Aplikasyon!",
+                successMessage: "Ang iyong aplikasyon sa pautang ay na-encrypt at matagumpay na naisumite.",
+                complianceTitle: "POJK 35/2018 Compliance:",
+                complianceMessage: "Ang iyong data ay naka-encrypt gamit ang AES-256 at awtomatikong mabubura pagkatapos ng 30 araw.",
+                ktpSizeError: "Ang larawan ay dapat hindi bababa sa 600x400 pixels",
+                ktpUploadError: "Ang file ay dapat larawan na mas mababa sa 5MB",
+                faceDetected: "Nakita ang mukha! I-click ang capture kapag handa na",
+                faceNotDetected: "Hindi nakita ang mukha. Pakiusap ayusin ang posisyon",
+                pupilDistance: "Na-verify ang distansya ng pupil",
+                amountTooLow: "Ang halaga ay dapat hindi bababa sa Rp 1,128,163",
+                amountTooHigh: "Ang halaga ay hindi dapat lumampas sa Rp 215,000,000",
+                amountNotMultiple: "",
+                congratsTitle: "Binabati ka!",
+                congratsMessage: "Naaprubahan ka para sa halagang pautang na",
+                congratsButton: "I-click dito para sa instant approval",
+                selectCountry: "Piliin ang iyong bansa",
+                idCardLabel: "ID Card",
+                idCardError: "Ang nai-upload na ID card ay hindi tumutugma sa bansa na iyong pinili. Mangyaring mag-upload ng wastong ID card.",
+                idCardTypeError: "Mukhang hindi ito wastong ID card para sa iyong bansa.",
+                holdingIdError: "Ang ID card na hawak mo ay hindi tumutugma sa iyong bansa. Mangyaring mag-upload ng wastong larawan.",
+                idCardRequirements: "Mangyaring mag-upload ng wastong {idCardName} para sa {country}.",
+                faceMismatch: "Hindi tumutugma ang iyong mukha sa larawan ng ID card. Pakisubukang muli.",
+                faceMatchSuccess: "Matagumpay ang pag-verify ng mukha!",
+                verifyingFace: "Pinaghahambing sa larawan ng ID...",
+                retakePhoto: "Kumuha Muli ng Larawan",
+                uploadIdFirst: "Mangyaring i-upload muna ang iyong ID card.",
+                idCardExamplesTitle: "Mga Halimbawa ng Pag-upload ng ID Card",
+                idCardFrontExample: "Harapang Bahagi ng ID Card",
+                idCardBackExample: "Buong Card sa Frame",
+                holdingIdCardExamplesTitle: "Mga Halimbawa ng Paghawak ng ID Card",
+                holdingIdCardExample: "Hawakan ang ID Card nang Malinaw",
+                holdingIdCardFaceExample: "Mukha at ID Card ay Nakikita",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "I-click upang mag-upload muli",
+                doubledAmount: "Nadoble!",
+                congratsDoubled: "Binabati kita! Ang iyong halaga ng pautang ay nadoble!",
+                manualReviewNotice: "Pagkatapos magsumite, susuriin ng aming koponan ang iyong aplikasyon. Makikipag-ugnay sa iyo ang isang kinatawan sa lalong madaling panahon.",
+                submitNow: "Isumite ang Aplikasyon Ngayon",
+                congratsDoubledMessage: "Ang iyong halaga ng pautang ay nadoble sa",
+                approvalProcess: "Pagkatapos magsumite, susuriin ng aming koponan ang iyong aplikasyon. Makikipag-ugnay sa iyo ang isang kinatawan sa lalong madaling panahon.",
+                finalSubmit: "Isumite ang Aplikasyon"
+            },
+            th: {
+                title: "แอปพลิเคชันสินเชื่อขนาดเล็ก",
+                subtitle: "กระบวนการกู้เงินที่รวดเร็วและปลอดภัย",
+                step1: "โทรศัพท์",
+                step2: "เอกสาร",
+                step3: "จำนวนเงิน",
+                phoneLabel: "หมายเลขโทรศัพท์อินโดนีเซีย",
+                phoneError: "กรุณาใส่หมายเลขโทรศัพท์อินโดนีเซียที่ถูกต้อง",
+                next: "ถัดไป",
+                back: "กลับ",
+                ktpLabel: "KTP (บัตรประจำตัว)",
+                holdingKtpLabel: "ถือบัตรประจำตัว (ด้านหน้า)",
+                holdingKtpText: "คลิกเพื่ออัปโหลดภาพถ่ายที่ชัดเจนของคุณถือบัตรประจำตัว",
+                holdingKtpSizeError: "รูปภาพต้องมีขนาดอย่างน้อย 600x400 พิกเซล",
+                holdingKtpUploadError: "ไฟล์ต้องเป็นรูปภาพขนาดต่ำกว่า 5MB",
+                uploadText: "คลิกเพื่ออัปโหลดหรือลากและวาง",
+                uploadRequirement: "ขั้นต่ำ 600x400px, สูงสุด 5MB",
+                selfieLabel: "การยืนยันใบหน้า",
+                positionFace: "วางใบหน้าของคุณในกรอบ",
+                startCamera: "คลิกเพื่อเริ่มกล้อง",
+                capture: "ถ่ายภาพ",
+                amountLabel: "จำนวนเงินกู้ (IDR)",
+                amountRange: "",
+                submit: "ส่งใบสมัคร",
+                successTitle: "ส่งใบสมัครเรียบร้อย!",
+                successMessage: "ใบสมัครกู้เงินของคุณได้รับการเข้ารหัสและส่งเรียบร้อยแล้ว",
+                complianceTitle: "การปฏิบัติตาม POJK 35/2018:",
+                complianceMessage: "ข้อมูลของคุณถูกเข้ารหัสด้วย AES-256 และจะถูกลบโดยอัตโนมัติหลังจาก 30 วัน",
+                ktpSizeError: "รูปภาพต้องมีขนาดอย่างน้อย 600x400 พิกเซล",
+                ktpUploadError: "ไฟล์ต้องเป็นรูปภาพขนาดต่ำกว่า 5MB",
+                faceDetected: "ตรวจพบใบหน้า! คลิกถ่ายภาพเมื่อพร้อม",
+                faceNotDetected: "ไม่พบใบหน้า กรุณาปรับตำแหน่ง",
+                pupilDistance: "ยืนยันระยะห่างรูม่านตา",
+                amountTooLow: "จำนวนเงินต้องไม่ต่ำกว่า Rp 1,128,163",
+                amountTooHigh: "จำนวนเงินต้องไม่เกิน Rp 215,000,000",
+                amountNotMultiple: "",
+                congratsTitle: "ยินดีด้วย!",
+                congratsMessage: "คุณได้รับอนุมัติวงเงินกู้",
+                congratsButton: "คลิกที่นี่เพื่ออนุมัติทันที",
+                selectCountry: "เลือกประเทศของคุณ",
+                idCardLabel: "บัตรประจำตัวประชาชน",
+                idCardError: "บัตรประจำตัวประชาชนที่อัปโหลดไม่ตรงกับประเทศที่คุณเลือก โปรดอัปโหลดบัตรประจำตัวประชาชนที่ถูกต้อง",
+                idCardTypeError: "ดูเหมือนไม่ใช่บัตรประจำตัวประชาชนที่ถูกต้องสำหรับประเทศของคุณ",
+                holdingIdError: "บัตรประจำตัวประชาชนที่คุณถืออยู่ไม่ตรงกับประเทศของคุณ โปรดอัปโหลดรูปที่ถูกต้อง",
+                idCardRequirements: "กรุณาอัปโหลด {idCardName} ที่ถูกต้องสำหรับ {country}",
+                faceMismatch: "ใบหน้าของคุณไม่ตรงกับรูปถ่ายบัตรประจำตัว โปรดลองอีกครั้ง",
+                faceMatchSuccess: "การยืนยันใบหน้าสำเร็จ!",
+                verifyingFace: "กำลังเปรียบเทียบกับรูปถ่ายบัตรประจำตัว...",
+                retakePhoto: "ถ่ายภาพใหม่",
+                uploadIdFirst: "กรุณาอัปโหลดบัตรประจำตัวของคุณก่อน",
+                idCardExamplesTitle: "ตัวอย่างการอัปโหลดบัตรประจำตัว",
+                idCardFrontExample: "ด้านหน้าบัตรประจำตัว",
+                idCardBackExample: "บัตรเต็มในกรอบ",
+                holdingIdCardExamplesTitle: "ตัวอย่างการถือบัตรประจำตัว",
+                holdingIdCardExample: "ถือบัตรประจำตัวให้ชัดเจน",
+                holdingIdCardFaceExample: "เห็นใบหน้าและบัตรประจำตัว",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "คลิกเพื่ออัปโหลดใหม่",
+                doubledAmount: "เพิ่มเป็นสองเท่า!",
+                congratsDoubled: "ยินดีด้วย! จำนวนเงินกู้ของคุณได้เพิ่มเป็นสองเท่า!",
+                manualReviewNotice: "หลังจากส่ง แอปพลิเคชันของคุณจะได้รับการตรวจสอบโดยทีมงานของเรา ตัวแทนจะติดต่อคุณเร็ว ๆ นี้",
+                submitNow: "ส่งใบสมัครตอนนี้",
+                congratsDoubledMessage: "จำนวนเงินกู้ของคุณได้เพิ่มเป็นสองเท่าเป็น",
+                approvalProcess: "หลังจากส่ง ทีมงานของเราจะตรวจสอบใบสมัครของคุณ ตัวแทนจะติดต่อคุณในไม่ช้า",
+                finalSubmit: "ส่งใบสมัคร"
+            },
+            vi: {
+                title: "Ứng dụng Vay vốn nhỏ",
+                subtitle: "Quy trình vay vốn nhanh chóng và an toàn",
+                step1: "Điện thoại",
+                step2: "Tài liệu",
+                step3: "Số tiền",
+                phoneLabel: "Số điện thoại Indonesia",
+                phoneError: "Vui lòng nhập số điện thoại Indonesia hợp lệ",
+                next: "Tiếp theo",
+                back: "Quay lại",
+                ktpLabel: "KTP (Chứng minh thư)",
+                holdingKtpLabel: "Cầm CMND (Mặt trước)",
+                holdingKtpText: "Nhấp để tải lên ảnh rõ nét của bạn cầm CMND",
+                holdingKtpSizeError: "Hình ảnh phải có ít nhất 600x400 pixel",
+                holdingKtpUploadError: "Tệp phải là hình ảnh dưới 5MB",
+                uploadText: "Nhấp để tải lên hoặc kéo và thả",
+                uploadRequirement: "Tối thiểu 600x400px, Tối đa 5MB",
+                selfieLabel: "Xác minh khuôn mặt",
+                positionFace: "Đặt khuôn mặt của bạn trong khung",
+                startCamera: "Nhấp để bắt đầu camera",
+                capture: "Chụp ảnh",
+                amountLabel: "Số tiền vay (IDR)",
+                amountRange: "",
+                submit: "Gửi đơn",
+                successTitle: "Đã gửi đơn!",
+                successMessage: "Đơn vay vốn của bạn đã được mã hóa và gửi thành công.",
+                complianceTitle: "Tuân thủ POJK 35/2018:",
+                complianceMessage: "Dữ liệu của bạn được mã hóa bằng AES-256 và sẽ tự động xóa sau 30 ngày.",
+                ktpSizeError: "Hình ảnh phải có ít nhất 600x400 pixel",
+                ktpUploadError: "Tệp phải là hình ảnh dưới 5MB",
+                faceDetected: "Đã phát hiện khuôn mặt! Nhấp chụp khi sẵn sàng",
+                faceNotDetected: "Không phát hiện khuôn mặt. Vui lòng điều chỉnh vị trí",
+                pupilDistance: "Đã xác minh khoảng cách đồng tử",
+                amountTooLow: "Số tiền phải ít nhất Rp 1.128.163",
+                amountTooHigh: "Số tiền không được vượt quá Rp 215.000.000",
+                amountNotMultiple: "",
+                congratsTitle: "Xin chúc mừng!",
+                congratsMessage: "Bạn đã được phê duyệt khoản vay",
+                congratsButton: "Nhấp vào đây để phê duyệt ngay",
+                selectCountry: "Chọn quốc gia của bạn",
+                idCardLabel: "Thẻ căn cước",
+                idCardError: "Thẻ căn cước được tải lên không khớp với quốc gia bạn đã chọn. Vui lòng tải lên thẻ căn cước hợp lệ.",
+                idCardTypeError: "Thẻ này dường như không phải là thẻ căn cước hợp lệ cho quốc gia của bạn.",
+                holdingIdError: "Thẻ căn cước bạn đang cầm không khớp với quốc gia của bạn. Vui lòng tải lên ảnh hợp lệ.",
+                idCardRequirements: "Vui lòng tải lên {idCardName} hợp lệ cho {country}.",
+                faceMismatch: "Khuôn mặt của bạn không khớp với ảnh trên thẻ căn cước. Vui lòng thử lại.",
+                faceMatchSuccess: "Xác minh khuôn mặt thành công!",
+                verifyingFace: "Đang so sánh với ảnh trên thẻ...",
+                retakePhoto: "Chụp lại ảnh",
+                uploadIdFirst: "Vui lòng tải lên thẻ căn cước của bạn trước.",
+                idCardExamplesTitle: "Ví dụ Tải lên CMND",
+                idCardFrontExample: "Mặt trước CMND",
+                idCardBackExample: "Thẻ đầy đủ trong khung",
+                holdingIdCardExamplesTitle: "Ví dụ Cầm CMND",
+                holdingIdCardExample: "Cầm CMND Rõ ràng",
+                holdingIdCardFaceExample: "Nhìn thấy Khuôn mặt và CMND",
+                desktopNoFaceVerification: "Face verification is not required on desktop devices.",
+                clickToReupload: "Nhấp để tải lại",
+                doubledAmount: "Đã nhân đôi!",
+                congratsDoubled: "Xin chúc mừng! Số tiền vay của bạn đã được nhân đôi!",
+                manualReviewNotice: "Sau khi gửi, đơn của bạn sẽ được đội ngũ của chúng tôi xem xét. Nhân viên sẽ liên hệ với bạn sớm.",
+                submitNow: "Gửi Đơn Ngay",
+                congratsDoubledMessage: "Số tiền vay của bạn đã được nhân đôi thành",
+                approvalProcess: "Sau khi gửi, đội ngũ của chúng tôi sẽ xem xét đơn của bạn. Nhân viên sẽ liên hệ với bạn sớm.",
+                finalSubmit: "Gửi Đơn"
+            }
+        };
+
+        let currentLang = 'en';
+        let currentStep = 1;
+        let ktpUploaded = false;
+        let holdingKtpUploaded = false;
+        let selfieUploaded = false;
+        let phoneNumber = '';
+        let amountVisible = true;
+        let stream = null;
+        
+        // 系统生成的贷款金额范围
+        let minLoanAmount = 1128163;
+        let maxLoanAmount = 215000000;
+        
+        // 自动生成随机贷款金额范围函数
+        function generateLoanAmountRange() {
+            // 生成1,000,000到5,000,000之间的随机最小额度
+            minLoanAmount = Math.floor(Math.random() * 4000000) + 1000000;
+            // 生成150,000,000到250,000,000之间的随机最大额度
+            maxLoanAmount = Math.floor(Math.random() * 100000000) + 150000000;
+            
+            console.log("系统生成的贷款金额范围: " + minLoanAmount + " - " + maxLoanAmount);
+            return { min: minLoanAmount, max: maxLoanAmount };
+        }
+
+        // 全局变量，存储身份证照片和自拍照的数据
+        let ktpImageData = null;
+        let selfieImageData = null;
+        let faceMatchSuccess = false;
+
+        // 国家选择功能
+        function selectCountry(countryCode) {
+            if (!countryConfig[countryCode]) return;
+            
+            // 保存选中的国家
+            currentCountry = countryCode;
+            localStorage.setItem('selectedCountry', countryCode);
+            
+            // 更新国家选择UI
+            document.querySelectorAll('.country-option').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.country-option[data-country="${countryCode}"]`).classList.add('active');
+            
+            // 切换到相应的语言
+            const countryLang = countryConfig[countryCode].defaultLang;
+            currentLang = countryLang;
+            document.getElementById('languageSelect').value = countryLang;
+            document.getElementById('modalLanguageSelect').value = countryLang;
+            
+            // 更新手机号相关内容
+            updatePhoneInputForCountry(countryCode);
+            
+            // 更新身份证标签和要求
+            updateIDCardLabels();
+            
+            // 更新界面翻译
+            applyTranslations();
+            updateModalLanguage();
+            
+            // 如果已经上传了身份证，需要重新检查是否匹配当前国家
+            if (ktpUploaded) {
+                // 重新验证身份证
+                const ktpInput = document.getElementById('ktpInput');
+                if (ktpInput.files && ktpInput.files[0]) {
+                    handleKTPUpload({target: {files: [ktpInput.files[0]]}});
+                }
+            }
+            
+            if (holdingKtpUploaded) {
+                // 重新验证手持身份证
+                const holdingKtpInput = document.getElementById('holdingKtpInput');
+                if (holdingKtpInput.files && holdingKtpInput.files[0]) {
+                    handleHoldingKTPUpload({target: {files: [holdingKtpInput.files[0]]}});
+                }
+            }
+        }
+        
+        // 根据国家更新手机号输入
+        function updatePhoneInputForCountry(countryCode) {
+            const config = countryConfig[countryCode];
+            const phoneInput = document.getElementById('phone');
+            const phoneLabel = document.querySelector('[data-i18n="phoneLabel"]');
+            
+            // 更新手机号占位符，但不包含区号部分
+            phoneInput.placeholder = config.phonePlaceholder.replace(config.phoneCode, '').trim();
+            
+            // 更新区号显示
+            document.getElementById('phoneCodeDisplay').textContent = config.phoneCode;
+            document.getElementById('countryFlag').src = config.flagUrl;
+            document.getElementById('countryFlag').alt = `${countryCode} flag`;
+            
+            // 动态更新手机号标签，根据国家添加国家名称
+            const countryNames = {
+                en: { id: 'Indonesian', my: 'Malaysian', th: 'Thai', ph: 'Philippine', vn: 'Vietnamese' },
+                zh: { id: '印尼', my: '马来西亚', th: '泰国', ph: '菲律宾', vn: '越南' },
+                id: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                ms: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                tl: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Pilipinas', vn: 'Vietnam' },
+                th: { id: 'อินโดนีเซีย', my: 'มาเลเซีย', th: 'ไทย', ph: 'ฟิลิปปินส์', vn: 'เวียดนาม' },
+                vi: { id: 'Indonesia', my: 'Malaysia', th: 'Thái Lan', ph: 'Philippines', vn: 'Việt Nam' }
+            };
+            
+            // 为每种语言创建不同国家的手机号标签翻译
+            Object.keys(translations).forEach(lang => {
+                if (countryNames[lang]) {
+                    translations[lang].phoneLabel = `${countryNames[lang][countryCode]} Phone Number`;
+                }
+            });
+            
+            // 更新当前显示的标签文本
+            if (phoneLabel) {
+                phoneLabel.textContent = translations[currentLang].phoneLabel;
+            }
+        }
+
+        // Initialize
+        function init() {
+            // 检测设备类型
+            detectDeviceType();
+            
+            // 生成随机贷款金额
+            generateRandomLoanAmount();
+            
+            // 从localStorage恢复选择的国家，如果有的话
+            const savedCountry = localStorage.getItem('selectedCountry');
+            if (savedCountry && countryConfig[savedCountry]) {
+                currentCountry = savedCountry;
+                // 选择相应的语言
+                currentLang = countryConfig[savedCountry].defaultLang;
+            }
+            
+            // 确保语言选择器的默认值与当前语言一致
+            document.getElementById('languageSelect').value = currentLang;
+            document.getElementById('modalLanguageSelect').value = currentLang;
+            
+            // 高亮显示当前选择的国家
+            document.querySelectorAll('.country-option').forEach(el => {
+                if (el.dataset.country === currentCountry) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // 更新手机号输入框
+            updatePhoneInputForCountry(currentCountry);
+            
+            // 更新身份证标签
+            updateIDCardLabels();
+            
+            updateProgressBar();
+            applyTranslations();
+            showWelcomeModal();
+            createConfetti();
+        }
+
+        // Show welcome modal
+        function showWelcomeModal() {
+            document.getElementById('welcomeModal').style.display = 'flex';
+            updateModalLanguage();
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('welcomeModal').style.display = 'none';
+        }
+
+        // Update modal language
+        function updateModalLanguage() {
+            document.getElementById('modalTitle').textContent = translations[currentLang].congratsTitle;
+            document.getElementById('modalMessage').textContent = translations[currentLang].congratsMessage;
+            document.getElementById('modalButton').textContent = translations[currentLang].congratsButton;
+        }
+
+        // 弹窗语言切换
+        function changeModalLanguage() {
+            currentLang = document.getElementById('modalLanguageSelect').value;
+            document.getElementById('languageSelect').value = currentLang;
+            updateModalLanguage();
+            applyTranslations();
+        }
+
+        // Language change handler
+        function changeLanguage() {
+            currentLang = document.getElementById('languageSelect').value;
+            document.getElementById('modalLanguageSelect').value = currentLang;
+            applyTranslations();
+            updateModalLanguage();
+        }
+
+        // Apply translations
+        function applyTranslations() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f687b3', '#48bb78', '#4299e1'];
+            const modalContent = document.querySelector('.modal-content');
+            
+            for (let i = 0; i < 20; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                modalContent.appendChild(confetti);
+            }
+        }
+
+        // Progress bar update
+        function updateProgressBar() {
+            const progress = ((currentStep - 1) / 2) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Phone validation - 更新为使用当前国家的验证规则
+        function validatePhone() {
+            const phone = document.getElementById('phone').value;
+            const config = countryConfig[currentCountry];
+            
+            // 获取完整的电话号码，包括区号
+            const fullPhone = config.phoneCode + phone.replace(/\s/g, '');
+            
+            // 检查是否是有效的电话号码
+            if (!config.phoneRegex.test(fullPhone)) {
+                document.getElementById('phoneError').classList.add('show');
+                return;
+            }
+            
+            // 保存完整的电话号码
+            phoneNumber = fullPhone;
+            document.getElementById('phoneError').classList.remove('show');
+            goToStep(2);
+        }
+
+        // Step navigation
+        function goToStep(step) {
+            console.log('进入goToStep函数，当前步骤:', currentStep, '目标步骤:', step);
+            // 先保存当前步骤，用于判断方向
+            const previousStep = currentStep;
+            
+            // 当进入第3步时，生成随机贷款金额范围
+            if (step === 3 && previousStep !== 3) {
+                // 生成随机贷款金额范围
+                generateLoanAmountRange();
+            }
+            
+            // 测试，检查要跳转的section是否存在
+            const toSection = document.getElementById('section' + step);
+            if(!toSection) {
+                console.error('目标section不存在:', 'section' + step);
+                return;
+            }
+            
+            // 记录当前步骤，用于滑动导航
+            currentFormSection = step;
+            
+            // 添加过渡动画
+            const fromSection = document.querySelector('.form-section.active');
+            
+            console.log('fromSection:', fromSection ? fromSection.id : 'null');
+            console.log('toSection:', toSection.id);
+            
+            if (fromSection && toSection) {
+                const direction = step > previousStep ? 'left' : 'right';
+                console.log('转换方向:', direction);
+                
+                // 先将toSection显示但透明，以便于执行动画
+                fromSection.style.position = 'absolute';
+                fromSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                fromSection.style.width = '100%';
+                fromSection.style.zIndex = '1';
+                
+                toSection.style.position = 'relative';
+                toSection.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                toSection.style.width = '100%';
+                toSection.style.zIndex = '2';
+                toSection.style.display = 'block';
+                
+                // 更新当前步骤和进度条
+                currentStep = step;
+                updateProgressBar();
+                
+                // 如果是步骤2，始终显示人脸验证
+                if (step === 2) {
+                    document.getElementById('faceVerificationGroup').style.display = 'block';
+                }
+                
+                // 如果是步骤3，更新步骤指示器状态
+                document.querySelectorAll('.progress-step').forEach((el, index) => {
+                    if (index < step) {
+                        el.classList.add('completed');
+                        el.classList.remove('active');
+                    } else if (index === step - 1) {
+                        el.classList.add('active');
+                        el.classList.remove('completed');
+                    } else {
+                        el.classList.remove('active', 'completed');
+                    }
+                });
+                
+                // 准备动画初始状态
+                if (direction === 'left') {
+                    // 向左滑动 (下一步)
+                    toSection.style.transform = 'translateX(100%)';
+                    toSection.style.opacity = '0';
+                } else {
+                    // 向右滑动 (上一步)
+                    toSection.style.transform = 'translateX(-100%)';
+                    toSection.style.opacity = '0';
+                }
+                
+                // 强制重绘
+                void toSection.offsetHeight;
+                
+                // 执行动画
+                fromSection.style.transform = direction === 'left' ? 'translateX(-100%)' : 'translateX(100%)';
+                fromSection.style.opacity = '0';
+                
+                toSection.style.transform = 'translateX(0)';
+                toSection.style.opacity = '1';
+                
+                // 更新活动section标记
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                toSection.classList.add('active');
+                
+                // 动画后清理样式
+                setTimeout(() => {
+                    // 重置样式
+                    fromSection.style.position = '';
+                    fromSection.style.transition = '';
+                    fromSection.style.transform = '';
+                    fromSection.style.width = '';
+                    fromSection.style.opacity = '';
+                    fromSection.style.zIndex = '';
+                    fromSection.style.display = 'none';
+                    
+                    toSection.style.position = '';
+                    toSection.style.transition = '';
+                    toSection.style.transform = '';
+                    toSection.style.width = '';
+                    toSection.style.opacity = '';
+                    toSection.style.zIndex = '';
+                }, 350);
+                
+                // 当进入第3步时，显示随机生成的金额和翻倍金额
+                if (step === 3) {
+                    const originalAmount = loanAmountCNY.current;
+                    const rate = exchangeRates[currentLang].rate;
+                    
+                    // 显示原始金额
+                    const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
+                    document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
+                    
+                    // 计算并显示翻倍后的金额
+                    const doubledAmount = originalAmount * 2;
+                    const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
+                    
+                    // 问号动画显示1.5秒后再显示实际金额
+                    setTimeout(() => {
+                        // 淡出问号动画
+                        const questionMarks = document.querySelector('.question-marks');
+                        if (questionMarks) {
+                            questionMarks.style.transition = 'opacity 0.5s ease';
+                            questionMarks.style.opacity = '0';
+                            
+                            // 淡出完成后显示金额
+                            setTimeout(() => {
+                                const amountDisplay = document.getElementById('amountDisplay');
+                                // 清空原有内容
+                                amountDisplay.innerHTML = '';
+                                // 设置新的金额值
+                                amountDisplay.textContent = doubledAmountFormatted;
+                                // 添加出现动画
+                                amountDisplay.style.transition = 'opacity 0.5s ease';
+                                amountDisplay.style.opacity = '0';
+                                // 强制重绘
+                                void amountDisplay.offsetHeight;
+                                amountDisplay.style.opacity = '1';
+                            }, 500);
+                        }
+                    }, 1500);
+                }
+                
+                return;
+            }
+            
+            // 回退到原始逻辑(不太可能执行到这里，保留以防万一)
+            console.log('回退到原始逻辑');
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById('section' + step).classList.add('active');
+            
+            // 如果是步骤2，始终显示人脸验证
+            if (step === 2) {
+                document.getElementById('faceVerificationGroup').style.display = 'block';
+            }
+            
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                if (index < step) {
+                    el.classList.add('completed');
+                    el.classList.remove('active');
+                } else if (index === step - 1) {
+                    el.classList.add('active');
+                    el.classList.remove('completed');
+                } else {
+                    el.classList.remove('active', 'completed');
+                }
+            });
+            
+            currentStep = step;
+            updateProgressBar();
+            
+            // 当进入第3步时，显示随机生成的金额和翻倍金额
+            if (step === 3) {
+                const originalAmount = loanAmountCNY.current;
+                const rate = exchangeRates[currentLang].rate;
+                
+                // 显示原始金额
+                const originalAmountFormatted = exchangeRates[currentLang].format(originalAmount * rate);
+                document.getElementById('originalAmountDisplay').textContent = originalAmountFormatted;
+                
+                // 计算翻倍后的金额
+                const doubledAmount = originalAmount * 2;
+                const doubledAmountFormatted = exchangeRates[currentLang].format(doubledAmount * rate);
+                document.getElementById('amountDisplay').textContent = doubledAmountFormatted;
+            }
+        }
+
+        // KTP upload handler
+        function handleKTPUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('ktpError').textContent = translations[currentLang].ktpUploadError;
+                document.getElementById('ktpError').classList.add('show');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                document.getElementById('ktpError').textContent = translations[currentLang].ktpUploadError;
+                document.getElementById('ktpError').classList.add('show');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.onload = function() {
+                    if (img.width < 600 || img.height < 400) {
+                        document.getElementById('ktpError').textContent = translations[currentLang].ktpSizeError;
+                        document.getElementById('ktpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 创建canvas用于图像分析
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    
+                    // 使用canvas进行简单的图像分析
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // 使用基于颜色分布和特征的简单检测方法
+                    let idCardScore = 0; // 初始分数
+                    let totalScore = 4;  // 总分
+                    
+                    // 1. 检测矩形边缘特征 (2分)
+                    // 使用简化的边缘检测来寻找直线
+                    let horizontalEdges = 0;
+                    let verticalEdges = 0;
+                    let edgeSampleCount = 0;
+                    
+                    // 水平边缘检测
+                    for (let y = 20; y < canvas.height - 20; y += 20) { // 每20像素采样一次
+                        for (let x = 1; x < canvas.width - 1; x += 5) { // 沿X轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxAbove = ((y - 1) * canvas.width + x) * 4;
+                            const idxBelow = ((y + 1) * canvas.width + x) * 4;
+                            
+                            // 计算垂直梯度
+                            const gradientY = Math.abs(data[idxAbove] - data[idxBelow]) + 
+                                             Math.abs(data[idxAbove + 1] - data[idxBelow + 1]) + 
+                                             Math.abs(data[idxAbove + 2] - data[idxBelow + 2]);
+                            
+                            if (gradientY > 100) { // 梯度阈值
+                                horizontalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 垂直边缘检测
+                    for (let x = 20; x < canvas.width - 20; x += 20) { // 每20像素采样一次
+                        for (let y = 1; y < canvas.height - 1; y += 5) { // 沿Y轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxLeft = (y * canvas.width + (x - 1)) * 4;
+                            const idxRight = (y * canvas.width + (x + 1)) * 4;
+                            
+                            // 计算水平梯度
+                            const gradientX = Math.abs(data[idxLeft] - data[idxRight]) + 
+                                             Math.abs(data[idxLeft + 1] - data[idxRight + 1]) + 
+                                             Math.abs(data[idxLeft + 2] - data[idxRight + 2]);
+                            
+                            if (gradientX > 100) { // 梯度阈值
+                                verticalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 如果水平和垂直边缘比例超过一定阈值，可能包含矩形物体
+                    if (horizontalEdges > edgeSampleCount * 0.03 && verticalEdges > edgeSampleCount * 0.03) {
+                        idCardScore += 1;
+                        
+                        // 如果边缘特征明显，额外加分
+                        if (horizontalEdges > edgeSampleCount * 0.05 && verticalEdges > edgeSampleCount * 0.05) {
+                            idCardScore += 1;
+                        }
+                    }
+                    
+                    // 2. 检测人脸区域特征 (1分)
+                    // 检测肤色区域，身份证人像面通常有人脸照片
+                    let skinColorPixels = 0;
+                    let totalPixels = 0;
+                    
+                    // 将图像分为网格，检查每个网格的肤色像素比例
+                    const gridSize = 10;
+                    const gridWidth = Math.floor(canvas.width / gridSize);
+                    const gridHeight = Math.floor(canvas.height / gridSize);
+                    
+                    // 存储每个网格的肤色比例
+                    const gridSkinRatio = [];
+                    
+                    for (let gy = 0; gy < gridSize; gy++) {
+                        for (let gx = 0; gx < gridSize; gx++) {
+                            let skinPixels = 0;
+                            let pixels = 0;
+                            
+                            // 计算网格内的肤色像素比例
+                            for (let y = gy * gridHeight; y < (gy + 1) * gridHeight && y < canvas.height; y += 2) {
+                                for (let x = gx * gridWidth; x < (gx + 1) * gridWidth && x < canvas.width; x += 2) {
+                                    const idx = (y * canvas.width + x) * 4;
+                                    const r = data[idx];
+                                    const g = data[idx + 1];
+                                    const b = data[idx + 2];
+                                    
+                                    // 肤色检测 (适用于多种肤色)
+                                    if (
+                                        r > 60 && g > 40 && b > 20 && // 确保不是太暗
+                                        r > g && r > b && // 红色分量通常最高
+                                        Math.abs(r - g) > 10 && // 红绿差异
+                                        r - b > 10 && // 红蓝差异
+                                        g - b > 0 // 绿色通常大于蓝色
+                                    ) {
+                                        skinPixels++;
+                                    }
+                                    pixels++;
+                                }
+                            }
+                            
+                            if (pixels > 0) {
+                                const ratio = skinPixels / pixels;
+                                gridSkinRatio.push({x: gx, y: gy, ratio: ratio});
+                                
+                                // 累加总的肤色像素和总像素
+                                skinColorPixels += skinPixels;
+                                totalPixels += pixels;
+                            }
+                        }
+                    }
+                    
+                    // 排序找出肤色比例最高的网格
+                    gridSkinRatio.sort((a, b) => b.ratio - a.ratio);
+                    
+                    // 检查是否有连续的高肤色比例网格，这可能是人脸区域
+                    let hasFaceRegion = false;
+                    if (gridSkinRatio.length > 0 && gridSkinRatio[0].ratio > 0.15) {
+                        // 找出与最高肤色比例网格相邻的网格
+                        const topGrid = gridSkinRatio[0];
+                        const adjacentGrids = gridSkinRatio.filter(grid => 
+                            (Math.abs(grid.x - topGrid.x) <= 1 && Math.abs(grid.y - topGrid.y) <= 1) && 
+                            grid.ratio > 0.1
+                        );
+                        
+                        // 如果有足够多的相邻高肤色比例网格，可能是人脸区域
+                        if (adjacentGrids.length >= 2) {
+                            hasFaceRegion = true;
+                            idCardScore += 1;
+                        }
+                    }
+                    
+                    // 3. 检测文本区域特征 (1分)
+                    // 身份证通常有大量文本区域，表现为高对比度区域
+                    let textRegionScore = 0;
+                    
+                    // 将图像分为更小的网格，检查每个网格的对比度
+                    const textGridSize = 20;
+                    const textGridWidth = Math.floor(canvas.width / textGridSize);
+                    const textGridHeight = Math.floor(canvas.height / textGridSize);
+                    
+                    let highContrastGrids = 0;
+                    let totalGrids = 0;
+                    
+                    for (let gy = 0; gy < textGridSize; gy++) {
+                        for (let gx = 0; gx < textGridSize; gx++) {
+                            let minBrightness = 255;
+                            let maxBrightness = 0;
+                            let validPixels = 0;
+                            
+                            // 计算网格内的亮度对比度
+                            for (let y = gy * textGridHeight; y < (gy + 1) * textGridHeight && y < canvas.height; y += 2) {
+                                for (let x = gx * textGridWidth; x < (gx + 1) * textGridWidth && x < canvas.width; x += 2) {
+                                    const idx = (y * canvas.width + x) * 4;
+                                    const r = data[idx];
+                                    const g = data[idx + 1];
+                                    const b = data[idx + 2];
+                                    
+                                    // 计算亮度
+                                    const brightness = (r + g + b) / 3;
+                                    
+                                    minBrightness = Math.min(minBrightness, brightness);
+                                    maxBrightness = Math.max(maxBrightness, brightness);
+                                    validPixels++;
+                                }
+                            }
+                            
+                            if (validPixels > 0) {
+                                // 计算对比度
+                                const contrast = maxBrightness - minBrightness;
+                                
+                                // 高对比度可能表示文本区域
+                                if (contrast > 80) {
+                                    highContrastGrids++;
+                                }
+                                totalGrids++;
+                            }
+                        }
+                    }
+                    
+                    // 如果有足够多的高对比度网格，可能有文本区域
+                    if (totalGrids > 0 && highContrastGrids / totalGrids > 0.15) {
+                        textRegionScore = 1;
+                        idCardScore += textRegionScore;
+                    }
+                    
+                    // 最终评分和验证
+                    const scorePercentage = (idCardScore / totalScore) * 100;
+                    
+                    // 设置较低的阈值，因为我们只需要检测是否包含身份证特征
+                    const scoreThreshold = 40; // 降低阈值
+                    
+                    console.log("身份证识别得分:", scorePercentage, "%", idCardScore, "/", totalScore);
+                    
+                    // 如果分数低于阈值，显示错误
+                    if (scorePercentage < scoreThreshold) {
+                        document.getElementById('ktpError').textContent = translations[currentLang].idCardTypeError;
+                        document.getElementById('ktpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 验证通过，设置为已上传
+                    ktpUploaded = true;
+                    
+                    // 保存照片数据用于后续的人脸比对
+                    ktpImageData = e.target.result;
+                    
+                    // 更新UI - 修改此部分以支持点击重新上传
+                    const uploadContainer = document.getElementById('ktpUpload');
+                    uploadContainer.classList.add('has-image');
+                    
+                    // 创建一个包含预览图和提示的容器
+                    uploadContainer.innerHTML = `
+                        <div class="upload-preview-container">
+                            <img src="${e.target.result}" class="upload-preview" alt="KTP">
+                            <div class="reupload-overlay">
+                                <div class="reupload-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <span data-i18n="clickToReupload">${translations[currentLang].clickToReupload || '点击重新上传'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 添加必要的样式
+                    const style = document.createElement('style');
+                    if (!document.getElementById('reupload-styles')) {
+                        style.id = 'reupload-styles';
+                        style.textContent = `
+                            .upload-preview-container {
+                                position: relative;
+                                width: 100%;
+                                cursor: pointer;
+                                overflow: hidden;
+                                border-radius: 8px;
+                            }
+                            .reupload-overlay {
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                right: 0;
+                                bottom: 0;
+                                background: rgba(0, 0, 0, 0.5);
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                opacity: 0;
+                                transition: opacity 0.3s ease;
+                                color: white;
+                                text-align: center;
+                            }
+                            .upload-preview-container:hover .reupload-overlay {
+                                opacity: 1;
+                            }
+                            .reupload-icon {
+                                width: 40px;
+                                height: 40px;
+                                margin-bottom: 8px;
+                            }
+                            .reupload-icon svg {
+                                width: 100%;
+                                height: 100%;
+                                stroke: white;
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                    
+                    // 点击图片可以重新上传
+                    uploadContainer.onclick = function() {
+                        document.getElementById('ktpInput').click();
+                    };
+                    
+                    // 更新身份证要求说明
+                    updateIDCardLabels();
+                    
+                    // 如果已经完成了人脸验证，但更换了身份证，需要重新进行人脸比对
+                    if (selfieUploaded && selfieImageData) {
+                        faceMatchSuccess = false;
+                        selfieUploaded = false;
+                        
+                        // 清除自拍照显示
+                        const selfieUpload = document.getElementById('selfieUpload');
+                        selfieUpload.classList.remove('has-image');
+                        selfieUpload.innerHTML = `
+                            <div class="upload-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <p class="upload-text" data-i18n="startCamera">Click to start camera</p>
+                        `;
+                        
+                        // 更新错误提示
+                        document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                        document.getElementById('selfieError').classList.add('show');
+                    }
+                    
+                    // 清除错误信息
+                    document.getElementById('ktpError').classList.remove('show');
+                    
+                    checkDocumentCompletion();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // 添加处理手持身份证照片上传的函数
+        function handleHoldingKTPUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpUploadError;
+                document.getElementById('holdingKtpError').classList.add('show');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpUploadError;
+                document.getElementById('holdingKtpError').classList.add('show');
+                return;
+            }
+            
+            const img = new Image();
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                img.onload = function() {
+                    if (img.width < 600 || img.height < 400) {
+                        document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingKtpSizeError;
+                        document.getElementById('holdingKtpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 创建canvas用于图像分析
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0, img.width, img.height);
+                    
+                    // 使用canvas进行简单的图像分析
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    // 检查是否有人脸和身份证
+                    let detectionScore = 0;
+                    let totalScore = 3; // 总分
+                    
+                    // 1. 通过肤色检测人脸区域 (1分)
+                    let skinColorPixels = 0;
+                    let totalPixels = canvas.width * canvas.height;
+                    
+                    for (let i = 0; i < data.length; i += 16) { // 采样，提高性能
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        
+                        // 简单的肤色检测 (适用于多种肤色)
+                        // 基于RGB比例的肤色检测
+                        if (
+                            r > 60 && g > 40 && b > 20 && // 确保不是太暗
+                            r > g && r > b && // 红色分量通常最高
+                            Math.abs(r - g) > 15 && // 红绿差异
+                            r - b > 15 && // 红蓝差异
+                            g - b > 0 // 绿色通常大于蓝色
+                        ) {
+                            skinColorPixels++;
+                        }
+                    }
+                    
+                    // 如果有足够的肤色像素，可能是有人脸的图像
+                    if (skinColorPixels / (totalPixels / 16) > 0.05) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 2. 检测矩形边缘 (可能是身份证) (1分)
+                    // 使用简化的边缘检测来寻找直线
+                    let horizontalEdges = 0;
+                    let verticalEdges = 0;
+                    let edgeSampleCount = 0;
+                    
+                    // 水平边缘检测
+                    for (let y = 20; y < canvas.height - 20; y += 20) { // 每20像素采样一次
+                        for (let x = 1; x < canvas.width - 1; x += 5) { // 沿X轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxAbove = ((y - 1) * canvas.width + x) * 4;
+                            const idxBelow = ((y + 1) * canvas.width + x) * 4;
+                            
+                            // 计算垂直梯度
+                            const gradientY = Math.abs(data[idxAbove] - data[idxBelow]) + 
+                                             Math.abs(data[idxAbove + 1] - data[idxBelow + 1]) + 
+                                             Math.abs(data[idxAbove + 2] - data[idxBelow + 2]);
+                            
+                            if (gradientY > 100) { // 梯度阈值
+                                horizontalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 垂直边缘检测
+                    for (let x = 20; x < canvas.width - 20; x += 20) { // 每20像素采样一次
+                        for (let y = 1; y < canvas.height - 1; y += 5) { // 沿Y轴采样
+                            const idx = (y * canvas.width + x) * 4;
+                            const idxLeft = (y * canvas.width + (x - 1)) * 4;
+                            const idxRight = (y * canvas.width + (x + 1)) * 4;
+                            
+                            // 计算水平梯度
+                            const gradientX = Math.abs(data[idxLeft] - data[idxRight]) + 
+                                             Math.abs(data[idxLeft + 1] - data[idxRight + 1]) + 
+                                             Math.abs(data[idxLeft + 2] - data[idxRight + 2]);
+                            
+                            if (gradientX > 100) { // 梯度阈值
+                                verticalEdges++;
+                            }
+                            edgeSampleCount++;
+                        }
+                    }
+                    
+                    // 如果水平和垂直边缘比例超过一定阈值，可能包含矩形物体
+                    if (horizontalEdges > edgeSampleCount * 0.05 && verticalEdges > edgeSampleCount * 0.05) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 3. 检测手部区域 (1分)
+                    // 手部区域通常有更多的肤色区域，且形状更复杂
+                    let handRegionPixels = 0;
+                    
+                    // 我们假设图像下半部分更可能包含手部
+                    for (let y = canvas.height / 2; y < canvas.height; y++) {
+                        for (let x = 0; x < canvas.width; x += 4) { // 采样，提高性能
+                            const idx = (y * canvas.width + x) * 4;
+                            const r = data[idx];
+                            const g = data[idx + 1];
+                            const b = data[idx + 2];
+                            
+                            // 与上面相同的肤色检测
+                            if (
+                                r > 60 && g > 40 && b > 20 && 
+                                r > g && r > b && 
+                                Math.abs(r - g) > 15 && 
+                                r - b > 15 && 
+                                g - b > 0
+                            ) {
+                                handRegionPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 如果下半部分有更多的肤色像素，可能是手持图像
+                    if (handRegionPixels / ((canvas.width * canvas.height / 2) / 4) > 0.08) {
+                        detectionScore += 1;
+                    }
+                    
+                    // 评分百分比
+                    const scorePercentage = (detectionScore / totalScore) * 100;
+                    
+                    // 如果分数低于阈值，显示错误
+                    if (scorePercentage < 50) {
+                        document.getElementById('holdingKtpError').textContent = translations[currentLang].holdingIdError;
+                        document.getElementById('holdingKtpError').classList.add('show');
+                        return;
+                    }
+                    
+                    // 验证通过，设置为已上传
+                    holdingKtpUploaded = true;
+                    
+                    // 更新UI - 修改此部分以支持点击重新上传
+                    const uploadContainer = document.getElementById('holdingKtpUpload');
+                    uploadContainer.classList.add('has-image');
+                    
+                    // 创建一个包含预览图和提示的容器
+                    uploadContainer.innerHTML = `
+                        <div class="upload-preview-container">
+                            <img src="${e.target.result}" class="upload-preview" alt="Holding KTP">
+                            <div class="reupload-overlay">
+                                <div class="reupload-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <span data-i18n="clickToReupload">${translations[currentLang].clickToReupload || '点击重新上传'}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 点击图片可以重新上传
+                    uploadContainer.onclick = function() {
+                        document.getElementById('holdingKtpInput').click();
+                    };
+                    
+                    // 清除错误信息
+                    document.getElementById('holdingKtpError').classList.remove('show');
+                    
+                    checkDocumentCompletion();
+                };
+                img.src = e.target.result;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.style.display = 'block'; // 确保视频元素可见
+                
+                // 隐藏占位符，显示相机容器
+                document.getElementById('cameraPlaceholder').style.display = 'none';
+                document.getElementById('selfieUpload').style.display = 'none';
+                document.getElementById('cameraContainer').style.display = 'block';
+                document.getElementById('captureBtn').style.display = 'block'; // 显示拍摄按钮
+                
+                // 启动视频流播放
+                video.play().catch(err => {
+                    console.error('视频播放失败:', err);
+                });
+                
+                // Start face detection
+                detectFace();
+            } catch (err) {
+                console.error('Camera access denied:', err);
+                alert('Camera access is required for face verification');
+            }
+        }
+
+        // Simple face detection simulation
+        function detectFace() {
+            if (!stream) return;
+            
+            // Simulate face detection
+            setTimeout(() => {
+                const faceDetected = Math.random() > 0.3; // 70% chance of detecting face
+                const status = document.getElementById('faceStatus');
+                
+                if (faceDetected) {
+                    status.textContent = translations[currentLang].faceDetected;
+                    status.style.background = 'rgba(72, 187, 120, 0.9)';
+                } else {
+                    status.textContent = translations[currentLang].faceNotDetected;
+                    status.style.background = 'rgba(229, 62, 62, 0.9)';
+                }
+                
+                // Continue detection
+                if (stream) {
+                    setTimeout(() => detectFace(), 2000);
+                }
+            }, 1000);
+        }
+
+        // Capture photo
+        function capturePhoto() {
+            if (!ktpImageData) {
+                // 如果没有上传身份证，无法进行比对
+                document.getElementById('selfieError').textContent = translations[currentLang].uploadIdFirst;
+                document.getElementById('selfieError').classList.add('show');
+                return;
+            }
+            
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            
+            // 获取自拍照数据
+            selfieImageData = canvas.toDataURL();
+            
+            // 停止相机
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // 更新UI，显示正在比对中
+            document.getElementById('cameraContainer').style.display = 'none';
+            document.getElementById('captureBtn').style.display = 'none';
+            
+            // 检查selfieUpload元素是否存在，不存在则创建
+            let selfieUpload = document.getElementById('selfieUpload');
+            if (!selfieUpload) {
+                selfieUpload = document.createElement('div');
+                selfieUpload.id = 'selfieUpload';
+                selfieUpload.className = 'upload-container';
+                document.getElementById('faceVerificationGroup').insertBefore(
+                    selfieUpload, 
+                    document.getElementById('captureBtn')
+                );
+            }
+            
+            selfieUpload.style.display = 'block';
+            selfieUpload.classList.add('has-image');
+            selfieUpload.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div class="upload-preview" style="position: relative; margin-bottom: 20px;">
+                        <img src="${selfieImageData}" style="width: 100%; border-radius: 8px;" alt="Selfie">
+                        <div id="verifyingOverlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+                            background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+                            color: white; border-radius: 8px;">
+                            <div>
+                                <div style="text-align: center; margin-bottom: 10px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" 
+                                        style="animation: spin 2s linear infinite;">
+                                        <path fill="none" stroke="white" stroke-width="2" 
+                                            d="M12,2 A10,10 0 1,1 12,22 A10,10 0 1,1 12,2 M12,5 L12,12 L16,16" />
+                                    </svg>
+                                </div>
+                                <div data-i18n="verifyingFace">${translations[currentLang].verifyingFace}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            
+            // 模拟人脸比对过程（在实际应用中，这应该调用面部识别API）
+            setTimeout(() => {
+                compareFaceWithIDCard();
+            }, 2000);
+        }
+        
+        // 添加人脸比对函数
+        function compareFaceWithIDCard() {
+            // 这是一个增强版的人脸比对功能
+            // 在实际应用中，应该使用专业的面部识别API进行比对
+            
+            // 如果没有身份证图像，无法比对
+            if (!ktpImageData) {
+                document.getElementById('selfieError').textContent = translations[currentLang].uploadIdFirst;
+                document.getElementById('selfieError').classList.add('show');
+                return;
+            }
+            
+            // 创建canvas用于分析自拍照和身份证照
+            const selfieImg = new Image();
+            const idCardImg = new Image();
+            
+            // 加载自拍照
+            selfieImg.onload = function() {
+                // 加载身份证照
+                idCardImg.onload = function() {
+                    // 创建两个canvas，用于分析两张图片
+                    const selfieCanvas = document.createElement('canvas');
+                    const idCardCanvas = document.createElement('canvas');
+                    const selfieCtx = selfieCanvas.getContext('2d');
+                    const idCardCtx = idCardCanvas.getContext('2d');
+                    
+                    // 设置canvas尺寸
+                    selfieCanvas.width = selfieImg.width;
+                    selfieCanvas.height = selfieImg.height;
+                    idCardCanvas.width = idCardImg.width;
+                    idCardCanvas.height = idCardImg.height;
+                    
+                    // 绘制图像
+                    selfieCtx.drawImage(selfieImg, 0, 0, selfieImg.width, selfieImg.height);
+                    idCardCtx.drawImage(idCardImg, 0, 0, idCardImg.width, idCardImg.height);
+                    
+                    // 获取图像数据
+                    const selfieData = selfieCtx.getImageData(0, 0, selfieCanvas.width, selfieCanvas.height).data;
+                    const idCardData = idCardCtx.getImageData(0, 0, idCardCanvas.width, idCardCanvas.height).data;
+                    
+                    // 使用简单的图像分析方法进行人脸比对
+                    // 1. 肤色分布比较
+                    // 2. 主要特征区域亮度分布比较
+                    
+                    // 由于这是一个模拟，我们会计算一个相似度分数
+                    let similarityScore = 0;
+                    const maxScore = 5;
+                    
+                    // 1. 检测自拍照中的人脸区域
+                    let selfieSkintonePixels = 0;
+                    let selfieTotalPixels = 0;
+                    
+                    // 假设人脸在图像的中心区域
+                    const centerX = selfieCanvas.width / 2;
+                    const centerY = selfieCanvas.height / 2;
+                    const faceRadius = Math.min(selfieCanvas.width, selfieCanvas.height) * 0.3;
+                    
+                    for (let y = 0; y < selfieCanvas.height; y += 4) {
+                        for (let x = 0; x < selfieCanvas.width; x += 4) {
+                            // 检查像素是否在假定的人脸区域内
+                            const distanceFromCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                            if (distanceFromCenter <= faceRadius) {
+                                const idx = (y * selfieCanvas.width + x) * 4;
+                                const r = selfieData[idx];
+                                const g = selfieData[idx + 1];
+                                const b = selfieData[idx + 2];
+                                
+                                // 检测肤色
+                                if (
+                                    r > 60 && g > 40 && b > 20 && 
+                                    r > g && r > b && 
+                                    Math.abs(r - g) > 15 && 
+                                    r - b > 15 && 
+                                    g - b > 0
+                                ) {
+                                    selfieSkintonePixels++;
+                                }
+                                selfieTotalPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 2. 检测身份证照片中的人脸区域
+                    // 身份证照片中，人脸通常在左上角或右上角部分
+                    let idCardSkintonePixels = 0;
+                    let idCardTotalPixels = 0;
+                    
+                    // 根据不同国家的身份证设置不同的人脸区域
+                    let faceRegion = {x: 0, y: 0, width: 0, height: 0};
+                    
+                    if (currentCountry === 'id') { // 印尼KTP
+                        // 印尼KTP人脸通常在左上角
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.4)
+                        };
+                    } else if (currentCountry === 'my') { // 马来西亚MyKad
+                        // MyKad人脸在右侧
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.7), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'th') { // 泰国身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'ph') { // 菲律宾身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    } else if (currentCountry === 'vn') { // 越南身份证
+                        faceRegion = {
+                            x: Math.floor(idCardCanvas.width * 0.05), 
+                            y: Math.floor(idCardCanvas.height * 0.2), 
+                            width: Math.floor(idCardCanvas.width * 0.25), 
+                            height: Math.floor(idCardCanvas.height * 0.5)
+                        };
+                    }
+                    
+                    for (let y = faceRegion.y; y < faceRegion.y + faceRegion.height; y += 2) {
+                        for (let x = faceRegion.x; x < faceRegion.x + faceRegion.width; x += 2) {
+                            if (x >= 0 && x < idCardCanvas.width && y >= 0 && y < idCardCanvas.height) {
+                                const idx = (y * idCardCanvas.width + x) * 4;
+                                const r = idCardData[idx];
+                                const g = idCardData[idx + 1];
+                                const b = idCardData[idx + 2];
+                                
+                                // 检测肤色
+                                if (
+                                    r > 60 && g > 40 && b > 20 && 
+                                    r > g && r > b && 
+                                    Math.abs(r - g) > 15 && 
+                                    r - b > 15 && 
+                                    g - b > 0
+                                ) {
+                                    idCardSkintonePixels++;
+                                }
+                                idCardTotalPixels++;
+                            }
+                        }
+                    }
+                    
+                    // 3. 计算肤色比例相似度 (2分)
+                    const selfieSkinRatio = selfieSkintonePixels / selfieTotalPixels;
+                    const idCardSkinRatio = idCardSkintonePixels / idCardTotalPixels;
+                    
+                    // 如果比例相近，加分
+                    if (Math.abs(selfieSkinRatio - idCardSkinRatio) < 0.15) {
+                        similarityScore += 2;
+                    } else if (Math.abs(selfieSkinRatio - idCardSkinRatio) < 0.25) {
+                        similarityScore += 1;
+                    }
+                    
+                    // 4. 颜色直方图比较 (3分)
+                    // 创建简化的颜色直方图
+                    const selfieHist = createColorHistogram(selfieData, selfieCanvas.width, selfieCanvas.height);
+                    const idCardHist = createColorHistogram(idCardData, idCardCanvas.width, idCardCanvas.height, faceRegion);
+                    
+                    // 计算直方图相似度
+                    const histSimilarity = compareHistograms(selfieHist, idCardHist);
+                    
+                    // 根据相似度加分
+                    if (histSimilarity > 0.7) {
+                        similarityScore += 3;
+                    } else if (histSimilarity > 0.5) {
+                        similarityScore += 2;
+                    } else if (histSimilarity > 0.3) {
+                        similarityScore += 1;
+                    }
+                    
+                    // 计算最终相似度百分比
+                    const matchPercentage = (similarityScore / maxScore) * 100;
+                    
+                    const selfieUpload = document.getElementById('selfieUpload');
+                    const verifyingOverlay = document.getElementById('verifyingOverlay');
+                    
+                    if (verifyingOverlay) {
+                        verifyingOverlay.remove();
+                    }
+                    
+                    // 根据相似度决定是否匹配成功
+                    // 提高阈值以减少误匹配率
+                    const isMatch = matchPercentage >= 60;
+                    
+                    if (isMatch) {
+                        // 匹配成功
+                        document.getElementById('selfieError').classList.remove('show');
+                        selfieUpload.innerHTML = `
+                            <div style="text-align: center;">
+                                <img src="${selfieImageData}" class="upload-preview" alt="Selfie">
+                                <div style="margin-top: 10px; padding: 8px 16px; background: #48bb78; color: white; 
+                                    border-radius: 20px; display: inline-block;">
+                                    <span style="margin-right: 5px;">✓</span>
+                                    <span data-i18n="faceMatchSuccess">${translations[currentLang].faceMatchSuccess}</span>
+                                </div>
+                                <div style="margin-top: 15px;">
+                                    <button class="btn-secondary" id="retakeBtn" style="width: 100%;" onclick="retakePhoto()">
+                                        <span data-i18n="retakePhoto">${translations[currentLang].retakePhoto}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        selfieUploaded = true;
+                        faceMatchSuccess = true;
+                    } else {
+                        // 匹配失败
+                        selfieUpload.innerHTML = `
+                            <div style="text-align: center;">
+                                <img src="${selfieImageData}" class="upload-preview" style="border: 2px solid #e53e3e;" alt="Selfie">
+                                <div style="margin-top: 15px;">
+                                    <button class="btn-primary" id="retakeBtn" style="background: #e53e3e; width: 100%;" onclick="retakePhoto()">
+                                        <span data-i18n="retakePhoto">${translations[currentLang].retakePhoto}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                        document.getElementById('selfieError').classList.add('show');
+                        
+                        selfieUploaded = false;
+                        faceMatchSuccess = false;
+                    }
+                    
+                    checkDocumentCompletion();
+                };
+                
+                idCardImg.src = ktpImageData;
+            };
+            
+            selfieImg.src = selfieImageData;
+        }
+
+        // 创建颜色直方图的辅助函数
+        function createColorHistogram(imageData, width, height, region = null) {
+            // 创建一个简化的颜色直方图
+            // 我们使用5x5x5的颜色空间分区来简化计算
+            const bins = 5;
+            const histogram = new Array(bins * bins * bins).fill(0);
+            
+            // 确定要分析的区域
+            let startX = 0;
+            let startY = 0;
+            let endX = width;
+            let endY = height;
+            
+            if (region) {
+                startX = region.x;
+                startY = region.y;
+                endX = region.x + region.width;
+                endY = region.y + region.height;
+            }
+            
+            // 确保区域不超出图像边界
+            startX = Math.max(0, startX);
+            startY = Math.max(0, startY);
+            endX = Math.min(width, endX);
+            endY = Math.min(height, endY);
+            
+            // 采样像素计算直方图
+            let pixelCount = 0;
+            for (let y = startY; y < endY; y += 4) {
+                for (let x = startX; x < endX; x += 4) {
+                    const idx = (y * width + x) * 4;
+                    const r = imageData[idx];
+                    const g = imageData[idx + 1];
+                    const b = imageData[idx + 2];
+                    
+                    // 将RGB值映射到直方图的bin索引
+                    const rBin = Math.floor(r / 256 * bins);
+                    const gBin = Math.floor(g / 256 * bins);
+                    const bBin = Math.floor(b / 256 * bins);
+                    
+                    // 计算一维索引
+                    const index = (rBin * bins * bins) + (gBin * bins) + bBin;
+                    histogram[index]++;
+                    pixelCount++;
+                }
+            }
+            
+            // 归一化直方图
+            if (pixelCount > 0) {
+                for (let i = 0; i < histogram.length; i++) {
+                    histogram[i] /= pixelCount;
+                }
+            }
+            
+            return histogram;
+        }
+
+        // 比较两个直方图的相似度
+        function compareHistograms(hist1, hist2) {
+            if (hist1.length !== hist2.length) {
+                return 0;
+            }
+            
+            // 使用巴氏距离(Bhattacharyya distance)计算相似度
+            let similarity = 0;
+            for (let i = 0; i < hist1.length; i++) {
+                similarity += Math.sqrt(hist1[i] * hist2[i]);
+            }
+            
+            return similarity;
+        }
+
+        // 修改验证文档函数，考虑设备类型
+        function validateDocuments() {
+            if (isDesktop) {
+                // 桌面设备只需验证身份证和手持身份证
+                if (ktpUploaded && holdingKtpUploaded) {
+                    goToStep(3);
+                }
+            } else {
+                // 移动设备需要验证所有文档，包括人脸
+                if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
+                    goToStep(3);
+                } else if (!faceMatchSuccess && selfieUploaded) {
+                    document.getElementById('selfieError').textContent = translations[currentLang].faceMismatch;
+                    document.getElementById('selfieError').classList.add('show');
+                }
+            }
+        }
+        
+        // 修改检查文档完成函数，考虑设备类型
+        function checkDocumentCompletion() {
+            if (isDesktop) {
+                // 桌面设备只检查身份证和手持身份证
+                if (ktpUploaded && holdingKtpUploaded) {
+                    document.getElementById('documentsNext').disabled = false;
+                } else {
+                    document.getElementById('documentsNext').disabled = true;
+                }
+            } else {
+                // 移动设备检查所有文档
+                if (ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess) {
+                    document.getElementById('documentsNext').disabled = false;
+                } else {
+                    document.getElementById('documentsNext').disabled = true;
+                }
+            }
+        }
+
+        // Format amount with separator
+        function formatAmount(event) {
+            const input = event.target;
+            const value = input.value.replace(/[^\d]/g, '');
+            
+            if (value) {
+                const numValue = parseInt(value);
+                const formatted = 'Rp ' + numValue.toLocaleString('id-ID');
+                
+                // 更新输入框显示金额，根据可见性设置
+                const amountDisplay = document.getElementById('amountDisplay');
+                
+                // 清空原有内容
+                amountDisplay.innerHTML = '';
+                
+                // 根据可见性显示金额或者点
+                if (amountVisible) {
+                    amountDisplay.textContent = formatted;
+                } else {
+                    amountDisplay.textContent = '••••••••';
+                }
+                
+                // 获取当前货币格式化的最小和最大金额
+                const formattedMinAmount = "Rp " + minLoanAmount.toLocaleString('id-ID');
+                const formattedMaxAmount = "Rp " + maxLoanAmount.toLocaleString('id-ID');
+                
+                // Validate amount - 使用占位符替换
+                if (numValue < minLoanAmount) {
+                    document.getElementById('amountError').textContent = translations[currentLang].amountTooLow.replace("{minAmount}", formattedMinAmount);
+                    document.getElementById('amountError').classList.add('show');
+                } else if (numValue > maxLoanAmount) {
+                    document.getElementById('amountError').textContent = translations[currentLang].amountTooHigh.replace("{maxAmount}", formattedMaxAmount);
+                    document.getElementById('amountError').classList.add('show');
+                } else {
+                    document.getElementById('amountError').classList.remove('show');
+                }
+            } else {
+                // 当没有输入值时，显示问号动画
+                const amountDisplay = document.getElementById('amountDisplay');
+                amountDisplay.innerHTML = `
+                    <div class="question-marks">
+                        <span>?</span>
+                        <span>?</span>
+                        <span>?</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Toggle amount visibility
+        function toggleAmountVisibility() {
+            amountVisible = !amountVisible;
+            document.getElementById('visibilityIcon').textContent = amountVisible ? '👁️' : '👁️‍🗨️';
+            
+            const amountInput = document.getElementById('amount');
+            if (amountInput.value) {
+                formatAmount({ target: amountInput });
+            }
+        }
+
+        // Generate device fingerprint
+        async function generateDeviceFingerprint() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('device fingerprint', 2, 2);
+            
+            const canvasData = canvas.toDataURL();
+            const fingerprint = {
+                canvas: canvasData,
+                userAgent: navigator.userAgent,
+                screenResolution: screen.width + 'x' + screen.height,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language
+            };
+            
+            const encoder = new TextEncoder();
+            const data = encoder.encode(JSON.stringify(fingerprint));
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Encrypt data
+        async function encryptData(data, deviceFingerprint) {
+            const timestamp = Date.now().toString();
+            const keyMaterial = deviceFingerprint + timestamp;
+            
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(keyMaterial);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', keyData);
+            
+            const key = await crypto.subtle.importKey(
+                'raw',
+                hashBuffer,
+                { name: 'AES-GCM' },
+                false,
+                ['encrypt']
+            );
+            
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const encodedData = encoder.encode(JSON.stringify(data));
+            
+            const encryptedData = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv: iv },
+                key,
+                encodedData
+            );
+            
+            return {
+                encrypted: Array.from(new Uint8Array(encryptedData)),
+                iv: Array.from(iv),
+                timestamp: timestamp
+            };
+        }
+
+        // Submit application
+        async function submitApplication() {
+            try {
+                // 显示上传中状态
+                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
+                const originalText = submitButton.textContent;
+                submitButton.disabled = true;
+                submitButton.textContent = '上传中...';
+                
+                // 上传文件到服务器
+                const uploadResult = await uploadFilesToServer();
+                console.log('文件上传结果:', uploadResult);
+                
+                // 生成设备指纹
+                const deviceFingerprint = await generateDeviceFingerprint();
+                
+                // 准备申请数据
+                const applicationData = {
+                    phoneNumber: phoneNumber,
+                    amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
+                    timestamp: Date.now(),
+                    country: currentCountry,
+                    documents: uploadResult.fileIds || {
+                        ktp: 'uploaded',
+                        holdingKtp: 'uploaded',
+                        selfie: isDesktop ? 'not_required' : 'uploaded'
+                    }
+                };
+                
+                // 发送申请数据到服务器
+                const saveResponse = await fetch('http://localhost:3000/saveApplication', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(applicationData)
+                });
+                
+                if (!saveResponse.ok) {
+                    const errorData = await saveResponse.json();
+                    throw new Error(errorData.error || '保存申请数据失败');
+                }
+                
+                const saveResult = await saveResponse.json();
+                console.log('申请数据保存结果:', saveResult);
+                
+                // 恢复按钮状态
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+                
+                // 隐藏确认弹窗
+                document.getElementById('finalConfirmationModal').style.display = 'none';
+                
+                // 显示成功弹窗（而不是原来的页面）
+                document.getElementById('successModal').style.display = 'flex';
+                
+                // 添加提交成功的动画效果
+                animateSuccessModal();
+                
+                // 记录成功状态到localStorage
+                localStorage.setItem('applicationSubmitted', 'true');
+                localStorage.setItem('submittedAmount', loanAmountCNY.current.toString());
+                
+            } catch (error) {
+                console.error('提交申请失败：', error);
+                
+                // 显示更友好的错误提示
+                showErrorModal(error.message || '提交申请失败，请稍后重试');
+                
+                // 恢复按钮状态
+                const submitButton = document.querySelector('#finalConfirmationModal .modal-button');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = translations[currentLang].finalSubmit || 'Submit Application';
+                }
+            }
+        }
+        
+        // 关闭成功弹窗
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            
+            // 返回到第一步，重置表单
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById('section1').classList.add('active');
+            currentStep = 1;
+            updateProgressBar();
+            
+            // 清空表单字段
+            document.getElementById('phone').value = '';
+            
+            // 重新生成随机金额
+            generateRandomLoanAmount();
+        }
+        
+        // 成功弹窗动画效果
+        function animateSuccessModal() {
+            // 添加动画效果
+            const modal = document.querySelector('.success-modal');
+            const icon = modal.querySelector('.success-icon');
+            
+            // 让图标有弹跳效果
+            icon.style.animation = 'bounce 0.6s ease-in-out';
+            
+            // 创建扩散效果
+            const ripple = document.createElement('div');
+            ripple.className = 'success-ripple';
+            icon.appendChild(ripple);
+            
+            // 创建庆祝粒子效果
+            createSuccessConfetti();
+        }
+        
+        // 创建成功提交时的庆祝彩纸效果
+        function createSuccessConfetti() {
+            const confettiContainer = document.querySelector('.success-modal');
+            const colors = ['#48bb78', '#667eea', '#f6e05e', '#ed64a6', '#5a67d8'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'success-confetti';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = Math.random() * 30 + '%';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // 改进文件上传函数 - 增加错误处理和脱机支持
+        async function uploadFilesToServer() {
+            try {
+                // 检查是否有所有必要的图片数据
+                if (!ktpImageData) {
+                    throw new Error('缺少必要的身份证文件数据');
+                }
+                
+                // 准备FormData对象
+                const formData = new FormData();
+                
+                // 添加国家和用户信息，用于服务器创建正确的文件夹结构
+                formData.append('country', currentCountry);
+                formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
+                formData.append('deviceType', isDesktop ? 'desktop' : 'mobile');
+                
+                // 转换base64图像数据为Blob对象
+                const ktpBlob = await base64ToBlob(ktpImageData);
+                
+                // 获取手持身份证照片数据
+                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
+                
+                // 添加所有文件到FormData - 使用'files'作为字段名
+                formData.append('files', ktpBlob, 'id_card.jpg');
+                
+                if (holdingKtpFile) {
+                    formData.append('files', holdingKtpFile, 'holding_id.jpg');
+                }
+                
+                // 仅当是移动设备并且有自拍照时，才添加自拍照数据
+                if (!isDesktop && selfieImageData) {
+                    const selfieBlob = await base64ToBlob(selfieImageData);
+                    formData.append('files', selfieBlob, 'face_verification.jpg');
+                }
+                
+                // 连接到本地服务器
+                const serverUrl = 'http://localhost:3000/upload';
+                
+                // 发送到服务器
+                const response = await fetch(serverUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || '上传文件失败');
+                }
+                
+                return await response.json();
+                
+                /* 注释掉模拟成功的响应
+                // 返回模拟成功的响应
+                return {
+                    success: true,
+                    message: "文件上传成功",
+                    fileIds: {
+                        idCard: "sim_" + Date.now() + "_id",
+                        holdingId: "sim_" + Date.now() + "_holding",
+                        selfie: !isDesktop && selfieImageData ? "sim_" + Date.now() + "_selfie" : null
+                    }
+                };
+                */
+            } catch (error) {
+                console.error('文件上传失败:', error);
+                throw new Error('文件准备过程中出错，请检查网络连接或稍后重试');
+            }
+        }
+        
+        // 辅助函数：将Base64转换为Blob对象
+        function base64ToBlob(base64Data) {
+            // 提取MIME类型和Base64数据
+            const parts = base64Data.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            
+            // 转换为Uint8Array
+            const uInt8Array = new Uint8Array(rawLength);
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            
+            // 创建Blob
+            return new Blob([uInt8Array], { type: contentType });
+        }
+
+        // Initialize on load
+        window.onload = init;
+
+        // 添加辅助函数：更新身份证标签
+        function updateIDCardLabels() {
+            const config = countryConfig[currentCountry];
+            const countryNames = {
+                en: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Philippines', vn: 'Vietnam' },
+                zh: { id: '印度尼西亚', my: '马来西亚', th: '泰国', ph: '菲律宾', vn: '越南' },
+                id: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                ms: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Filipina', vn: 'Vietnam' },
+                tl: { id: 'Indonesia', my: 'Malaysia', th: 'Thailand', ph: 'Pilipinas', vn: 'Vietnam' },
+                th: { id: 'อินโดนีเซีย', my: 'มาเลเซีย', th: 'ไทย', ph: 'ฟิลิปปินส์', vn: 'เวียดนาม' },
+                vi: { id: 'Indonesia', my: 'Malaysia', th: 'Thái Lan', ph: 'Philippines', vn: 'Việt Nam' }
+            };
+            
+            // 更新文本中的身份证名称
+            document.querySelectorAll('[data-i18n="ktpLabel"]').forEach(el => {
+                const translatedText = translations[currentLang].idCardLabel + ` (${config.idCardName})`;
+                el.textContent = translatedText;
+            });
+            
+            document.querySelectorAll('[data-i18n="holdingKtpLabel"]').forEach(el => {
+                const translatedText = translations[currentLang].holdingKtpLabel + ` (${config.idCardName})`;
+                el.textContent = translatedText;
+            });
+            
+            // 更新身份证上传要求提示
+            const requirements = translations[currentLang].idCardRequirements
+                .replace('{idCardName}', config.idCardName)
+                .replace('{country}', countryNames[currentLang][currentCountry]);
+                
+            const uploadText = document.createElement('div');
+            uploadText.style.marginTop = '10px';
+            uploadText.style.fontSize = '12px';
+            uploadText.style.color = '#666';
+            uploadText.textContent = requirements;
+            
+            // 添加到上传容器下方
+            const ktpUpload = document.getElementById('ktpUpload');
+            const existingRequirements = ktpUpload.querySelector('.id-requirements');
+            if (existingRequirements) {
+                existingRequirements.textContent = requirements;
+            } else {
+                const newRequirements = document.createElement('div');
+                newRequirements.className = 'id-requirements';
+                newRequirements.textContent = requirements;
+                newRequirements.style.marginTop = '10px';
+                newRequirements.style.fontSize = '12px';
+                newRequirements.style.color = '#666';
+                ktpUpload.appendChild(newRequirements);
+            }
+        }
+
+        // 检测设备类型
+        function detectDeviceType() {
+            // 检查是否是移动设备
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const mobileRegex = /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i;
+            const mobileOrTabletRegex = /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i;
+        
+            // 强制设置为移动设备，以确保人脸识别功能始终可用
+            isDesktop = false;
+            
+            console.log("设备类型检测:", isDesktop ? "桌面设备" : "移动设备");
+            console.log("强制启用人脸识别功能");
+            
+            // 移动设备显示人脸验证部分
+            document.getElementById('faceVerificationGroup').style.display = 'block';
+        }
+
+        // 添加触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let currentFormSection = 1;
+        
+        function setupTouchEvents() {
+            const container = document.querySelector('.container');
+            
+            container.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+            }, {passive: true});
+            
+            container.addEventListener('touchend', e => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, {passive: true});
+        }
+        
+        function handleSwipe() {
+            const swipeThreshold = 100; // 最小滑动距离
+            
+            if (touchEndX - touchStartX > swipeThreshold) {
+                // 向右滑动 - 返回前一步
+                if (currentStep > 1) {
+                    goToStep(currentStep - 1);
+                }
+            } else if (touchStartX - touchEndX > swipeThreshold) {
+                // 向左滑动 - 前进下一步
+                // 这里不直接前进，而是检查当前页面验证是否通过
+                if (currentStep === 1 && isPhoneValid()) {
+                    validatePhone();
+                } else if (currentStep === 2 && isDocumentsValid()) {
+                    validateDocuments();
+                } else if (currentStep === 3 && isAmountValid()) {
+                    submitApplication();
+                }
+            }
+        }
+        
+        // 辅助验证函数
+        function isPhoneValid() {
+            const phone = document.getElementById('phone').value;
+            const config = countryConfig[currentCountry];
+            const fullPhone = config.phoneCode + phone.replace(/\s/g, '');
+            return config.phoneRegex.test(fullPhone);
+        }
+        
+        function isDocumentsValid() {
+            // 无论设备类型，都需要验证所有文档
+            return ktpUploaded && holdingKtpUploaded && selfieUploaded && faceMatchSuccess;
+        }
+        
+        function isAmountValid() {
+            const amount = document.getElementById('amount').value.replace(/[^\d]/g, '');
+            const numAmount = parseInt(amount);
+            return numAmount >= 1128163 && numAmount <= 215000000 && numAmount % 1000 === 0;
+        }
+        
+        // 滚动指示器
+        function setupScrollIndicator() {
+            // 创建滚动指示器
+            const indicator = document.createElement('div');
+            indicator.className = 'scroll-indicator';
+            indicator.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 13l5 5 5-5"></path>
+                    <path d="M7 6l5 5 5-5"></path>
+                </svg>
+            `;
+            document.body.appendChild(indicator);
+            
+            let lastScrollTop = 0;
+            let isScrolling;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 显示指示器
+                indicator.classList.add('visible');
+                
+                // 根据滚动方向更新指示器方向
+                if (scrollTop > lastScrollTop) {
+                    // 向下滚动
+                    indicator.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 13l5 5 5-5"></path>
+                        </svg>
+                    `;
+                } else {
+                    // 向上滚动
+                    indicator.innerHTML = `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 11l5-5 5 5"></path>
+                        </svg>
+                    `;
+                }
+                
+                lastScrollTop = scrollTop;
+                
+                // 清除之前的定时器
+                clearTimeout(isScrolling);
+                
+                // 设置定时器
+                isScrolling = setTimeout(function() {
+                    indicator.classList.remove('visible');
+                }, 1500);
+            }, {passive: true});
+        }
+        
+        // 优化表单元素焦点
+        function setupFormFocus() {
+            const inputs = document.querySelectorAll('input[type="tel"], input[type="text"]');
+            inputs.forEach(input => {
+                // 添加适当的填充以增加可点击区域
+                input.style.padding = '15px 16px';
+                
+                // 处理聚焦事件
+                input.addEventListener('focus', function() {
+                    // 在移动设备上，确保滚动到输入框
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                            this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    }
+                });
+            });
+        }
+        
+        // 初始化时添加触摸事件支持
+        let originalInit = init;
+        init = function() {
+            originalInit();
+            
+            // 添加触摸事件支持
+            if ('ontouchstart' in window) {
+                setupTouchEvents();
+                setupScrollIndicator();
+                setupFormFocus();
+                
+                // 添加移动端图片预览增强
+                setupBetterImagePreview();
+            }
+        };
+        
+        // 改进的图片预览功能
+        function setupBetterImagePreview() {
+            const previewableImages = document.querySelectorAll('.upload-preview');
+            previewableImages.forEach(img => {
+                img.addEventListener('click', function() {
+                    // 创建全屏预览
+                    const overlay = document.createElement('div');
+                    overlay.style.position = 'fixed';
+                    overlay.style.top = '0';
+                    overlay.style.left = '0';
+                    overlay.style.right = '0';
+                    overlay.style.bottom = '0';
+                    overlay.style.backgroundColor = 'rgba(0,0,0,0.9)';
+                    overlay.style.display = 'flex';
+                    overlay.style.alignItems = 'center';
+                    overlay.style.justifyContent = 'center';
+                    overlay.style.zIndex = '2000';
+                    overlay.style.touchAction = 'none';
+                    
+                    const clone = this.cloneNode();
+                    clone.style.maxWidth = '90%';
+                    clone.style.maxHeight = '90%';
+                    clone.style.objectFit = 'contain';
+                    
+                    overlay.appendChild(clone);
+                    document.body.appendChild(overlay);
+                    
+                    // 点击关闭
+                    overlay.addEventListener('click', () => {
+                        document.body.removeChild(overlay);
+                    });
+                    
+                    // 支持缩放手势
+                    let currentScale = 1;
+                    let initialDistance = 0;
+                    
+                    overlay.addEventListener('touchstart', e => {
+                        if (e.touches.length === 2) {
+                            initialDistance = Math.hypot(
+                                e.touches[0].pageX - e.touches[1].pageX,
+                                e.touches[0].pageY - e.touches[1].pageY
+                            );
+                        }
+                    }, {passive: true});
+                    
+                    overlay.addEventListener('touchmove', e => {
+                        if (e.touches.length === 2) {
+                            const distance = Math.hypot(
+                                e.touches[0].pageX - e.touches[1].pageX,
+                                e.touches[0].pageY - e.touches[1].pageY
+                            );
+                            
+                            if (initialDistance > 0) {
+                                const newScale = currentScale * (distance / initialDistance);
+                                currentScale = Math.max(1, Math.min(3, newScale)); // 限制缩放范围
+                                clone.style.transform = `scale(${currentScale})`;
+                                initialDistance = distance;
+                            }
+                        }
+                    }, {passive: true});
+                });
+            });
+        }
+        
+        // 优化文本框输入体验
+        function enhanceMobileInput() {
+            const inputs = document.querySelectorAll('input');
+            
+            inputs.forEach(input => {
+                // 自动将数字键盘设置为电话输入
+                if (input.type === 'tel') {
+                    input.setAttribute('inputmode', 'tel');
+                }
+                
+                // 金额输入优化
+                if (input.id === 'amount') {
+                    input.setAttribute('inputmode', 'numeric');
+                    input.setAttribute('pattern', '[0-9]*');
+                }
+            });
+        }
+        
+        // 页面加载时调用
+        window.addEventListener('DOMContentLoaded', function() {
+            enhanceMobileInput();
+        });
+
+        // 添加显示最终确认弹窗的函数
+        function showFinalConfirmation() {
+            // 显示弹窗
+            document.getElementById('finalConfirmationModal').style.display = 'flex';
+            
+            // 设置翻倍后的金额
+            const doubledAmount = loanAmountCNY.current * 2;
+            loanAmountCNY.current = doubledAmount; // 更新当前金额为翻倍后的金额
+            
+            // 更新最终弹窗中的金额显示
+            document.getElementById('doubledAmountFinal').textContent = getFormattedAmount(currentLang);
+        }
+        
+        // 添加错误提示弹窗函数
+        function showErrorModal(errorMessage) {
+            // 创建错误弹窗
+            const errorModal = document.createElement('div');
+            errorModal.className = 'modal-overlay';
+            errorModal.style.display = 'flex';
+            errorModal.id = 'errorModal';
+            
+            errorModal.innerHTML = `
+                <div class="modal-content error-modal">
+                    <div class="error-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h2 class="modal-title" data-i18n="errorTitle">${translations[currentLang].errorTitle || '提交失败'}</h2>
+                    <p class="modal-message error-message">
+                        ${errorMessage}
+                    </p>
+                    <button class="modal-button error-button" onclick="closeErrorModal()">${translations[currentLang].tryAgain || '重试'}</button>
+                </div>
+            `;
+            
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .error-modal {
+                    max-width: 400px;
+                }
+                .error-icon {
+                    width: 60px;
+                    height: 60px;
+                    margin: 0 auto 20px;
+                    background: #fed7d7;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .error-icon svg {
+                    width: 30px;
+                    height: 30px;
+                    stroke: #e53e3e;
+                }
+                .error-message {
+                    color: #4a5568;
+                    margin-bottom: 20px;
+                }
+                .error-button {
+                    background: #e53e3e;
+                }
+                .error-button:hover {
+                    background: #c53030;
+                }
+            `;
+            
+            document.head.appendChild(style);
+            document.body.appendChild(errorModal);
+        }
+
+        // 关闭错误弹窗
+        function closeErrorModal() {
+            const errorModal = document.getElementById('errorModal');
+            if (errorModal) {
+                errorModal.style.display = 'none';
+                document.body.removeChild(errorModal);
+            }
+        }
+
+        // 为翻译添加错误相关文本
+        translations.en.errorTitle = "Submission Failed";
+        translations.en.networkError = "Network connection error. Please check your connection and try again.";
+        translations.en.tryAgain = "Try Again";
+
+        translations.zh.errorTitle = "提交失败";
+        translations.zh.networkError = "网络连接错误。请检查您的连接并重试。";
+        translations.zh.tryAgain = "重试";
+
+        translations.id.errorTitle = "Pengiriman Gagal";
+        translations.id.networkError = "Kesalahan koneksi jaringan. Silakan periksa koneksi Anda dan coba lagi.";
+        translations.id.tryAgain = "Coba Lagi";
+
+        translations.ms.errorTitle = "Penghantaran Gagal";
+        translations.ms.networkError = "Ralat sambungan rangkaian. Sila periksa sambungan anda dan cuba lagi.";
+        translations.ms.tryAgain = "Cuba Lagi";
+
+        translations.tl.errorTitle = "Nabigong Pagsusumite";
+        translations.tl.networkError = "Error sa koneksyon ng network. Mangyaring suriin ang iyong koneksyon at subukang muli.";
+        translations.tl.tryAgain = "Subukang Muli";
+
+        translations.th.errorTitle = "การส่งล้มเหลว";
+        translations.th.networkError = "ข้อผิดพลาดในการเชื่อมต่อเครือข่าย โปรดตรวจสอบการเชื่อมต่อของคุณและลองอีกครั้ง";
+        translations.th.tryAgain = "ลองอีกครั้ง";
+
+        translations.vi.errorTitle = "Gửi Thất Bại";
+        translations.vi.networkError = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn và thử lại.";
+        translations.vi.tryAgain = "Thử Lại";
+
+        // 页面加载时隐藏拍摄按钮
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('captureBtn').style.display = 'none';
+        });
+
+        // 添加重新拍照功能
+        function retakePhoto() {
+            // 隐藏自拍照预览
+            document.getElementById('selfieUpload').style.display = 'none';
+            
+            // 重新启动相机
+            startCamera();
+        }
+
+        // 修改compareFaceWithIDCard函数结尾部分，添加重新拍照按钮
+        function compareFaceWithIDCard() {
+            // ... existing code ...
+            
+            // 在函数末尾添加以下代码
+            // 显示比对结果
+            const selfieUpload = document.getElementById('selfieUpload');
+            const verifyingOverlay = document.getElementById('verifyingOverlay');
+            
+            if (verifyingOverlay) {
+                verifyingOverlay.remove();
+            }
+            
+            // 检查是否存在重拍按钮，不存在则创建
+            let retakeBtn = document.getElementById('retakeBtn');
+            if (!retakeBtn) {
+                retakeBtn = document.createElement('button');
+                retakeBtn.id = 'retakeBtn';
+                retakeBtn.className = 'btn-secondary';
+                retakeBtn.style.width = '100%';
+                retakeBtn.style.marginTop = '10px';
+                retakeBtn.onclick = retakePhoto;
+                retakeBtn.setAttribute('data-i18n', 'retakePhoto');
+                retakeBtn.textContent = translations[currentLang].retakePhoto || 'Retake Photo';
+                
+                // 将按钮添加到faceVerificationGroup
+                document.getElementById('faceVerificationGroup').insertBefore(
+                    retakeBtn,
+                    document.getElementById('selfieError')
+                );
+            }
+            
+            // 显示重拍按钮
+            retakeBtn.style.display = 'block';
+            
+            // 更新验证状态
+            selfieUploaded = true;
+            validateDocuments();
+        }
+    </script>
+</body>
+</html>
