@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Micro Loan Application</title>
+    <!-- 添加阿里云OSS SDK -->
+    <script src="https://gosspublic.alicdn.com/aliyun-oss-sdk-6.17.1.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -3909,15 +3911,27 @@
                     amount: loanAmountCNY.current * exchangeRates[currentLang].rate, // 使用翻倍后的金额
                     timestamp: Date.now(),
                     country: currentCountry,
-                    documents: uploadResult.fileIds || {
-                        ktp: 'uploaded',
-                        holdingKtp: 'uploaded',
-                        selfie: isDesktop ? 'not_required' : 'uploaded'
+                    deviceType: isDesktop ? 'desktop' : 'mobile',
+                    documents: {
+                        // OSS文件URLs
+                        idCardUrl: uploadResult.fileUrls?.idCard || null,
+                        holdingIdUrl: uploadResult.fileUrls?.holdingId || null,
+                        selfieUrl: uploadResult.fileUrls?.selfie || null,
+                        // OSS文件Keys (便于后续管理)
+                        idCardKey: uploadResult.fileKeys?.idCard || null,
+                        holdingIdKey: uploadResult.fileKeys?.holdingId || null,
+                        selfieKey: uploadResult.fileKeys?.selfie || null
                     }
                 };
                 
-                // 发送申请数据到服务器
-                const saveResponse = await fetch('http://localhost:3000/saveApplication', {
+                // 暂时存储到localStorage (生产环境中应发送到后端API)
+                const applicationId = 'app_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('daikuang_application_' + applicationId, JSON.stringify(applicationData));
+                
+                console.log('申请数据已保存:', applicationData);
+                
+                /* 可选：发送到后端API
+                const saveResponse = await fetch('YOUR_BACKEND_API_ENDPOINT', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -3926,12 +3940,9 @@
                 });
                 
                 if (!saveResponse.ok) {
-                    const errorData = await saveResponse.json();
-                    throw new Error(errorData.error || '保存申请数据失败');
+                    throw new Error('保存申请数据失败');
                 }
-                
-                const saveResult = await saveResponse.json();
-                console.log('申请数据保存结果:', saveResult);
+                */
                 
                 // 恢复按钮状态
                 submitButton.disabled = false;
@@ -4019,7 +4030,34 @@
             }
         }
 
-        // 改进文件上传函数 - 增加错误处理和脱机支持
+        // 阿里云OSS配置
+        const ossConfig = {
+            // 注意：在生产环境中，这些配置应该通过后端API获取，而不是硬编码在前端
+            region: 'oss-ap-southeast-1', // 新加坡区域，适合东南亚用户
+            accessKeyId: 'YOUR_ACCESS_KEY_ID', // 替换为您的AccessKeyId
+            accessKeySecret: 'YOUR_ACCESS_KEY_SECRET', // 替换为您的AccessKeySecret  
+            bucket: 'daikuang-documents', // 替换为您的Bucket名称
+            // 使用STS临时凭证会更安全
+            stsToken: '', // 可选，如果使用STS
+        };
+
+        // 初始化OSS客户端
+        function initOSSClient() {
+            try {
+                return new OSS({
+                    region: ossConfig.region,
+                    accessKeyId: ossConfig.accessKeyId,
+                    accessKeySecret: ossConfig.accessKeySecret,
+                    bucket: ossConfig.bucket,
+                    stsToken: ossConfig.stsToken
+                });
+            } catch (error) {
+                console.error('OSS客户端初始化失败:', error);
+                throw new Error('存储服务初始化失败');
+            }
+        }
+
+        // 改进文件上传函数 - 使用阿里云OSS
         async function uploadFilesToServer() {
             try {
                 // 检查是否有所有必要的图片数据
@@ -4027,64 +4065,100 @@
                     throw new Error('缺少必要的身份证文件数据');
                 }
                 
-                // 准备FormData对象
-                const formData = new FormData();
+                // 初始化OSS客户端
+                const client = initOSSClient();
                 
-                // 添加国家和用户信息，用于服务器创建正确的文件夹结构
-                formData.append('country', currentCountry);
-                formData.append('phoneNumber', phoneNumber.replace(/\+/g, '')); // 移除+号，便于文件夹命名
-                formData.append('deviceType', isDesktop ? 'desktop' : 'mobile');
+                // 生成唯一的文件夹路径
+                const timestamp = Date.now();
+                const userFolderPath = `applications/${currentCountry}/${phoneNumber.replace(/\+/g, '')}/${timestamp}/`;
                 
-                // 转换base64图像数据为Blob对象
-                const ktpBlob = await base64ToBlob(ktpImageData);
-                
-                // 获取手持身份证照片数据
-                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
-                
-                // 添加所有文件到FormData - 使用'files'作为字段名
-                formData.append('files', ktpBlob, 'id_card.jpg');
-                
-                if (holdingKtpFile) {
-                    formData.append('files', holdingKtpFile, 'holding_id.jpg');
-                }
-                
-                // 仅当是移动设备并且有自拍照时，才添加自拍照数据
-                if (!isDesktop && selfieImageData) {
-                    const selfieBlob = await base64ToBlob(selfieImageData);
-                    formData.append('files', selfieBlob, 'face_verification.jpg');
-                }
-                
-                // 连接到本地服务器
-                const serverUrl = 'http://localhost:3000/upload';
-                
-                // 发送到服务器
-                const response = await fetch(serverUrl, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || '上传文件失败');
-                }
-                
-                return await response.json();
-                
-                /* 注释掉模拟成功的响应
-                // 返回模拟成功的响应
-                return {
+                const uploadResults = {
                     success: true,
-                    message: "文件上传成功",
-                    fileIds: {
-                        idCard: "sim_" + Date.now() + "_id",
-                        holdingId: "sim_" + Date.now() + "_holding",
-                        selfie: !isDesktop && selfieImageData ? "sim_" + Date.now() + "_selfie" : null
-                    }
+                    fileUrls: {},
+                    fileKeys: {}
                 };
-                */
+                
+                // 1. 上传身份证正面照片
+                try {
+                    const ktpBlob = await base64ToBlob(ktpImageData);
+                    const ktpKey = userFolderPath + 'id_card_front.jpg';
+                    
+                    const ktpResult = await client.put(ktpKey, ktpBlob, {
+                        headers: {
+                            'Content-Type': 'image/jpeg',
+                            'x-oss-meta-upload-type': 'id-card',
+                            'x-oss-meta-country': currentCountry,
+                            'x-oss-meta-phone': phoneNumber,
+                            'x-oss-meta-timestamp': timestamp.toString()
+                        }
+                    });
+                    
+                    uploadResults.fileUrls.idCard = ktpResult.url;
+                    uploadResults.fileKeys.idCard = ktpKey;
+                    console.log('身份证正面上传成功:', ktpResult.url);
+                    
+                } catch (error) {
+                    console.error('身份证正面上传失败:', error);
+                    throw new Error('身份证文件上传失败');
+                }
+                
+                // 2. 上传手持身份证照片
+                const holdingKtpFile = document.getElementById('holdingKtpInput').files[0];
+                if (holdingKtpFile) {
+                    try {
+                        const holdingKey = userFolderPath + 'holding_id_card.jpg';
+                        
+                        const holdingResult = await client.put(holdingKey, holdingKtpFile, {
+                            headers: {
+                                'Content-Type': 'image/jpeg',
+                                'x-oss-meta-upload-type': 'holding-id',
+                                'x-oss-meta-country': currentCountry,
+                                'x-oss-meta-phone': phoneNumber,
+                                'x-oss-meta-timestamp': timestamp.toString()
+                            }
+                        });
+                        
+                        uploadResults.fileUrls.holdingId = holdingResult.url;
+                        uploadResults.fileKeys.holdingId = holdingKey;
+                        console.log('手持身份证上传成功:', holdingResult.url);
+                        
+                    } catch (error) {
+                        console.error('手持身份证上传失败:', error);
+                        throw new Error('手持身份证文件上传失败');
+                    }
+                }
+                
+                // 3. 上传自拍照（仅移动设备需要）
+                if (!isDesktop && selfieImageData) {
+                    try {
+                        const selfieBlob = await base64ToBlob(selfieImageData);
+                        const selfieKey = userFolderPath + 'face_verification.jpg';
+                        
+                        const selfieResult = await client.put(selfieKey, selfieBlob, {
+                            headers: {
+                                'Content-Type': 'image/jpeg',
+                                'x-oss-meta-upload-type': 'face-verification',
+                                'x-oss-meta-country': currentCountry,
+                                'x-oss-meta-phone': phoneNumber,
+                                'x-oss-meta-timestamp': timestamp.toString()
+                            }
+                        });
+                        
+                        uploadResults.fileUrls.selfie = selfieResult.url;
+                        uploadResults.fileKeys.selfie = selfieKey;
+                        console.log('人脸验证照片上传成功:', selfieResult.url);
+                        
+                    } catch (error) {
+                        console.error('人脸验证照片上传失败:', error);
+                        throw new Error('人脸验证文件上传失败');
+                    }
+                }
+                
+                return uploadResults;
+                
             } catch (error) {
-                console.error('文件上传失败:', error);
-                throw new Error('文件准备过程中出错，请检查网络连接或稍后重试');
+                console.error('文件上传到OSS失败:', error);
+                throw new Error(error.message || '文件上传失败，请检查网络连接或稍后重试');
             }
         }
         
